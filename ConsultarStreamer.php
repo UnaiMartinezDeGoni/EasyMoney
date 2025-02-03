@@ -1,9 +1,16 @@
 <?php
 $client_id = "ljl45mpyrvonphg5euw7ieiy6c1mc5";
-$access_token = "ffxt352y68b5zr62e4yu0wv9lvpllo";  // Usa un token reciente
-$user_id = "44322889"; // ID de usuario de Twitch
+$access_token = "ffxt352y68b5zr62e4yu0wv9lvpllo"; // Usa un token reciente
 
-$url = "https://api.twitch.tv/helix/users?id=" . $user_id;
+// Obtener el ID del usuario desde la URL con GET
+$user_id = isset($_GET['id']) ? $_GET['id'] : null;
+
+if (!$user_id) {
+    echo json_encode(["error" => "No user ID provided"]);
+    exit;
+}
+
+$url = "https://api.twitch.tv/helix/users?id=" . urlencode($user_id);
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
@@ -21,4 +28,3 @@ $data = json_decode($response, true);
 // Imprimir el JSON formateado
 header('Content-Type: application/json');
 echo json_encode($data, JSON_PRETTY_PRINT);
-?>

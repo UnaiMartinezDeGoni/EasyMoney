@@ -11,7 +11,7 @@ switch ($path) {
         if ($method === 'GET') {
             require_once 'src/consultarStreamer.php';
         } else {
-            http_response_code(405);  // Metodo no permitido
+            http_response_code(404);  // Metodo no permitido
             echo json_encode(["error" => "Método HTTP no permitido."]);
         }
         break;
@@ -20,7 +20,16 @@ switch ($path) {
         if ($method === 'GET') {
             require_once 'src/consultarStreams.php';
         } else {
-            http_response_code(405);
+            http_response_code(404);
+            echo json_encode(["error" => "Método HTTP no permitido."]);
+        }
+        break;
+    
+    case 'enriched':  // Caso de uso: Consultar streams en vivo
+        if ($method === 'GET') {
+            require_once 'src/consultarEnriquecidos.php';
+        } else {
+            http_response_code(404);
             echo json_encode(["error" => "Método HTTP no permitido."]);
         }
         break;

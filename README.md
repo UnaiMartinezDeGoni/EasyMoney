@@ -14,5 +14,5 @@ Para acceder al primer caso se debe acceder a la url https://easymoneyvyv.es/ind
 
 Para acceder al segundo caso se debe acceder a la url https://easymoneyvyv.es/index.php/analytics/streams
 
-Para acceder al tercera caso se debe acceder a la url https://easymoneyvyv.es/index.php/analytics/streams/enriched?limit="NUMERO DE STREAMS A MONSTRAR"
+Para acceder al tercera caso se debe acceder a la url https://easymoneyvyv.es/index.php/analytics/streams/enriched?limit="NUMERO DE STREAMS A MOSTRAR"
 

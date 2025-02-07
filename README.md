@@ -22,7 +22,7 @@ Para esta opción, disponemos de 3 enlaces posibles, uno para cada caso de uso p
 
     -Para acceder al tercera caso debe acceder a la url https://easymoneyvyv.es/index.php/analytics/streams/enriched?limit="NUMERO DE STREAMS A MOSTRAR", donde debe sustituir el campo "NUMERO DE STREAMS A MOSTRAR" por el límite de streams que desea consultar.
 
-**2.Ejecutarlo en un servidor local o "localhost": **
+**2.Ejecutarlo en un servidor local o "localhost":**
 
 Para esta opción, el proceso a seguir es el siguiente:
 

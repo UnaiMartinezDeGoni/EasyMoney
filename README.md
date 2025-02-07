@@ -12,7 +12,7 @@ El proyecto tiene la siguiente estructura de archivos:
         
 Para ejecutar cualquiera de los casos hay 2 opciones:
 
-**1.Ejecutarlo en nuestra pagina web(introducir en tu navegador el enlace descrita a continuación): https://easymoneyvyv.es/index.php/analytics
+**1.Ejecutarlo en nuestra pagina web(introducir en tu navegador el enlace descrita a continuación): https://easymoneyvyv.es/index.php/analytics**
 
 Para esta opción, disponemos de 3 enlaces posibles, uno para cada caso de uso propuesto:
 
@@ -22,9 +22,10 @@ Para esta opción, disponemos de 3 enlaces posibles, uno para cada caso de uso p
 
     -Para acceder al tercera caso debe acceder a la url https://easymoneyvyv.es/index.php/analytics/streams/enriched?limit="NUMERO DE STREAMS A MOSTRAR", donde debe sustituir el campo "NUMERO DE STREAMS A MOSTRAR" por el límite de streams que desea consultar.
 
-**2.Ejecutarlo en un servidor local o "localhost": 
+**2.Ejecutarlo en un servidor local o "localhost": **
 
 Para esta opción, el proceso a seguir es el siguiente:
+
     1-Descargar los archivos en su PC.
     2-Instalar XAMPP, disponible en este enlace: https://www.apachefriends.org/es/index.html
     3-Una vez instalado, ir al directorio donde se encuentre la carpeta XAMPP (por defecto en Windows: C), dentro de XAMPP dirigirse a la carpeta htdocs y pegar los archivos descargados dentro de esta.

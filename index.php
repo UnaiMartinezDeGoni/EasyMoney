@@ -1,20 +1,17 @@
 <?php
 header('Content-Type: application/json');
+require_once 'auth.php'; // Agrega la autenticación
 
-//Obtener la ruta solicitada y limpiar correctamente la URL
 $path = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
-
-$path = substr($path, strlen('index.php/analytics/'));
-
-
-//Obtener metodo de la solicitud
+$path = substr($path, strlen('analytics/'));
 $metodo = $_SERVER['REQUEST_METHOD'];
 
-//Detectar el recurso en la URL
+// Aplicar autenticación a todos los endpoints
+verificarAutenticacion();
+
 switch ($path) {
-    case 'user':  //Caso de uso: Consultar info del streamer
+    case 'user':
         if ($metodo === 'GET') {
-            //"Llamar" a el archivo consultarStreamer
             require_once 'src/consultarStreamer.php';
         } else {
             http_response_code(404);
@@ -22,10 +19,8 @@ switch ($path) {
         }
         break;
 
-    case 'streams':  //Caso de uso: Consultar streams en vivo
+    case 'streams':
         if ($metodo === 'GET') {
-          
-            //"Llamar" a el archivo consultarStreams
             require_once 'src/consultarStreams.php';
         } else {
             http_response_code(404);
@@ -33,19 +28,18 @@ switch ($path) {
         }
         break;
 
-    case 'streams/enriched':  //Caso de uso: Consultar streams enriquecidos
+    case 'topsofthetops':  
         if ($metodo === 'GET') {
-            //"Llamar" a el archivo consultarEnriquecidos
-            require_once 'src/consultarEnriquecidos.php';
+            require_once 'src/topsofthetops.php';
         } else {
             http_response_code(404);
             echo json_encode(["error" => "Método HTTP no permitido."]);
         }
         break;
 
-    default: //Información por defecto
+    default:
         http_response_code(404);
-        echo json_encode(["error" => "Recurso no encontrado o endpoint no valido."],JSON_PRETTY_PRINT);
+        echo json_encode(["error" => "Recurso no encontrado o endpoint no válido."], JSON_PRETTY_PRINT);
         break;
 }
 ?>

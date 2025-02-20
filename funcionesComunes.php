@@ -102,23 +102,24 @@ function generateApiKey() {
     return bin2hex(random_bytes(8)); // Genera una clave de 16 caracteres
 }
 
+// Función para generar un token para la API que sea único
 function generateApiToken() {
-    $token = bin2hex(random_bytes(8)); // Genera un token aleatorio de 64 caracteres
-    $expires_at = date('Y-m-d H:i:s', strtotime('+3 days')); // Fecha de expiración en 3 días
+    $token = bin2hex(random_bytes(8)); // Genera un token aleatorio de 16 caracteres
+    $expires_at = date('Y-m-d H:i:s', strtotime('+3 days')); // Se le asigna una fecha de expiración de 3 días
 
     return [
         'token' => $token,
         'expires_at' => $expires_at
-    ];
+    ];  // Devuelve el token
 }
 
 function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
-    global $client_id; // Acceder a la variable global
+    global $client_id; // Accede a la variable global
 
     $last_update_limit = date('Y-m-d H:i:s', time() - $since);
     $topGames = [];
 
-    // Verificar si hay datos recientes en caché en la base de datos
+    // Verificar si hay datos recientes en la caché de la base de datos
     $stmt = $mysqli->prepare("SELECT * FROM top_videos WHERE updated_at > ? ORDER BY most_viewed_views DESC LIMIT 120");
     $stmt->bind_param("s", $last_update_limit);
     $stmt->execute();
@@ -129,14 +130,14 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
     }
     $stmt->close();
 
-    // Si hay datos recientes en la base de datos, devolverlos
+    // Si hay datos recientes en la base de datos, devuelve esos mismos datos
     if (count($topGames) >= 3) {
         return $topGames;
     }
 
-    // Obtener los 3 juegos más populares
+    // Se conecta a la API de Twitch para obtener los 3 juegos más populares
     $top_games_url = "https://api.twitch.tv/helix/games/top?first=3";
-    $ch = curl_init();
+    $ch = curl_init();  //Prepara la peticion de tipo POST para la API
     curl_setopt($ch, CURLOPT_URL, $top_games_url);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -146,11 +147,12 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
     $games_response = json_decode(curl_exec($ch), true);
     curl_close($ch);
 
+    // Para recorrer y tratar todos los datos obtenidos
     foreach ($games_response['data'] as $game) {
         $game_id = $game['id'];
         $game_name = $game['name'];
 
-        // Verificar si `game_id` ya está en `top_games`
+        // Verificar si 'game_id' ya está en 'top_games'
         $stmt = $mysqli->prepare("SELECT game_id FROM top_games WHERE game_id = ?");
         $stmt->bind_param("s", $game_id);
         $stmt->execute();
@@ -159,7 +161,7 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
         $stmt->close();
 
         if (!$existingGame) {
-            // Insertar el juego en `top_games` si no existe
+            // Insertar el juego en 'top_games' si no existe
             $stmt = $mysqli->prepare("INSERT INTO top_games (game_id, game_name, updated_at) VALUES (?, ?, NOW())");
             $stmt->bind_param("ss", $game_id, $game_name);
             if (!$stmt->execute()) {
@@ -168,9 +170,9 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
             $stmt->close();
         }
 
-        // Obtener los 40 videos más vistos del juego
+        // Se conecta a la API de Twitch para obtener los 40 videos más vistos del juego
         $videos_url = "https://api.twitch.tv/helix/videos?game_id=$game_id&sort=views&first=40";
-        $ch = curl_init();
+        $ch = curl_init();  //Prepara la peticion de tipo POST para la API
         curl_setopt($ch, CURLOPT_URL, $videos_url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
@@ -180,10 +182,13 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
         $videos_response = json_decode(curl_exec($ch), true);
         curl_close($ch);
 
+        // Estructura que utilizaremos para organizar los videos agrupados por streamer
         $videos_by_user = [];
 
         foreach ($videos_response['data'] as $video) {
             $user = $video['user_name'];
+
+            // En el caso de que el usuario no esté en la lista, lo inicializamos con sus datos
             if (!isset($videos_by_user[$user])) {
                 $videos_by_user[$user] = [
                     'game_id' => $game_id,
@@ -197,9 +202,12 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
                     'most_viewed_created_at' => $video['created_at']
                 ];
             }
+
+            // Sumamos 1 al contador de videos del usuario y agrupamos el total de visitas
             $videos_by_user[$user]['total_videos']++;
             $videos_by_user[$user]['total_views'] += $video['view_count'];
 
+            // En el caso de encontra un video con más visitas, actualizamos los datos del más visto
             if ($video['view_count'] > $videos_by_user[$user]['most_viewed_views']) {
                 $videos_by_user[$user]['most_viewed_title'] = $video['title'];
                 $videos_by_user[$user]['most_viewed_views'] = $video['view_count'];
@@ -208,6 +216,7 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
             }
         }
 
+        // Dependiendo del caso se insertaran o actualizaran los datos en la base de datos
         foreach ($videos_by_user as $video) {
             $stmt = $mysqli->prepare("INSERT INTO top_videos (game_id, user_name, total_videos, total_views, most_viewed_title, most_viewed_views, most_viewed_duration, most_viewed_created_at, updated_at) 
                                       VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW()) 
@@ -217,23 +226,25 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
                 return ["error" => "Error en la preparación de la consulta SQL"];
             }
 
+            // Aqui se asignan los valores a la consulta para insertarlos o actualizarlos si ya existen en la base
             $stmt->bind_param("ssiisissississ", 
                 $video['game_id'], $video['user_name'], $video['total_videos'], $video['total_views'], 
                 $video['most_viewed_title'], $video['most_viewed_views'], $video['most_viewed_duration'], $video['most_viewed_created_at'],
                 $video['total_videos'], $video['total_views'], $video['most_viewed_title'], $video['most_viewed_views'], 
                 $video['most_viewed_duration'], $video['most_viewed_created_at']);
 
+            // Se ejecuta la consulta comprobando que en su ejecuión no ocurra ningun error
             if (!$stmt->execute()) {
                 return ["error" => "Error al insertar en la base de datos", "detalle" => $stmt->error];
             }
 
-            $stmt->close();
+            $stmt->close(); // Se cierra la consulta con el fin de liberar memoria
+            // Guardamos la información en la lista de los mejores videos por juego
             $topGames[$video['game_id']][] = $video;
         }
     }
 
+    // Se devuelve la lista de los mejores videos organizados por juego
     return $topGames;
 }
-
-
 ?>

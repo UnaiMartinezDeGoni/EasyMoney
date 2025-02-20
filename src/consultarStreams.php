@@ -2,8 +2,12 @@
 require_once __DIR__ . '/../funcionesComunes.php'; //Para incluir el archivo de funciones comunes
 header('Content-Type: application/json');
 
+/*Si el suario proporciona un access token para la consulta a la API de Twitch tendra prioridad este token
+    pero en caso de no proporcionarse, por defecto se ejecuta la funcion que lo pide a Twitch implementada de 
+    funcionesComunes.php -> hemos reliazado esta implemetacion como una forma de mostrar el error 401*/
 $access_token = $_GET['access_token'] ?? obtenerTokenTwitch();
 
+// Obtiene la informacion de los streams mediante la funcion implementada de funcionesComunes.php
 $respuesta = getStreamsInfo($access_token);
 
 //Verificar si se encontraron streams

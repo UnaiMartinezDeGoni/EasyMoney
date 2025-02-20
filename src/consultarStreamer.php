@@ -5,8 +5,12 @@ header('Content-Type: application/json');
 //Captura el ID de usuario de Twitch, en caso de no introducirse asigna por defecto -1
 $streamer_id = $_GET['id'] ?? -1; 
 
+/*Si el suario proporciona un access token para la consulta a la API de Twitch tendra prioridad este token
+    pero en caso de no proporcionarse, por defecto se ejecuta la funcion que lo pide a Twitch implementada de 
+    funcionesComunes.php -> hemos reliazado esta implemetacion como una forma de mostrar el error 401*/
 $access_token = $_GET['access_token'] ?? obtenerTokenTwitch();
 
+// Obtiene la informacion de los streamers mediante la funcion implementada de funcionesComunes.php
 $respuesta = getStreamerInfo($streamer_id, $access_token);
 
 //Imprimir el JSON formateado y enviar codigos de respuesta

@@ -63,9 +63,9 @@ Para esta opción, disponemos de 4 enlaces posibles, uno para cada caso de uso p
 
     -Para acceder al tercera caso debe acceder a la url https://easymoneyvyv.es/analytics/streams/enriched?limit="NUMERO DE STREAMS A MOSTRAR", donde debe sustituir el campo "NUMERO DE STREAMS A MOSTRAR" por el límite de streams que desea consultar.
 
-    -Para acceder al tercera caso debe acceder a la url https://easymoneyvyv.es/analytics/streams/topOfTheTops. 
+    -Para acceder al tercera caso debe acceder a la url https://easymoneyvyv.es/analytics/streams/topsofthetops. 
     También existe la posibilidad de ejecutarlo con un parámetro "since" para forzar la actualización más reciente de Twitch.
-    La url es de este tipo: https://easymoneyvyv.es/analytics/streams/topOfTheTops?since="Numero que quieras".
+    La url es de este tipo: https://easymoneyvyv.es/analytics/streams/topsofthetops?since="Numero que quieras".
 
 **2.Ejecutarlo en un servidor local o "localhost":**
 
@@ -89,6 +89,6 @@ Una vez cumplimentado lo anterior, disponemos de estos 4 enlaces posibles, uno p
 
     -Para acceder al tercera caso debe acceder a la url https://localhost/analytics/streams/enriched?limit="NUMERO DE STREAMS A MOSTRAR", donde debe sustituir el campo "NUMERO DE STREAMS A MOSTRAR" por el límite de streams que desea consultar.
 
-    - -Para acceder al tercera caso debe acceder a la url https://localhost/analytics/streams/topOfTheTops. 
+    - -Para acceder al tercera caso debe acceder a la url https://localhost/analytics/streams/topsofthetops. 
     También existe la posibilidad de ejecutarlo con un parámetro "since" para forzar la actualización más reciente de Twitch.
     La url es de este tipo: https://easymoneyvyv.es/analytics/streams/topOfTheTops?since="Segundos que quieras".

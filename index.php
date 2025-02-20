@@ -7,10 +7,11 @@ $path = substr($path, strlen('analytics/'));
 $metodo = $_SERVER['REQUEST_METHOD'];
 
 // Aplicar autenticación a todos los endpoints
-verificarAutenticacion();
+
 
 switch ($path) {
     case 'user':
+    	verificarAutenticacion();
         if ($metodo === 'GET') {
             require_once 'src/consultarStreamer.php';
         } else {
@@ -20,6 +21,7 @@ switch ($path) {
         break;
 
     case 'streams':
+    	verificarAutenticacion();
         if ($metodo === 'GET') {
             require_once 'src/consultarStreams.php';
         } else {
@@ -28,9 +30,28 @@ switch ($path) {
         }
         break;
 
-    case 'topsofthetops':  
+    case 'topsofthetops':
+    	verificarAutenticacion();
         if ($metodo === 'GET') {
-            require_once 'src/topsofthetops.php';
+            require_once 'src/topOfTheTops.php';
+        } else {
+            http_response_code(404);
+            echo json_encode(["error" => "Método HTTP no permitido."]);
+        }
+        break;
+   case 'register':
+    	
+        if ($metodo === 'POST') {
+            require_once 'registerUser.php';
+        } else {
+            http_response_code(404);
+            echo json_encode(["error" => "Método HTTP no permitido."]);
+        }
+        break; 
+   case 'token':
+    	
+        if ($metodo === 'POST') {
+            require_once 'obtenerToken.php';
         } else {
             http_response_code(404);
             echo json_encode(["error" => "Método HTTP no permitido."]);

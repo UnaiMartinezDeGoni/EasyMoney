@@ -1,18 +1,22 @@
-# Activa el motor de reescritura
 RewriteEngine On
 
-# Reinyecta la cabecera Authorization en la variable de entorno para que PHP pueda leerla
+# Inyecta la cabecera Authorization en la variable de entorno para que PHP la pueda leer
 RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-# Establece la base de la reescritura; 
-# cámbiala o quítala según la carpeta donde tengas tus archivos
-RewriteBase /analytics/
-
-# Si la solicitud no coincide con un archivo o directorio existente,
-# redirígela a index.php/lo-que-sea
+# Si la URL solicitada es exactamente /register o /token (y no existen como archivo o directorio),
+# redirige internamente la solicitud a /analytics/index.php/<endpoint>
+RewriteCond %{REQUEST_URI} ^/(register|token)$ [NC]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php/$1 [L]
+RewriteRule ^(register|token)$ /analytics/index.php/$1 [QSA,L]
+
+# Si la URL comienza con /analytics/ (y no existe como archivo o directorio),
+# elimina el prefijo "analytics/" y redirige a /analytics/index.php/<lo-que-venga>
+RewriteCond %{REQUEST_URI} ^/analytics/ [NC]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^analytics/(.*)$ /analytics/index.php/$1 [QSA,L]
 
 # Pasa el header Authorization a la variable de entorno
 SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+

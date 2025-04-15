@@ -1,20 +1,44 @@
 <?php
+// Definir la cabecera JSON para las respuestas
 header('Content-Type: application/json');
-require_once 'auth.php'; // Agrega la funcion de autenticación
 
-//Obtener la ruta solicitada y limpiar correctamente la URL
-$path = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
-$path = substr($path, strlen('analytics/'));
+// Recopilar información de depuración
+$debugInfo = [
+    'REQUEST_URI'  => $_SERVER['REQUEST_URI'],
+    'PATH_INFO'    => isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : null,
+    'SCRIPT_NAME'  => $_SERVER['SCRIPT_NAME'],
+    'PHP_SELF'     => $_SERVER['PHP_SELF']
+];
 
-//Obtener metodo de la solicitud
+// Obtener la ruta solicitada: si la URL fue reescrita, normalmente estará en PATH_INFO; en caso contrario, se elimina el posible prefijo 'analytics/'
+if (isset($_SERVER['PATH_INFO']) && $_SERVER['PATH_INFO'] !== '/') {
+    $path = trim($_SERVER['PATH_INFO'], '/');
+} else {
+    $uri = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+    if (strpos($uri, 'analytics/') === 0) {
+        $path = substr($uri, strlen('analytics/'));
+    } else {
+        $path = $uri;
+    }
+}
+$debugInfo['computed_path'] = $path;
+
+// Si se pasa el parámetro debug (por ejemplo, https://tudominio.es/register?debug),
+// se imprime la información de depuración y se termina la ejecución
+if (isset($_GET['debug'])) {
+    echo json_encode(['debug' => $debugInfo], JSON_PRETTY_PRINT);
+    exit;
+}
+
+// Incluir el archivo de autenticación (asegúrate de que 'auth.php' existe y es correcto)
+require_once 'auth.php';
+
+// Procesar según la ruta solicitada
 $metodo = $_SERVER['REQUEST_METHOD'];
-
-// Aplicar autenticación a todos los casos de uso que son de metodo get
 switch ($path) {
-    case 'user':    //Caso de uso: Consultar info del streamer
+    case 'user': // Consultar info del streamer
         if ($metodo === 'GET') {
             verificarAutenticacion();
-            //"Llama" al archivo correspondiente de la carpeta src
             require_once 'src/consultarStreamer.php';
         } else {
             http_response_code(404);
@@ -22,10 +46,9 @@ switch ($path) {
         }
         break;
 
-    case 'streams': //Caso de uso: Consultar streams en vivo
+    case 'streams': // Consultar streams en vivo
         if ($metodo === 'GET') {
             verificarAutenticacion();
-            //"Llama" al archivo correspondiente de la carpeta src
             require_once 'src/consultarStreams.php';
         } else {
             http_response_code(404);
@@ -33,10 +56,9 @@ switch ($path) {
         }
         break;
 
-    case 'streams/enriched':  //Caso de uso: Consultar streams enriquecidos
+    case 'streams/enriched': // Consultar streams enriquecidos
         if ($metodo === 'GET') {
             verificarAutenticacion();
-            //"Llama" al archivo correspondiente de la carpeta src
             require_once 'src/consultarEnriquecidos.php';
         } else {
             http_response_code(404);
@@ -44,10 +66,9 @@ switch ($path) {
         }
         break;
 
-    case 'topsofthetops':   //Caso de uso: Información sobre los 40 videos más visualizados de cada uno de los tres juegos más populares en Twitch
+    case 'topsofthetops': // Información de los 40 videos más vistos por juego
         if ($metodo === 'GET') {
             verificarAutenticacion();
-            //"Llama" al archivo correspondiente de la carpeta src
             require_once 'src/topOfTheTops.php';
         } else {
             http_response_code(404);
@@ -55,19 +76,17 @@ switch ($path) {
         }
         break;
 
-   case 'register': //Caso de uso: Solicitar Api Key para el registro
+    case 'register': // Solicitar Api Key para el registro
         if ($metodo === 'POST') {
-            //"Llama" al archivo correspondiente de la carpeta src
             require_once 'src/registerUser.php';
         } else {
             http_response_code(404);
             echo json_encode(["error" => "Método HTTP no permitido."], JSON_PRETTY_PRINT);
         }
-        break; 
+        break;
 
-   case 'token':    //Caso de uso: Solicitar token de acceso a la api    
+    case 'token': // Solicitar token de acceso a la API
         if ($metodo === 'POST') {
-            //"Llama" al archivo correspondiente de la carpeta src
             require_once 'src/obtenerToken.php';
         } else {
             http_response_code(404);
@@ -75,9 +94,9 @@ switch ($path) {
         }
         break;
 
-    default:    //Información por defecto
+    default: // Ruta no reconocida o recurso inexistente
         http_response_code(404);
-        echo json_encode(["error" => "Recurso no encontrado o endpoint no valido."], JSON_PRETTY_PRINT);
+        echo json_encode(["error" => "Recurso no encontrado o endpoint no válido."], JSON_PRETTY_PRINT);
         break;
 }
 ?>

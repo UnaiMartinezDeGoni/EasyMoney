@@ -1,35 +1,38 @@
 <?php
-require_once __DIR__ . '/../funcionesComunes.php'; //Para incluir el archivo de funciones comunes
+require_once __DIR__ . '/../funcionesComunes.php';
 header('Content-Type: application/json');
 
-//Obtiene el parametro de limit del endpoint
-$limit = $_GET['limit'];
-
-/*Si el suario proporciona un access token para la consulta a la API de Twitch tendra prioridad este token
-    pero en caso de no proporcionarse, por defecto se ejecuta la funcion que lo pide a Twitch implementada de 
-    funcionesComunes.php -> hemos reliazado esta implemetacion como una forma de mostrar el error 401*/
+$limit = $_GET['limit'] ?? null;
 $access_token = $_GET['access_token'] ?? obtenerTokenTwitch();
 
-// Obtiene la informacion de los streams enriched mediante la funcion implementada de funcionesComunes.php
+//verifica si el token es válido
+if (!verificarToken($access_token)) {
+    http_response_code(401);
+    echo json_encode(["error" => "Unauthorized. Twitch access token is invalid or has expired"], JSON_PRETTY_PRINT);
+    exit;
+}
+
+//valida el parámetro 'limit'
+if (!is_numeric($limit) || $limit <= 0) {
+    http_response_code(400);
+    echo json_encode(["error" => "Invalid 'limit' parameter."], JSON_PRETTY_PRINT);
+    exit;
+}
+
 $respuesta = getStreamsInfo($access_token);
 
-if (!empty($respuesta['data']) && $limit > 0) {
-    //Ordenar los streams por viewer_count en orden descendente
+if (!empty($respuesta['data'])) {
     usort($respuesta['data'], function ($a, $b) {
         return $b['viewer_count'] - $a['viewer_count'];
     });
 
-    //Seleccionar los primeros N streams
     $top_streams = array_slice($respuesta['data'], 0, $limit);
-
     $enrichedStreams = [];
 
     foreach ($top_streams as $stream) {
-        // Obtener información del usuario
         $user_info = getStreamerInfo($stream['user_id'], $access_token);
         $user_data = $user_info['data'][0] ?? [];
 
-        // Construir datos enriquecidos
         $enrichedStreams[] = [
             "title" => $stream['title'],
             "user_name" => $stream['user_name'],
@@ -41,15 +44,8 @@ if (!empty($respuesta['data']) && $limit > 0) {
 
     http_response_code(200);
     echo json_encode($enrichedStreams, JSON_PRETTY_PRINT);
-} elseif($limit <= 0) {
-    http_response_code(400); 
-    echo json_encode(["error" => "Invalid 'limit' parameter."], JSON_PRETTY_PRINT);
-}elseif (!verificarToken($access_token)) {
-    http_response_code(401);
-    echo json_encode(["error" => "Unauthorized. Twitch access token is invalid or has expired"], JSON_PRETTY_PRINT);
 } else {
     http_response_code(500);
     echo json_encode(["error" => "Internal server error."], JSON_PRETTY_PRINT);
 }
 ?>
-

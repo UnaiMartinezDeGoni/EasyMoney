@@ -10,15 +10,15 @@ $data = json_decode(file_get_contents('php://input'), true);
 
 //Caso en el que no se mande el email
 if (!isset($data['email']) || empty($data['email'])) {
-    echo json_encode(["error" => "The email is mandatory"], JSON_PRETTY_PRINT);
     http_response_code(400);
+    echo json_encode(["error" => "The email is mandatory"], JSON_PRETTY_PRINT); 
     exit;
 }
 
 //Caso en el que no se mande la api_key
 if (!isset($data['api_key']) || empty($data['api_key'])) {
-    echo json_encode(["error" => "The api_key is mandatory"], JSON_PRETTY_PRINT);
     http_response_code(400);
+    echo json_encode(["error" => "The api_key is mandatory"], JSON_PRETTY_PRINT);
     exit;
 }
 
@@ -26,8 +26,8 @@ if (!isset($data['api_key']) || empty($data['api_key'])) {
 $email = filter_var($data['email'], FILTER_VALIDATE_EMAIL);
 $api_key = $data['api_key'];
 if (!$email) {
-    echo json_encode(["error" => "The email must be a valid email address"], JSON_PRETTY_PRINT);
     http_response_code(400);
+    echo json_encode(["error" => "The email must be a valid email address"], JSON_PRETTY_PRINT);
     exit;
 }
 
@@ -65,16 +65,18 @@ try {
         $stmt->bind_param("iss", $user['id'], $userToken['token'], $userToken['expires_at']);
         $stmt->execute();
         $stmt->close();
-
+      
+		
         echo json_encode(["token" => $userToken['token']], JSON_PRETTY_PRINT);
         http_response_code(200);
+        
     } else {    //En el caso de que el la API key sea unvalida
-        echo json_encode(["error" => "Unauthorized. API access token is invalid."], JSON_PRETTY_PRINT);
         http_response_code(401);
+        echo json_encode(["error" => "Unauthorized. API access token is invalid."], JSON_PRETTY_PRINT);
         exit;
     }
 } catch (Exception $e) {    //Caso en el que se detecte otro tipo de error
-    echo json_encode(["error" => "Internal server error."], JSON_PRETTY_PRINT);
     http_response_code(500);
+    echo json_encode(["error" => "Internal server error."], JSON_PRETTY_PRINT);
     exit;
 }

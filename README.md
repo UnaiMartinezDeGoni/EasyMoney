@@ -22,11 +22,11 @@ El proyecto tiene la siguiente estructura de archivos:
 
 Para ejecutar cualquiera de los casos hay 2 opciones:
 
-**1.Ejecutarlo en nuestra pagina web(introducir en tu navegador el enlace descrita a continuación): https://easymoneyvyv.es/analytics**
+**1.Ejecutarlo en nuestra pagina web(introducir en tu navegador el enlace descrita a continuación): https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics**
 
 Antes de acceder a los casos se debe registrar en primer lugar con un email, para hacerlo se debe hacer a traves del la web postman y de la siguiente forma:
 
-Se debe realizar una peticion de tipo POST a la url https://easymoneyvyv.es/analytics/register y en al apartado body se selecciona raw y se debe escribir con el siguiente formato el email para que sea válido:
+Se debe realizar una peticion de tipo POST a la url https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/register y en al apartado body se selecciona raw y se debe escribir con el siguiente formato el email para que sea válido:
 ```json
     {
         "email": "Email que quieres registrar"
@@ -38,7 +38,7 @@ La respuesta del servidor a la consulta sera de la forma:
         "api_key": "Tu api key generada"
     }
 ```
-Debes guardar la api key para a continuación obtener el token que te permita acceder a los casos de uso, para ello se debe realizar una petición de tipo POST a la url https://easymoneyvyv.es/analytics/token y en la sección body se selecciona raw y se debe escribir con el siguiente formato el email y la api key para que sea válido:
+Debes guardar la api key para a continuación obtener el token que te permita acceder a los casos de uso, para ello se debe realizar una petición de tipo POST a la url https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token y en la sección body se selecciona raw y se debe escribir con el siguiente formato el email y la api key para que sea válido:
 ```json
     {
         "email": "Email registrado",
@@ -51,21 +51,20 @@ La respuesta del servidor a la consulta sera de la forma:
         "token": "Tu token genererado"
     }
 ```
-Por ultimo para acceder a cualquier de los siguientes casos de uso en el postman, la peticion debe ser de tipo GET y se debe añadir en la sección header uno nuevo, en el apartado key debe ser de tipo "X-Auth-Token" y en value debes introducir "Bearer tokenGenerado" en caso de probarlo en nuestra pagina, si lo vas a utilizar en otro servidor puedes introducir tanto el anterior header como
-en key "Authorization" y en value "Bearer tokenGenerado".
+Por ultimo para acceder a cualquier de los siguientes casos de uso en el postman, la peticion debe ser de tipo GET y se debe añadir en la sección header uno nuevo, en el apartado key debe ser de tipo "Authorization" y en value debes introducir "Bearer tokenGenerado".
 
 
 Para esta opción, disponemos de 4 enlaces posibles, uno para cada caso de uso propuesto:
 
-    -Para acceder al primer caso se debe acceder a la url https://easymoneyvyv.es/analytics/user?id="ID DEL STREAMER", donde debe sustituir el campo "ID DEL STREAMER" por la ID de twitch del streamer que desea consultar. Para obtener una ID válida puede convertir el nombre de un streamer a una ID válida en el siguiente enlace: https://www.streamweasels.com/tools/convert-twitch-username-%20to-user-id/
+    -Para acceder al primer caso se debe acceder a la url https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/user?id="ID DEL STREAMER", donde debe sustituir el campo "ID DEL STREAMER" por la ID de twitch del streamer que desea consultar. Para obtener una ID válida puede convertir el nombre de un streamer a una ID válida en el siguiente enlace: https://www.streamweasels.com/tools/convert-twitch-username-%20to-user-id/
 
-    -Para acceder al segundo caso debe acceder a la url https://easymoneyvyv.es/analytics/streams
+    -Para acceder al segundo caso debe acceder a la url https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/streams
 
-    -Para acceder al tercera caso debe acceder a la url https://easymoneyvyv.es/analytics/streams/enriched?limit="NUMERO DE STREAMS A MOSTRAR", donde debe sustituir el campo "NUMERO DE STREAMS A MOSTRAR" por el límite de streams que desea consultar.
+    -Para acceder al tercera caso debe acceder a la url https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/streams/enriched?limit="NUMERO DE STREAMS A MOSTRAR", donde debe sustituir el campo "NUMERO DE STREAMS A MOSTRAR" por el límite de streams que desea consultar.
 
-    -Para acceder al tercera caso debe acceder a la url https://easymoneyvyv.es/analytics/streams/topsofthetops. 
+    -Para acceder al cuarto caso debe acceder a la url https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/topsofthetops. 
     También existe la posibilidad de ejecutarlo con un parámetro "since" para forzar la actualización más reciente de Twitch.
-    La url es de este tipo: https://easymoneyvyv.es/analytics/streams/topsofthetops?since="Numero que quieras".
+    La url es de este tipo: https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/topsofthetops?since="Numero que quieras".
 
 **2.Ejecutarlo en un servidor local o "localhost":**
 
@@ -78,8 +77,8 @@ Para esta opción, el proceso a seguir es el siguiente:
     
     REQUISITO: La base de datos de XAMPP obviamente no es la misma que la nuestra entonces hay que cambiar de config.php la direccion de la base de datos para hacerlo en local.
 
-Para obtener en el api_key y el token en vez de usar el postman deberas realizar los comandos por terminal a https://localhost/analytics/register añadiendo el body explicado anteriormente
-al igual que para obtener el token a https://localhost/analytics/token añadiendo el body explicado anteriormente y para los siguientes casos también debes añadir alguno de los header explicados anteriormente.
+Para obtener en el api_key y el token en vez de usar el postman deberas realizar los comandos por terminal a https://localhost/register añadiendo el body explicado anteriormente
+al igual que para obtener el token a https://localhost/token añadiendo el body explicado anteriormente y para los siguientes casos también debes añadir alguno de los header explicados anteriormente.
 
 Una vez cumplimentado lo anterior, disponemos de estos 4 enlaces posibles, uno para cada caso de uso propuesto:
 
@@ -89,6 +88,6 @@ Una vez cumplimentado lo anterior, disponemos de estos 4 enlaces posibles, uno p
 
     -Para acceder al tercera caso debe acceder a la url https://localhost/analytics/streams/enriched?limit="NUMERO DE STREAMS A MOSTRAR", donde debe sustituir el campo "NUMERO DE STREAMS A MOSTRAR" por el límite de streams que desea consultar.
 
-    - -Para acceder al tercera caso debe acceder a la url https://localhost/analytics/streams/topsofthetops. 
+    - -Para acceder al tercera caso debe acceder a la url https://localhost/analytics/topsofthetops. 
     También existe la posibilidad de ejecutarlo con un parámetro "since" para forzar la actualización más reciente de Twitch.
-    La url es de este tipo: https://easymoneyvyv.es/analytics/streams/topOfTheTops?since="Segundos que quieras".
+    La url es de este tipo: https://localhost/analytics/streams/topOfTheTops?since="Segundos que quieras".

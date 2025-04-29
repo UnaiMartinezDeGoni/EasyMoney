@@ -1,8 +1,8 @@
 <?php
 
 global $mysqli;
-require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../funcionesComunes.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/funcionesComunes.php';
 
 // Captura y decodifica el JSON entrante
 $data = json_decode(file_get_contents('php://input'), true);

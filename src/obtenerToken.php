@@ -2,8 +2,8 @@
 global $mysqli;
 
 header('Content-Type: application/json');
-require_once __DIR__ . '/config.php';    // Archivo necesario para la conexión a la base de datos
-require_once __DIR__ .'/funcionesComunes.php'; 
+require_once __DIR__ . '/../config.php';    // Archivo necesario para la conexión a la base de datos
+require_once __DIR__ .'/../funcionesComunes.php'; 
 
 // Captura el contenido del cuerpo de la solicitud
 $data = json_decode(file_get_contents('php://input'), true);

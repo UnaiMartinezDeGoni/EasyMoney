@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="MessDetectorOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PHPCSFixerOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PHPCodeSnifferOptionsConfiguration">
+    <option name="highlightLevel" value="WARNING" />
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/analytics/vendor/psr/container" />
+      <path value="$PROJECT_DIR$/analytics/vendor/clue/ndjson-react" />
+      <path value="$PROJECT_DIR$/analytics/vendor/react/dns" />
+      <path value="$PROJECT_DIR$/analytics/vendor/ondram/ci-detector" />
+      <path value="$PROJECT_DIR$/analytics/vendor/react/promise" />
+      <path value="$PROJECT_DIR$/analytics/vendor/react/socket" />
+      <path value="$PROJECT_DIR$/analytics/vendor/kelunik/certificate" />
+      <path value="$PROJECT_DIR$/analytics/vendor/react/stream" />
+      <path value="$PROJECT_DIR$/analytics/vendor/seld/jsonlint" />
+      <path value="$PROJECT_DIR$/analytics/vendor/react/cache" />
+      <path value="$PROJECT_DIR$/analytics/vendor/league/uri" />
+      <path value="$PROJECT_DIR$/analytics/vendor/react/child-process" />
+      <path value="$PROJECT_DIR$/analytics/vendor/league/uri-interfaces" />
+      <path value="$PROJECT_DIR$/analytics/vendor/react/event-loop" />
+      <path value="$PROJECT_DIR$/analytics/vendor/daverandom/libdns" />
+      <path value="$PROJECT_DIR$/analytics/vendor/gitonomy/gitlib" />
+      <path value="$PROJECT_DIR$/analytics/vendor/fidry/cpu-core-counter" />
+      <path value="$PROJECT_DIR$/analytics/vendor/squizlabs/php_codesniffer" />
+      <path value="$PROJECT_DIR$/analytics/vendor/laravel/serializable-closure" />
+      <path value="$PROJECT_DIR$/analytics/vendor/friendsofphp/php-cs-fixer" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/amp" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/serialization" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/parallel" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/socket" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/sync" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/dns" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/byte-stream" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/parser" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/cache" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/pipeline" />
+      <path value="$PROJECT_DIR$/analytics/vendor/phpro/grumphp" />
+      <path value="$PROJECT_DIR$/analytics/vendor/amphp/process" />
+      <path value="$PROJECT_DIR$/analytics/vendor/composer" />
+      <path value="$PROJECT_DIR$/analytics/vendor/revolt/event-loop" />
+      <path value="$PROJECT_DIR$/analytics/vendor/doctrine/deprecations" />
+      <path value="$PROJECT_DIR$/analytics/vendor/doctrine/collections" />
+      <path value="$PROJECT_DIR$/analytics/vendor/monolog/monolog" />
+      <path value="$PROJECT_DIR$/analytics/vendor/evenement/evenement" />
+      <path value="$PROJECT_DIR$/analytics/vendor/pdepend/pdepend" />
+      <path value="$PROJECT_DIR$/analytics/vendor/phpmd/phpmd" />
+      <path value="$PROJECT_DIR$/analytics/vendor/sebastian/diff" />
+      <path value="$PROJECT_DIR$/analytics/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/analytics/vendor/psr/event-dispatcher" />
+      <path value="$PROJECT_DIR$/analytics/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/analytics/vendor/psr/cache" />
+      <path value="$PROJECT_DIR$/analytics/vendor/psr/http-factory" />
+    </include_path>
+  </component>
+  <component name="PhpProjectSharedConfiguration" php_language_level="8.3" />
+  <component name="PhpStanOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+  <component name="PsalmOptionsConfiguration">
+    <option name="transferred" value="true" />
+  </component>
+</project>

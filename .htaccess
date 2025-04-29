@@ -1,22 +1,21 @@
-RewriteEngine On
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /EasyMoney/
 
-# Inyecta la cabecera Authorization en la variable de entorno para que PHP la pueda leer
-RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+    # Pasa la cabecera Authorization al entorno PHP
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-# Si la URL solicitada es exactamente /register o /token (y no existen como archivo o directorio),
-# redirige internamente la solicitud a /analytics/index.php/<endpoint>
-RewriteCond %{REQUEST_URI} ^/(register|token)$ [NC]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(register|token)$ /analytics/index.php/$1 [QSA,L]
+    # Redirige /register o /token directamente al index.php raíz (no analytics)
+    RewriteCond %{REQUEST_URI} ^/EasyMoney/(register|token)$ [NC]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(register|token)$ index.php/$1 [QSA,L]
 
-# Si la URL comienza con /analytics/ (y no existe como archivo o directorio),
-# elimina el prefijo "analytics/" y redirige a /analytics/index.php/<lo-que-venga>
-RewriteCond %{REQUEST_URI} ^/analytics/ [NC]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^analytics/(.*)$ /analytics/index.php/$1 [QSA,L]
+    # Redirige rutas como /analytics/loquesea al index.php raíz (sin carpeta analytics)
+    RewriteCond %{REQUEST_URI} ^/EasyMoney/analytics/ [NC]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^analytics/(.*)$ index.php/analytics/$1 [QSA,L]
 
-# Pasa el header Authorization a la variable de entorno
-SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
-
+    SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+</IfModule>

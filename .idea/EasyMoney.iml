@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="WEB_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/amp" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/byte-stream" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/cache" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/dns" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/parallel" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/parser" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/pipeline" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/process" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/serialization" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/socket" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/sync" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/clue/ndjson-react" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/composer" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/daverandom/libdns" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/doctrine/collections" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/doctrine/deprecations" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/evenement/evenement" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/fidry/cpu-core-counter" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/friendsofphp/php-cs-fixer" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/gitonomy/gitlib" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/kelunik/certificate" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/laravel/serializable-closure" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/league/uri" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/league/uri-interfaces" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/monolog/monolog" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/ondram/ci-detector" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/pdepend/pdepend" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/phpmd/phpmd" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/phpro/grumphp" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/psr/cache" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/psr/container" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/psr/event-dispatcher" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/psr/http-factory" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/psr/http-message" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/psr/log" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/react/cache" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/react/child-process" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/react/dns" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/react/event-loop" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/react/promise" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/react/socket" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/react/stream" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/revolt/event-loop" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/sebastian/diff" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/seld/jsonlint" />
+      <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/squizlabs/php_codesniffer" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

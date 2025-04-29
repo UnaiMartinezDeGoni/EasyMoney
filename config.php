@@ -1,12 +1,12 @@
 <?php
 //Datos para la conexión con nuetra base de datos
-$host_name = 'db5017192807.hosting-data.io';
-$database = 'dbs13808390';
-$user_name = 'dbu466004';
-$password = 'XQW.By6y8H95kF.';
+$host = 'localhost';
+$usuario = 'root';
+$contrasena = ''; // en XAMPP, por defecto no hay contraseña
+$base_de_datos = 'dbs13808390';
 
 //Creacion de una conexion con la base de datos
-$mysqli = new mysqli($host_name, $user_name, $password, $database);
+$mysqli = new mysqli($host, $usuario, $contrasena, $base_de_datos);
 
 //Caso de error al crear la conexion
 if ($mysqli->connect_error) {

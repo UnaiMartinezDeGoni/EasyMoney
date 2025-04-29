@@ -26,6 +26,7 @@ $debugInfo['computed_path'] = $path;
 // Si se pasa el parámetro debug (por ejemplo, https://tudominio.es/register?debug),
 // se imprime la información de depuración y se termina la ejecución
 if (isset($_GET['debug'])) {
+    $debugInfo['headers'] = getallheaders();  // 👈 Añade esto
     echo json_encode(['debug' => $debugInfo], JSON_PRETTY_PRINT);
     exit;
 }

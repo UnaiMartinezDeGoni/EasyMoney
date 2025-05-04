@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: [ '8.0', '8.1', '8.2' ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup PHP & extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, xml, pdo_mysql
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Cache Composer deps
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+
+      - name: Install PHP dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: PHP syntax check
+        run: find . -iname '*.php' -not -path './vendor/*' -exec php -l {} \;
+
+      - name: Run PHP CS Fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff
+
+      - name: Run PHPCS (PSR-12)
+        run: vendor/bin/phpcs --standard=PSR12 .
+
+      - name: Run PHPMD (Cleancode, Codesize, Design…)
+        run: vendor/bin/phpmd src text cleancode,codesize,controversial,design,naming,unusedcode
+
+      - name: Run GrumPHP checks
+        run: vendor/bin/grumphp run
+
+      - name: Setup Node.js for Newman
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install Newman
+        run: npm install -g newman
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Run Postman collection
+        run: |
+          newman run TwicthAnalytics.postman_collection.json \
+            --reporters cli,junit \
+            --reporter-junit-export reports/newman-results.xml
+
+      - name: Upload Newman JUnit report
+        uses: actions/upload-artifact@v3
+        with:
+          name: newman-junit-report
+          path: reports/newman-results.xml

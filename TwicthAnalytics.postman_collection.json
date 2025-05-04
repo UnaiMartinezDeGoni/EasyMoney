@@ -1,0 +1,1022 @@
+{
+	"info": {
+		"_postman_id": "13542b82-b5c1-4dc0-a5f9-d193a7a99a68",
+		"name": "TwicthAnalytics",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "42398776"
+	},
+	"item": [
+		{
+			"name": "Sin token",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 401\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Body includes error\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.have.property(\"error\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/user?id=1",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"user"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Registrarse 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 1. Status code\r",
+							"// Guarda la api_key en una variable global o de entorno\r",
+							"let jsonData = pm.response.json();\r",
+							"\r",
+							"if (jsonData.api_key) {\r",
+							"    pm.environment.set(\"api_key\", jsonData.api_key);\r",
+							"    pm.environment.set(\"email\", pm.request.body.raw ? JSON.parse(pm.request.body.raw).email : \"\"); // guarda también el email\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Status is 200 OK\", () => {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// 2. Devuelve api_key\r",
+							"pm.test(\"Response has non-empty api_key\", () => {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.have.property(\"api_key\");\r",
+							"    pm.expect(json.api_key).to.be.a(\"string\").and.not.be.empty;\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "    {\r\n        \"email\": \"unaimartinez650@gmail.con\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Registrarse 400 email invalido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 400 Bad Request\", () => {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message: invalid email format\", () => {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.have.property(\"error\", \"The email must be a valid email address\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "    {\r\n        \"email\": \"unai\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Registrarse 400 email no indicado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 400 Bad Request\", () => {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message: email mandatory\", () => {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.have.property(\"error\", \"The email is mandatory\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/register"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Token 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Debe devolver 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"let jsonData = pm.response.json();\r",
+							"\r",
+							"pm.test(\"Debe devolver un token\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.expect(jsonData).to.have.property(\"token\");\r",
+							"\r",
+							"    pm.environment.set(\"token\", jsonData.token);\r",
+							"\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "    {\r\n        \"email\": \"{{email}}\",\r\n        \"api_key\": \"{{api_key}}\"\r\n    }\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Token 400 email invalido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver 400 Bad Request por email inválido\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json.error).to.include(\"valid email\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "    {\r\n        \"email\": \"no valido\",\r\n        \"api_key\": \"eb07e2501f115465\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Token 400 email no indicado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver 400 Bad Request por email no indicado\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json.error).to.include(\"mandatory\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "    {\r\n        \"api_key\": \"eb07e2501f115465\"\r\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Token 400 api key no indicada",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver 400 Bad Request por api_key no indicada\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json.error).to.include(\"mandatory\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "    {\r\n    \"email\": \"usuario@example.com\"\r\n    }\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Token 401",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver 401 Unauthorized por clave inválida\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json.error).to.include(\"Unauthorized\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "    {\r\n    \"email\": \"unaimartinez650@gmail.con\",\r\n    \"api_key\": \"clave_incorrecta\"\r\n    }\r\n\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token"
+			},
+			"response": []
+		},
+		{
+			"name": "Token expirado",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 401\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Unauthorized message shown\", function () {\r",
+							"    const res = pm.response.json();\r",
+							"    pm.expect(res.error).to.include(\"Unauthorized\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer invalido",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/user?id=1",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"user"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Token invalido",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 401\", function () {\r",
+							"    pm.response.to.have.status(401);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Unauthorized message shown\", function () {\r",
+							"    const res = pm.response.json();\r",
+							"    pm.expect(res.error).to.include(\"Unauthorized\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer invalido",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/user?id=1",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"user"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener streamer 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is an object\", function () {\r",
+							"    const json = pm.response.json();\r",
+							"    pm.expect(json).to.be.an(\"object\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"User object has all expected fields\", function () {\r",
+							"    const user = pm.response.json();\r",
+							"    pm.expect(user).to.have.property(\"id\");\r",
+							"    pm.expect(user).to.have.property(\"login\");\r",
+							"    pm.expect(user).to.have.property(\"display_name\");\r",
+							"    pm.expect(user).to.have.property(\"type\");\r",
+							"    pm.expect(user).to.have.property(\"broadcaster_type\");\r",
+							"    pm.expect(user).to.have.property(\"description\");\r",
+							"    pm.expect(user).to.have.property(\"profile_image_url\");\r",
+							"    pm.expect(user).to.have.property(\"offline_image_url\");\r",
+							"    pm.expect(user).to.have.property(\"view_count\");\r",
+							"    pm.expect(user).to.have.property(\"created_at\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/user?id=1",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"user"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener streamer 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Debe devolver 400 Bad Request\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Debe contener un mensaje de error por parámetro faltante\", function () {\r",
+							"    let jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"error\");\r",
+							"    pm.expect(jsonData.error).to.eql(\"Invalid or missing 'id' parameter.\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/user"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener streamer 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 404 Not Found\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Body includes error message\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"error\", \"User not found.\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/user?id=9999999999999999999999999",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"user"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "9999999999999999999999999"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener streams 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is an array\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Each stream has basic fields\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.forEach(stream => {\r",
+							"        pm.expect(stream).to.have.property(\"tittle\"); // <-- 'tittle' con doble \"t\" según tu JSON\r",
+							"        pm.expect(stream).to.have.property(\"user_name\");\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/streams",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"streams"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener streams eriquecidos 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is an array\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Each stream has enriched fields\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    jsonData.forEach(stream => {\r",
+							"        pm.expect(stream).to.have.property(\"user_name\");\r",
+							"        pm.expect(stream).to.have.property(\"viewer_count\");\r",
+							"        pm.expect(stream).to.have.property(\"title\");\r",
+							"        pm.expect(stream).to.have.property(\"display_name\"); // antes: user_display_name\r",
+							"        pm.expect(stream).to.have.property(\"profile_image_url\");\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/streams/enriched?limit=3",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"streams",
+						"enriched"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "3"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener streams eriquecidos 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 400 Bad Request\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response body contains error message\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"error\", \"Invalid 'limit' parameter.\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/streams/enriched?limit=abc",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"streams",
+						"enriched"
+					],
+					"query": [
+						{
+							"key": "limit",
+							"value": "abc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Top of the Tops 200",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 200 OK\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Response is an array\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.be.an(\"array\");\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Each item has required fields\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"\r",
+							"    jsonData.forEach(subArray => {\r",
+							"        pm.expect(subArray).to.be.an(\"array\");\r",
+							"\r",
+							"        subArray.forEach(item => {\r",
+							"            pm.expect(item).to.have.property(\"game_id\");\r",
+							"            pm.expect(item).to.have.property(\"game_name\");\r",
+							"            pm.expect(item).to.have.property(\"user_name\");\r",
+							"            pm.expect(item).to.have.property(\"total_videos\");\r",
+							"            pm.expect(item).to.have.property(\"total_views\");\r",
+							"            pm.expect(item).to.have.property(\"most_viewed_title\");\r",
+							"            pm.expect(item).to.have.property(\"most_viewed_views\");\r",
+							"            pm.expect(item).to.have.property(\"most_viewed_duration\");\r",
+							"            pm.expect(item).to.have.property(\"most_viewed_created_at\");\r",
+							"        });\r",
+							"    });\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/topsofthetops"
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Top of the Tops 400",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status is 400 Bad Request\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message for Bad Request is present\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"error\", \"Bad Request. Invalid or missing parameters.\");\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/topsofthetops?since=abc",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"topsofthetops"
+					],
+					"query": [
+						{
+							"key": "since",
+							"value": "abc"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Top of the Tops 404",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"/*pm.test(\"Status is 404 Not Found\", function () {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							"pm.test(\"Error message for Not Found is present\", function () {\r",
+							"    const jsonData = pm.response.json();\r",
+							"    pm.expect(jsonData).to.have.property(\"error\", \"Not Found. No data available.\");\r",
+							"});*/\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/topsofthetops?since=9999999999999999999999",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"topsofthetops"
+					],
+					"query": [
+						{
+							"key": "since",
+							"value": "9999999999999999999999"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener error 500",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{token}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/user?id=1",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"user"
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -69,8 +69,3 @@ jobs:
             --reporters cli,junit \
             --reporter-junit-export reports/newman-results.xml
 
-      - name: Upload Newman JUnit report
-        uses: actions/upload-artifact@v2.3.1
-        with:
-          name: newman-junit-report
-          path: reports/newman-results.xml

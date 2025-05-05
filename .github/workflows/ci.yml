@@ -24,7 +24,7 @@ jobs:
           extensions: mbstring, xml, pdo_mysql
 
       - name: Validate composer.json
-        run: composer validate 
+        run: composer validate --no-check-publish
 
       - name: Cache Composer deps
         uses: actions/cache@v3

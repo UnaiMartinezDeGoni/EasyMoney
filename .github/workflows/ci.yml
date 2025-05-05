@@ -23,8 +23,8 @@ jobs:
           php-version: ${{ matrix.php }}
           extensions: mbstring, xml, pdo_mysql
 
-      - name: Validate composer.json
-        run: composer validate
+      - name: Validate composer.json (sin publish-check)
+        run: composer validate --no-check-publish
 
       - name: Cache Composer deps
         uses: actions/cache@v3

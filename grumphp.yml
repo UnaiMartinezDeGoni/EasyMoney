@@ -1,2 +1,16 @@
+parameters:
+  git_dir: .
+  bin_dir: vendor/bin
+  process_timeout: 500
+
 grumphp:
-   
+  tasks:
+    phpcs:
+      standard: phpcs.xml
+      ignore_patterns:
+        - 'vendor/*'
+      triggered_by: ['php']
+    shell:
+      scripts:
+        - "./fixer.sh"
+      triggered_by: ['php']

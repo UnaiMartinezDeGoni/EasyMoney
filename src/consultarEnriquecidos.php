@@ -5,14 +5,14 @@ header('Content-Type: application/json');
 $limit = $_GET['limit'] ?? null;
 $access_token = $_GET['access_token'] ?? obtenerTokenTwitch();
 
-//verifica si el token es válido
+// verifica si el token es válido
 if (!verificarToken($access_token)) {
     http_response_code(401);
     echo json_encode(["error" => "Unauthorized. Twitch access token is invalid or has expired"], JSON_PRETTY_PRINT);
     exit;
 }
 
-//valida el parámetro 'limit'
+// valida el parámetro 'limit'
 if (!is_numeric($limit) || $limit <= 0) {
     http_response_code(400);
     echo json_encode(["error" => "Invalid 'limit' parameter."], JSON_PRETTY_PRINT);
@@ -27,23 +27,26 @@ if (!empty($respuesta['data'])) {
     });
 
     $top_streams = array_slice($respuesta['data'], 0, $limit);
-    $enrichedStreams = [];
+    $formattedStreams = [];
 
     foreach ($top_streams as $stream) {
         $user_info = getStreamerInfo($stream['user_id'], $access_token);
         $user_data = $user_info['data'][0] ?? [];
 
-        $enrichedStreams[] = [
-            "title" => $stream['title'],
+        $formattedStreams[] = [
+            "stream_id" => $stream['id'],
+            "user_id" => $stream['user_id'],
             "user_name" => $stream['user_name'],
             "viewer_count" => $stream['viewer_count'],
-            "display_name" => $user_data['display_name'] ?? $stream['user_name'],
+            "title" => $stream['title'],
+            "user_display_name" => $user_data['display_name'] ?? $stream['user_name'],
             "profile_image_url" => $user_data['profile_image_url'] ?? null
         ];
     }
 
     http_response_code(200);
-    echo json_encode($enrichedStreams, JSON_PRETTY_PRINT);
+    echo json_encode($formattedStreams, JSON_PRETTY_PRINT);
+    exit;
 } else {
     http_response_code(500);
     echo json_encode(["error" => "Internal server error."], JSON_PRETTY_PRINT);

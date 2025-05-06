@@ -18,7 +18,7 @@ if (!empty($respuesta['data'])) {
 	//Iteracion para obtener la lista de streams de twitch y seleccionar los atributos que nos interesan
     foreach ($respuesta['data'] as $stream) {
         $streamsData[] = [
-            "tittle" => $stream['title'],
+            "title" => $stream['title'],
             "user_name" => $stream['user_name'],
         ];
     }

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?xml version="1.0" encoding="UTF-8"?>
 <ruleset name="MiProyecto">
     <description>Reglas de codificación para MiProyecto</description>
@@ -7,4 +8,15 @@
     <file>src</file>
     <!-- Excluye directorios no relevantes -->
     <exclude-pattern>*/vendor/*</exclude-pattern>
+=======
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset name="MiProyecto">
+    <description>Reglas de codificación para MiProyecto</description>
+    <!-- Usamos el estándar PSR12 -->
+    <rule ref="PSR12" />
+    <!-- Limita el análisis al directorio src -->
+    <file>src</file>
+    <!-- Excluye directorios no relevantes -->
+    <exclude-pattern>*/vendor/*</exclude-pattern>
+>>>>>>> 6df01885e2743233e6f3e0857179d2e889b47590
 </ruleset>

@@ -1,4 +1,4 @@
-{
+  {
     "name": "tu-empresa/easy-money",
     "description": "API EasyMoney bajo Lumen",
     "type": "project",
@@ -31,4 +31,3 @@
       ]
     }
   }
-  

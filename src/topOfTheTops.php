@@ -1,43 +1,58 @@
 <?php
 header('Content-Type: application/json');
-require_once __DIR__ . '/../config.php';    // Archivo necesario para la conexión a la base de datos
-require_once __DIR__ .'/../funcionesComunes.php';
+require_once __DIR__ . '/../funcionesComunes.php';
 
-global $mysqli;
-
-$access_token = obtenerTokenTwitch(); //Obtiene el token para acceder a la API de Twitch
-if (!$access_token) {   //Caso de que se produzca un error en la obtencion del token
+try {
+    // 1) Conectar a la base de datos
+    $mysqli = conectarMysqli();
+} catch (Throwable $e) {
+    error_log('[TopOfTheTops] ' . $e->getMessage());
     http_response_code(500);
     echo json_encode(["error" => "Internal Server Error. Please try again later."], JSON_PRETTY_PRINT);
     exit;
 }
 
-//En el caso de que se le proporcione obtiene del usuario el valor de la variable since
-$since = isset($_GET['since']) ? (int)$_GET['since'] : 600; //En el caso de no proporcionarse le da un valor por defecto de 600 segundo (10 minutos) 
-if ($since <= 0 || !is_numeric($since)) { //Caso en el que los parametros sean incorrec
+// 2) Obtener token de Twitch
+$access_token = obtenerTokenTwitch();
+if (!$access_token) {
+    http_response_code(500);
+    echo json_encode(["error" => "Internal Server Error. Please try again later."], JSON_PRETTY_PRINT);
+    exit;
+}
+
+// 3) Validar parámetro 'since'
+$since = isset($_GET['since']) ? filter_var($_GET['since'], FILTER_VALIDATE_INT) : 600;
+if ($since === false || $since <= 0) {
     http_response_code(400);
     echo json_encode(["error" => "Bad Request. Invalid or missing parameters."], JSON_PRETTY_PRINT);
     exit;
 }
 
-//Obtiene los datos sobe los top videos de Twitch sobre el top 3 de juesgos con la funcion implementada de funcionesComunes.php
-$topGames = obtenerTopVideosTwitch($mysqli, $access_token, $since);
-
-//Si se prduce un error devuelve un error 500
-if (isset($topGames["error"])) {
+// 4) Obtener datos de top videos
+try {
+    $topGames = obtenerTopVideosTwitch($access_token, $since);
+} catch (Throwable $e) {
+    error_log('[TopOfTheTops] ' . $e->getMessage());
     http_response_code(500);
-    echo json_encode($topGames);
+    echo json_encode(["error" => "Internal Server Error. Please try again later."], JSON_PRETTY_PRINT);
     exit;
 }
 
-//Si la variable que debe recoger la informacion del top ($topGames) resulta vacia, devuelve un error 404
+// 5) Si la función devuelve un error explícito
+if (isset($topGames['error'])) {
+    http_response_code(500);
+    echo json_encode($topGames, JSON_PRETTY_PRINT);
+    exit;
+}
+
+// 6) Si no hay datos
 if (empty($topGames)) {
     http_response_code(404);
     echo json_encode(["error" => "Not Found. No data available."], JSON_PRETTY_PRINT);
     exit;
 }
 
-//Devuelve la informacion del top solicitada
+// 7) Devolver resultado exitoso
 http_response_code(200);
 echo json_encode(array_values($topGames), JSON_PRETTY_PRINT);
-?>
+exit;

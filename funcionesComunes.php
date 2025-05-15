@@ -1,24 +1,53 @@
 <?php
 header('Content-Type: application/json');
 
-$client_id     = "7gkz3aw164wmtbo5u1m1n4cihpy8de";
-$client_secret = "o99k9rok7tlprgf3bmzkqkdtqw6tan";
+// Credenciales Twitch
+define('TWITCH_CLIENT_ID',     '7gkz3aw164wmtbo5u1m1n4cihpy8de');
+define('TWITCH_CLIENT_SECRET', 'o99k9rok7tlprgf3bmzkqkdtqw6tan');
 
-function obtenerTokenTwitch() {
-    global $client_id, $client_secret;
+/**
+ * Devuelve una instancia de mysqli conectada según las variables de entorno.
+ *
+ * @return \mysqli
+ * @throws \RuntimeException si la conexión falla.
+ */
+function conectarMysqli(): mysqli
+{
+    // Leer de Config Vars (Heroku) o de .env local
+    $host     = getenv('DB_HOST') ?: '127.0.0.1';
+    $port     = (int)(getenv('DB_PORT') ?: 3306);
+    $database = getenv('DB_DATABASE') ?: 'forge';
+    $username = getenv('DB_USERNAME') ?: 'forge';
+    $password = getenv('DB_PASSWORD') ?: '';
 
+    $mysqli = new mysqli($host, $username, $password, $database, $port);
+    if ($mysqli->connect_error) {
+        throw new RuntimeException("MySQL connection error: " . $mysqli->connect_error);
+    }
+    $mysqli->set_charset('utf8mb4');
+    return $mysqli;
+}
+
+/**
+ * Obtiene un token de acceso válido de Twitch (client credentials).
+ *
+ * @return string|null
+ */
+function obtenerTokenTwitch(): ?string {
     $url = "https://id.twitch.tv/oauth2/token";
     $post_fields = [
-        'client_id'     => $client_id,
-        'client_secret' => $client_secret,
+        'client_id'     => TWITCH_CLIENT_ID,
+        'client_secret' => TWITCH_CLIENT_SECRET,
         'grant_type'    => 'client_credentials'
     ];
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_POST, true);
-    curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($post_fields));
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => $url,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => http_build_query($post_fields),
+        CURLOPT_RETURNTRANSFER => true,
+    ]);
 
     $respuesta = curl_exec($ch);
     curl_close($ch);
@@ -27,7 +56,13 @@ function obtenerTokenTwitch() {
     return $datos['access_token'] ?? null;
 }
 
-function verificarToken($access_token) {
+/**
+ * Verifica si un token de acceso sigue siendo válido.
+ *
+ * @param string $access_token
+ * @return bool
+ */
+function verificarToken(string $access_token): bool {
     $url = "https://id.twitch.tv/oauth2/validate";
     $headers = ["Authorization: OAuth $access_token"];
 
@@ -43,55 +78,88 @@ function verificarToken($access_token) {
     return isset($datos['client_id']);
 }
 
-function getStreamerInfo($streamer_id, $access_token) {
-    global $client_id;
+/**
+ * Obtiene información de un streamer por su ID de Twitch.
+ *
+ * @param int $streamer_id
+ * @param string $access_token
+ * @return array|null
+ */
+function getStreamerInfo(int $streamer_id, string $access_token): ?array {
     $url = "https://api.twitch.tv/helix/users?id={$streamer_id}";
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "Client-ID: $client_id",
-        "Authorization: Bearer $access_token"
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER     => [
+            "Client-ID: " . TWITCH_CLIENT_ID,
+            "Authorization: Bearer $access_token"
+        ],
     ]);
 
     $respuesta = curl_exec($ch);
     curl_close($ch);
-
     return json_decode($respuesta, true);
 }
 
-function getStreamsInfo($access_token) {
-    global $client_id;
+/**
+ * Obtiene información de streams activos.
+ *
+ * @param string $access_token
+ * @return array|null
+ */
+function getStreamsInfo(string $access_token): ?array {
     $url = "https://api.twitch.tv/helix/streams";
 
     $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "Client-ID: $client_id",
-        "Authorization: Bearer $access_token"
+    curl_setopt_array($ch, [
+        CURLOPT_URL            => $url,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER     => [
+            "Client-ID: " . TWITCH_CLIENT_ID,
+            "Authorization: Bearer $access_token"
+        ],
     ]);
 
     $respuesta = curl_exec($ch);
     curl_close($ch);
-
     return json_decode($respuesta, true);
 }
 
-function generateApiKey() {
+/**
+ * Genera una API key aleatoria.
+ *
+ * @return string
+ */
+function generateApiKey(): string {
     return bin2hex(random_bytes(8));
 }
 
-function generateApiToken() {
+/**
+ * Genera un token de API con expiración.
+ *
+ * @return array{token:string,expires_at:string}
+ */
+function generateApiToken(): array {
     $token = bin2hex(random_bytes(8));
     $expires_at = date('Y-m-d H:i:s', strtotime('+3 days'));
     return ['token' => $token, 'expires_at' => $expires_at];
 }
 
-// Función optimizada: devuelve un array plano de videos y persiste en BD
-function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
-    global $client_id;
+/**
+ * Obtiene y persiste top videos por juego y usuario.
+ *
+ * @param string $access_token
+ * @param int $since    segundos de antigüedad mínima para refrescar
+ * @return array
+ */
+function obtenerTopVideosTwitch(string $access_token, int $since = 600): array {
+    try {
+        $mysqli = conectarMysqli();
+    } catch (RuntimeException $e) {
+        return ['error' => $e->getMessage()];
+    }
 
     $last_update_limit = date('Y-m-d H:i:s', time() - $since);
     $topVideos = [];
@@ -117,7 +185,7 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
     curl_setopt_array($ch, [
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER     => [
-            "Client-ID: $client_id",
+            "Client-ID: " . TWITCH_CLIENT_ID,
             "Authorization: Bearer $access_token"
         ]
     ]);
@@ -128,7 +196,7 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
         $game_id   = $game['id'];
         $game_name = $game['name'];
 
-        // Asegurar top_games
+        // Persistir top_games si no existe
         $stmt = $mysqli->prepare("SELECT 1 FROM top_games WHERE game_id = ?");
         $stmt->bind_param('s', $game_id);
         $stmt->execute();
@@ -151,7 +219,7 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
         curl_setopt_array($ch, [
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_HTTPHEADER     => [
-                "Client-ID: $client_id",
+                "Client-ID: " . TWITCH_CLIENT_ID,
                 "Authorization: Bearer $access_token"
             ]
         ]);
@@ -163,15 +231,15 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
             $user = $video['user_name'];
             if (!isset($byUser[$user])) {
                 $byUser[$user] = [
-                    'game_id'                  => $game_id,
-                    'game_name'                => $game_name,
-                    'user_name'                => $user,
-                    'total_videos'             => 0,
-                    'total_views'              => 0,
-                    'most_viewed_title'        => $video['title'],
-                    'most_viewed_views'        => $video['view_count'],
-                    'most_viewed_duration'     => $video['duration'],
-                    'most_viewed_created_at'   => $video['created_at']
+                    'game_id'                => $game_id,
+                    'game_name'              => $game_name,
+                    'user_name'              => $user,
+                    'total_videos'           => 0,
+                    'total_views'            => 0,
+                    'most_viewed_title'      => $video['title'],
+                    'most_viewed_views'      => $video['view_count'],
+                    'most_viewed_duration'   => $video['duration'],
+                    'most_viewed_created_at' => $video['created_at']
                 ];
             }
             $byUser[$user]['total_videos']++;
@@ -225,4 +293,3 @@ function obtenerTopVideosTwitch($mysqli, $access_token, $since = 600) {
 
     return $topVideos;
 }
-?>

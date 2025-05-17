@@ -6,6 +6,13 @@ require_once __DIR__.'/../vendor/autoload.php';
     dirname(__DIR__)
 ))->bootstrap();
 
+file_put_contents(
+    __DIR__ . '/../storage/logs/env-debug.log',
+    '[' . date('c') . '] BEFORE if: APP_ENV=' . ($_ENV['APP_ENV'] ?? 'nada') . PHP_EOL,
+    FILE_APPEND
+);
+
+
 date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 
 /*
@@ -18,6 +25,22 @@ date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 | application as an "IoC" container and router for this framework.
 |
 */
+// bootstrap/app.php
+
+$runningUnitTests = defined('PHPUNIT_COMPOSER_INSTALL') || class_exists('PHPUnit\\TextUI\\Command');
+
+if ($runningUnitTests) {
+    // Fuerza carga de .env.testing
+    Dotenv\Dotenv::createImmutable(
+        __DIR__.'/../',
+        '.env.testing',
+        true
+    )->load();
+} else {
+    Dotenv\Dotenv::createImmutable(__DIR__.'/../')->load();
+}
+
+
 
 $app = new Laravel\Lumen\Application(
     dirname(__DIR__)

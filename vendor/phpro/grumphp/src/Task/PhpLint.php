@@ -4,23 +4,18 @@ declare(strict_types=1);
 
 namespace GrumPHP\Task;
 
-use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Process\InputWritingProcessRunner;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Process\Process;
 
-/**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
- */
 class PhpLint extends AbstractExternalTask
 {
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -37,7 +32,7 @@ class PhpLint extends AbstractExternalTask
         $resolver->addAllowedTypes('ignore_patterns', ['array']);
         $resolver->setAllowedTypes('triggered_by', 'array');
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function canRunInContext(ContextInterface $context): bool

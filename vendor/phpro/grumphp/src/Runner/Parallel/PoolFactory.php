@@ -4,28 +4,26 @@ declare(strict_types=1);
 
 namespace GrumPHP\Runner\Parallel;
 
-use Amp\Parallel\Worker\ContextWorkerPool;
-use Amp\Parallel\Worker\WorkerPool;
+use Amp\Parallel\Worker\DefaultPool;
+use Amp\Parallel\Worker\Pool;
 use GrumPHP\Configuration\Model\ParallelConfig;
 
 class PoolFactory
 {
-    private ParallelConfig $config;
-    private ?WorkerPool $pool = null;
+    /**
+     * @var ParallelConfig
+     */
+    private $config;
 
     public function __construct(ParallelConfig $config)
     {
         $this->config = $config;
     }
 
-    public function createShared(): WorkerPool
+    public function create(): Pool
     {
-        if (!$this->pool) {
-            $this->pool = new ContextWorkerPool(
-                $this->config->getMaxWorkers()
-            );
-        }
-
-        return $this->pool;
+        return new DefaultPool(
+            $this->config->getMaxWorkers()
+        );
     }
 }

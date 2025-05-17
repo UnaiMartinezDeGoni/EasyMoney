@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace GrumPHP\Task;
 
-use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
+ * Infection task.
  */
 class Infection extends AbstractExternalTask
 {
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
 
@@ -34,8 +32,6 @@ class Infection extends AbstractExternalTask
             'mutators' => [],
             'ignore_patterns' => [],
             'triggered_by' => ['php'],
-            'skip_initial_tests' => false,
-            'coverage' => null,
         ]);
 
         $resolver->addAllowedTypes('threads', ['null', 'int']);
@@ -49,10 +45,8 @@ class Infection extends AbstractExternalTask
         $resolver->addAllowedTypes('mutators', ['array']);
         $resolver->addAllowedTypes('ignore_patterns', ['array']);
         $resolver->addAllowedTypes('triggered_by', ['array']);
-        $resolver->addAllowedTypes('skip_initial_tests', ['bool']);
-        $resolver->addAllowedTypes('coverage', ['null', 'string']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     /**
@@ -88,8 +82,6 @@ class Infection extends AbstractExternalTask
         $arguments->addOptionalArgument('--configuration=%s', $config['configuration']);
         $arguments->addOptionalArgument('--min-msi=%s', $config['min_msi']);
         $arguments->addOptionalArgument('--min-covered-msi=%s', $config['min_covered_msi']);
-        $arguments->addOptionalArgument('--coverage=%s', $config['coverage']);
-        $arguments->addOptionalArgument('--skip-initial-tests', $config['skip_initial_tests']);
         $arguments->addOptionalCommaSeparatedArgument('--mutators=%s', $config['mutators']);
 
         if ($context instanceof GitPreCommitContext) {

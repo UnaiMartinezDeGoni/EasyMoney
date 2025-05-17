@@ -336,13 +336,6 @@ services:
         tags:
             - {name: grumphp.task, task: securitychecker}
 
-    GrumPHP\Task\SecurityCheckerComposeraudit:
-        arguments:
-            - '@process_builder'
-            - '@formatter.raw_process'
-        tags:
-            - {name: grumphp.task, task: securitychecker_composeraudit}
-
     GrumPHP\Task\SecurityCheckerEnlightn:
         arguments:
             - '@process_builder'
@@ -386,13 +379,6 @@ services:
         tags:
             - {name: grumphp.task, task: stylelint}
 
-    GrumPHP\Task\SymfonyConsole:
-        arguments:
-            - '@process_builder'
-            - '@formatter.raw_process'
-        tags:
-          - {name: grumphp.task, task: symfony_console}
-
     GrumPHP\Task\Tester:
         class:
         arguments:
@@ -407,13 +393,6 @@ services:
             - '@formatter.raw_process'
         tags:
             - {name: grumphp.task, task: twigcs}
-
-    GrumPHP\Task\TwigCsFixer:
-        arguments:
-            - '@process_builder'
-            - '@formatter.raw_process'
-        tags:
-            - {name: grumphp.task, task: twigcsfixer}
 
     GrumPHP\Task\XmlLint:
         arguments:

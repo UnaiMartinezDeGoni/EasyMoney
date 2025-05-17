@@ -10,57 +10,32 @@ jobs:
       matrix:
         include:
           - operating-system: 'ubuntu-latest'
-            php-version: '8.1'
-            php-ts: nts
-            continue-on-error: false
+            php-version: '7.1'
 
           - operating-system: 'ubuntu-latest'
-            php-version: '8.2'
-            php-ts: nts
-            continue-on-error: false
+            php-version: '7.2'
 
           - operating-system: 'ubuntu-latest'
-            php-version: '8.3'
-            php-ts: nts
-            continue-on-error: false
+            php-version: '7.3'
 
           - operating-system: 'ubuntu-latest'
-            php-version: '8.2'
-            php-extensions: parallel
-            job-description: 'with ext-parallel'
-            php-ts: ts
-            static-analysis: none
-            style-fix: none
-            composer-require-checker-version: none
-            continue-on-error: true
+            php-version: '7.4'
 
           - operating-system: 'ubuntu-latest'
-            php-version: '8.3'
-            php-extensions: parallel
-            job-description: 'with ext-parallel'
-            php-ts: ts
-            static-analysis: none
-            style-fix: none
-            composer-require-checker-version: none
-            continue-on-error: true
-
-          - operating-system: 'macos-latest'
-            php-version: '8.3'
-            job-description: 'on macOS'
-            php-ts: nts
-            continue-on-error: false
+            php-version: '8.0'
+            composer-flags: '--ignore-platform-req=php'
 
           - operating-system: 'windows-latest'
-            php-version: '8.3'
+            php-version: '7.4'
             job-description: 'on Windows'
-            php-ts: nts
-            continue-on-error: false
+
+          - operating-system: 'macos-latest'
+            php-version: '7.4'
+            job-description: 'on macOS'
 
     name: PHP ${{ matrix.php-version }} ${{ matrix.job-description }}
 
     runs-on: ${{ matrix.operating-system }}
-
-    continue-on-error: ${{ matrix.continue-on-error }}
 
     steps:
       - name: Set git to use LF
@@ -75,10 +50,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          extensions: ${{ matrix.php-extensions }}
-        env:
-          phpts: ${{ matrix.php-ts }}
-          fail-fast: true
+          extensions: parallel
 
       - name: Get Composer cache directory
         id: composer-cache
@@ -105,26 +77,10 @@ jobs:
             composer update --optimize-autoloader --no-interaction --no-progress ${{ matrix.composer-flags }}
             composer info -D
 
-      - name: Run process example
-        run: php examples/process.php
-
       - name: Run tests
         run: vendor/bin/phpunit ${{ matrix.phpunit-flags }}
 
-      - name: Run static analysis
-        run: vendor/bin/psalm.phar
-        if: matrix.static-analysis != 'none'
-
       - name: Run style fixer
+        run: vendor/bin/php-cs-fixer --diff --dry-run -v fix
         env:
           PHP_CS_FIXER_IGNORE_ENV: 1
-        run: vendor/bin/php-cs-fixer --diff --dry-run -v fix
-        if: runner.os != 'Windows' && matrix.style-fix != 'none'
-
-      - name: Install composer-require-checker
-        run: php -r 'file_put_contents("composer-require-checker.phar", file_get_contents("https://github.com/maglnet/ComposerRequireChecker/releases/download/3.7.0/composer-require-checker.phar"));'
-        if: runner.os != 'Windows' && matrix.composer-require-checker-version != 'none'
-
-      - name: Run composer-require-checker
-        run: php composer-require-checker.phar check composer.json --config-file $PWD/composer-require-check.json
-        if: runner.os != 'Windows' && matrix.composer-require-checker-version != 'none'

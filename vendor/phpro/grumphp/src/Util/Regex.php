@@ -15,13 +15,12 @@ class Regex
     const ALLOWED_MODIFIERS = 'imsxuADU';
 
     /**
-     * @var non-empty-string
+     * @var string
      */
     protected $regex;
 
     /**
      * Regex constructor.
-     * @param non-empty-string $string
      */
     public function __construct(string $string)
     {
@@ -51,20 +50,15 @@ class Regex
         return false;
     }
 
-    /**
-     * @param non-empty-string $string
-     * @return non-empty-string
-     */
     private function toRegex(string $string): string
     {
-        /** @var non-empty-string */
         return $this->isRegex($string) ? $string : Glob::toRegex($string);
     }
 
     public function addPatternModifier(string $modifier): void
     {
         /** @psalm-suppress InvalidLiteralArgument */
-        if ('' === $modifier || !str_contains(self::ALLOWED_MODIFIERS, $modifier)) {
+        if ('' === $modifier || false === strpos(self::ALLOWED_MODIFIERS, $modifier)) {
             throw new RuntimeException('Invalid regex modifier: '.$modifier);
         }
 
@@ -74,7 +68,7 @@ class Regex
         $modifiers = $matches[0];
 
         // Skip if the modifier is already available
-        if (str_contains($modifiers, $modifier)) {
+        if (false !== strpos($modifiers, $modifier)) {
             return;
         }
 
@@ -83,7 +77,6 @@ class Regex
 
     /**
      * Returns the new regex.
-     * @return non-empty-string
      */
     public function __toString(): string
     {

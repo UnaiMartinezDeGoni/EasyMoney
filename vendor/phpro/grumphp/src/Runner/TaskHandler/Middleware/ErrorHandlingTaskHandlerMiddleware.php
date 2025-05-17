@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GrumPHP\Runner\TaskHandler\Middleware;
 
-use GrumPHP\Runner\StopOnFailure;
-use function Amp\async;
-use Amp\Future;
+use Amp\Parallel\Worker\TaskFailureException;
+use function Amp\call;
+use Amp\Promise;
 use GrumPHP\Exception\PlatformException;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
@@ -18,10 +18,9 @@ class ErrorHandlingTaskHandlerMiddleware implements TaskHandlerMiddlewareInterfa
     public function handle(
         TaskInterface $task,
         TaskRunnerContext $runnerContext,
-        StopOnFailure $stopOnFailure,
         callable $next
-    ): Future {
-        return async(
+    ): Promise {
+        return call(
             static function () use ($task, $runnerContext): TaskResultInterface {
                 $taskContext = $runnerContext->getTaskContext();
                 try {

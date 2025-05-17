@@ -109,7 +109,6 @@ class StashUnstagedChangesSubscriber implements EventSubscriberInterface
                 $this->io->write(['<fg=yellow>Detected unstaged changes... Stashing them!</fg=yellow>']);
             }
 
-            /** @psalm-suppress RedundantCondition - it's the most clear this way.. */
             if (!$hasPending && $hasUntracked) {
                 $this->io->write(['<fg=yellow>Detected untracked files... Stashing them!</fg=yellow>']);
             }

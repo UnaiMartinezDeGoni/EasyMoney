@@ -10,7 +10,6 @@ grumphp:
         doctrine_orm:
             skip_mapping: false
             skip_sync: false
-            skip_property_types: false
             triggered_by: ['php', 'xml', 'yml']
 ```
 
@@ -25,12 +24,6 @@ With this parameter you can skip the mapping validation check.
 *Default: false*
 
 With this parameter you can skip checking if the mapping is in sync with the database.
-
-**skip_property_types**
-
-*Default: false*
-
-With this parameter you can skip checking if Entity field property types match the Doctrine types.
 
 **triggered_by**
 

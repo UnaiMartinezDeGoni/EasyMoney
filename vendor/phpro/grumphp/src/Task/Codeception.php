@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace GrumPHP\Task;
 
-use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
+ * Codeception task.
  */
 class Codeception extends AbstractExternalTask
 {
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -26,18 +24,14 @@ class Codeception extends AbstractExternalTask
             'suite' => null,
             'test' => null,
             'fail_fast' => false,
-            'xml' => false,
-            'html' => false,
         ]);
 
         $resolver->addAllowedTypes('config_file', ['null', 'string']);
         $resolver->addAllowedTypes('suite', ['null', 'string']);
         $resolver->addAllowedTypes('test', ['null', 'string']);
         $resolver->addAllowedTypes('fail_fast', ['bool']);
-        $resolver->addAllowedTypes('xml', ['bool']);
-        $resolver->addAllowedTypes('html', ['bool']);
-        
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+
+        return $resolver;
     }
 
     /**
@@ -64,8 +58,6 @@ class Codeception extends AbstractExternalTask
         $arguments->add('run');
         $arguments->addOptionalArgument('--config=%s', $config['config_file']);
         $arguments->addOptionalArgument('--fail-fast', $config['fail_fast']);
-        $arguments->addOptionalArgument('--xml', $config['xml']);
-        $arguments->addOptionalArgument('--html', $config['html']);
         $arguments->addOptionalArgument('%s', $config['suite']);
         $arguments->addOptionalArgument('%s', $config['test']);
 

@@ -5,20 +5,19 @@ shallow_clone: false
 platform:
   - x64
 
-matrix:
-  allow_failures:
-    - php_version: 8.4
+#matrix:
+#  allow_failures:
+#    - php_version: 8.2
 
 environment:
   matrix:
-    - dependencies: lock
-      php_version: 8.4
-    - dependencies: lock
-      php_version: 8.3
-    - dependencies: lock
-      php_version: 8.2
-    - dependencies: lock
+# TODO : NOT AVAILABLE YET !
+#    - dependencies: highest
+#      php_version: 8.2
+    - dependencies: highest
       php_version: 8.1
+    - dependencies: highest
+      php_version: 8.0
 
   project_directory: c:\projects\grumphp
   composer_directory: c:\tools\composer
@@ -69,9 +68,8 @@ install:
 
   # Install dependencies
   - ps: cd $Env:project_directory
-  - IF %dependencies%==lowest composer update --prefer-dist --prefer-lowest --prefer-stable --no-progress --no-scripts --no-suggest --profile --ignore-platform-req=php+
-  - IF %dependencies%==highest composer update --prefer-dist --no-progress --no-scripts --no-suggest --profile --ignore-platform-req=php+
-  - IF %dependencies%==lock composer install --no-scripts --no-suggest --profile
+  - IF %dependencies%==lowest composer update --prefer-dist --prefer-lowest --prefer-stable --no-progress --no-scripts --no-suggest --profile
+  - IF %dependencies%==highest composer update --prefer-dist --no-progress --no-scripts --no-suggest --profile
   - git config --global user.email "doesntmatter@dispostable.com"
   - git config --global user.name "GrumPHP"
   - git config --global protocol.file.allow always

@@ -8,11 +8,9 @@ use GrumPHP\Collection\ProcessArgumentsCollection;
 use GrumPHP\Exception\ExecutableNotFoundException;
 use GrumPHP\Fixer\Provider\FixableProcessResultProvider;
 use GrumPHP\Formatter\PhpcsFormatter;
-use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Process\TmpFileUsingProcessRunner;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
@@ -20,9 +18,6 @@ use Symfony\Component\Console\Exception\CommandNotFoundException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Process\Process;
 
-/**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
- */
 class Phpcs extends AbstractExternalTask
 {
     /**
@@ -30,7 +25,7 @@ class Phpcs extends AbstractExternalTask
      */
     protected $formatter;
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -47,8 +42,7 @@ class Phpcs extends AbstractExternalTask
             'report' => 'full',
             'report_width' => null,
             'exclude' => [],
-            'show_sniffs_error_path' => true,
-            'parallel' => null,
+            'show_sniffs_error_path' => true
         ]);
 
         $resolver->addAllowedTypes('standard', ['array', 'null', 'string']);
@@ -65,9 +59,8 @@ class Phpcs extends AbstractExternalTask
         $resolver->addAllowedTypes('report_width', ['null', 'int']);
         $resolver->addAllowedTypes('exclude', ['array']);
         $resolver->addAllowedTypes('show_sniffs_error_path', ['bool']);
-        $resolver->addAllowedTypes('parallel', ['null', 'int']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function canRunInContext(ContextInterface $context): bool
@@ -163,7 +156,6 @@ class Phpcs extends AbstractExternalTask
         $arguments->addOptionalCommaSeparatedArgument('--ignore=%s', $config['ignore_patterns']);
         $arguments->addOptionalCommaSeparatedArgument('--exclude=%s', $config['exclude']);
         $arguments->addOptionalArgument('-s', $config['show_sniffs_error_path']);
-        $arguments->addOptionalArgument('--parallel=%s', $config['parallel']);
 
         return $arguments;
     }

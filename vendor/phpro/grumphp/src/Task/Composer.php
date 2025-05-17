@@ -8,7 +8,6 @@ use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Process\ProcessBuilder;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
@@ -16,9 +15,6 @@ use GrumPHP\Util\Filesystem;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use SplFileInfo;
 
-/**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
- */
 class Composer extends AbstractExternalTask
 {
     /**
@@ -35,7 +31,7 @@ class Composer extends AbstractExternalTask
         $this->filesystem = $filesystem;
     }
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -56,7 +52,7 @@ class Composer extends AbstractExternalTask
         $resolver->addAllowedTypes('with_dependencies', ['bool']);
         $resolver->addAllowedTypes('strict', ['bool']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function canRunInContext(ContextInterface $context): bool
@@ -67,12 +63,9 @@ class Composer extends AbstractExternalTask
     public function run(ContextInterface $context): TaskResultInterface
     {
         $config = $this->getConfig()->getOptions();
-        $composerDir = pathinfo($config['file'], PATHINFO_DIRNAME);
-        $composerFile = pathinfo($config['file'], PATHINFO_BASENAME);
-        $composerLockFile = $this->getLockFile($composerFile);
         $files = $context->getFiles()
-            ->path($composerDir)
-            ->names([$composerFile, $composerLockFile]);
+            ->path(pathinfo($config['file'], PATHINFO_DIRNAME))
+            ->name(pathinfo($config['file'], PATHINFO_BASENAME));
         if (0 === \count($files)) {
             return TaskResult::createSkipped($this, $context);
         }
@@ -118,15 +111,5 @@ class Composer extends AbstractExternalTask
         }
 
         return false;
-    }
-
-    /**
-     * Verbatim copy from \Composer\Factory::getLockFile.
-     */
-    private static function getLockFile(string $composerFile): string
-    {
-        return 'json' === pathinfo($composerFile, PATHINFO_EXTENSION)
-            ? substr($composerFile, 0, -4) . 'lock'
-            : $composerFile . '.lock';
     }
 }

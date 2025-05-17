@@ -40,8 +40,7 @@ class EnvConfig
     }
 
     /**
-     * @psalm-suppress RedundantCastGivenDocblockType - The types are not validated here.
-     * @param array{files ?: list<string>, variables ?: array<string, string>, paths ?: list<string>} $config
+     * @param array{max_workers: int, enabled: bool} $config
      */
     public static function fromArray(array $config): self
     {

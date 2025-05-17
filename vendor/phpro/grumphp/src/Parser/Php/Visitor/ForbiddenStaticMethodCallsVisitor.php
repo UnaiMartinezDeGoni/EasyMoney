@@ -37,11 +37,11 @@ class ForbiddenStaticMethodCallsVisitor extends AbstractVisitor implements Confi
      */
     public function leaveNode(Node $node): void
     {
-        if (!$node instanceof Node\Expr\StaticCall || !$node->class instanceof Node\Name) {
+        if (!$node instanceof Node\Expr\StaticCall) {
             return;
         }
 
-        $class = implode('\\', $node->class->getParts());
+        $class = implode('\\', $node->class->parts);
         $method = $node->name;
         $normalized = sprintf('%s::%s', $class, $method);
 

@@ -6,10 +6,8 @@ namespace GrumPHP\Task;
 
 use GrumPHP\Collection\ProcessArgumentsCollection;
 use GrumPHP\Fixer\Provider\FixableProcessResultProvider;
-use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
@@ -17,12 +15,9 @@ use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Process\Process;
 
-/**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
- */
 class ESLint extends AbstractExternalTask
 {
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -55,7 +50,20 @@ class ESLint extends AbstractExternalTask
         $resolver->addAllowedTypes('no_eslintrc', ['bool']);
         $resolver->addAllowedTypes('quiet', ['bool']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        $resolver->setDeprecated(
+            'whitelist_patterns',
+            'phpro/grumphp',
+            '1.14',
+            function (Options $options, $value): string {
+                if (null === $value) {
+                    return 'Parsing "null" to option "whitelist_patterns" is deprecated, pass an array instead.';
+                }
+
+                return '';
+            }
+        );
+
+        return $resolver;
     }
 
     public function canRunInContext(ContextInterface $context): bool

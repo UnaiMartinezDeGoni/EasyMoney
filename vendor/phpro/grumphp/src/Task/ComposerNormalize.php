@@ -3,19 +3,14 @@
 namespace GrumPHP\Task;
 
 use GrumPHP\Fixer\Provider\FixableProcessResultProvider;
-use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Process\Process;
 
-/**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
- */
 class ComposerNormalize extends AbstractExternalTask
 {
     public function canRunInContext(ContextInterface $context): bool
@@ -23,7 +18,7 @@ class ComposerNormalize extends AbstractExternalTask
         return $context instanceof GitPreCommitContext || $context instanceof RunContext;
     }
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -42,7 +37,7 @@ class ComposerNormalize extends AbstractExternalTask
         $resolver->addAllowedTypes('no_update_lock', ['bool']);
         $resolver->addAllowedTypes('verbose', ['bool']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function run(ContextInterface $context): TaskResultInterface

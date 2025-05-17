@@ -14,7 +14,7 @@ class PhpcsFormatter implements ProcessFormatterInterface
     protected $output = '';
 
     /**
-     * @var list<string>
+     * @var string[]
      */
     protected $suggestedFiles = [];
 
@@ -41,9 +41,6 @@ class PhpcsFormatter implements ProcessFormatterInterface
         return $this->output;
     }
 
-    /**
-     * @return list<string>
-     */
     private function getSuggestedFilesFromJson(array $json): array
     {
         $suggestedFiles = [];
@@ -56,7 +53,7 @@ class PhpcsFormatter implements ProcessFormatterInterface
             }
             foreach ($data['messages'] as $message) {
                 if (\is_array($message) && $message['fixable']) {
-                    $suggestedFiles[] = (string) $absolutePath;
+                    $suggestedFiles[] = $absolutePath;
                     break;
                 }
             }

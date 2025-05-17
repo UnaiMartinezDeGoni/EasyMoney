@@ -19,7 +19,7 @@ grumphp:
     tasks:
         phpparser:
             ignore_patterns: []
-            php_version: null
+            kind: php7
             visitors: {}
             triggered_by: [php]
 ```
@@ -31,13 +31,13 @@ grumphp:
 This is a list of patterns that will be ignored by the PHP Parser.
 With this option you can skip files like tests. Leave this option blank to run analysis for every php file.
 
-**php_version**
+**kind**
 
-*Default: null*
+*Default: php7*
 
-Can be any PHP version specified as `major.minor`. For example: `8.2`.
-There is a special placeholder `latest`, which will use the latest supported PHP version from php-parser.
-If left empty, the system's PHP version will be picked. This is the default behaviour.
+Can be one of: php5, php7.
+This option determines which Lexer the PHP_Parser uses to tokenize the PHP code.
+By default, the PREFER_PHP7 is loaded.
 
 **visitors**
 

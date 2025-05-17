@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace GrumPHP\Runner\TaskHandler\Middleware;
 
-use Amp\Future;
-use GrumPHP\Runner\StopOnFailure;
+use Amp\Promise;
 use GrumPHP\Runner\TaskResultInterface;
 use GrumPHP\Runner\TaskRunnerContext;
 use GrumPHP\Task\TaskInterface;
@@ -13,13 +12,12 @@ use GrumPHP\Task\TaskInterface;
 interface TaskHandlerMiddlewareInterface
 {
     /**
-     * @param callable(TaskInterface, TaskRunnerContext, StopOnFailure): Future<TaskResultInterface> $next
-     * @return Future<TaskResultInterface>
+     * @param callable(TaskInterface, TaskRunnerContext): Promise<TaskResultInterface> $next
+     * @return Promise<TaskResultInterface>
      */
     public function handle(
         TaskInterface $task,
         TaskRunnerContext $runnerContext,
-        StopOnFailure $stopOnFailure,
         callable $next
-    ): Future;
+    ): Promise;
 }

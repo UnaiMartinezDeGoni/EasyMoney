@@ -4,7 +4,6 @@ The SensioLabs Security Checker API is abandoned
 
 You can use one of following tasks as a replacement:
 
-- [securitychecker_composeraudit](securitychecker/composeraudit.md)
 - [securitychecker_enlightn](securitychecker/enlightn.md)
 - [securitychecker_local](securitychecker/local.md)
 - [securitychecker_roave](securitychecker/roave.md)

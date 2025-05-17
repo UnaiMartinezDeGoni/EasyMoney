@@ -6,7 +6,6 @@ namespace GrumPHP\Task;
 
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Config\EmptyTaskConfig;
 use GrumPHP\Task\Config\TaskConfigInterface;
 use GrumPHP\Task\Context\ContextInterface;
@@ -26,7 +25,7 @@ class FileSize implements TaskInterface
         $this->config = new EmptyTaskConfig();
     }
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -37,7 +36,7 @@ class FileSize implements TaskInterface
         $resolver->addAllowedTypes('max_size', ['string', 'integer']);
         $resolver->addAllowedTypes('ignore_patterns', ['array']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function getConfig(): TaskConfigInterface

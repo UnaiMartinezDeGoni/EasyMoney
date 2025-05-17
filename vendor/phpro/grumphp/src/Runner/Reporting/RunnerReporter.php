@@ -124,9 +124,8 @@ class RunnerReporter
     private function reportFailedMessages(array $messages, string $color): void
     {
         foreach ($messages as $label => $message) {
-            $this->IO->startGroup($label);
+            $this->IO->style()->title($label);
             $this->IO->writeError($this->IO->colorize([$message], $color));
-            $this->IO->endGroup();
         }
     }
 

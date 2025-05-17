@@ -31,7 +31,6 @@ grumphp:
             triggered_by: [php]
             exclude: []
             show_sniffs_error_path: true
-            parallel: null
 ```
 
 **standard**
@@ -136,12 +135,6 @@ A list of rules that should not be checked. Leave this option blank to run all c
 *Default: true*
 
 Displays the sniff that triggered the error, allowing you to more easily find the specific rules with their namespaces.
-
-**parallel**
-
-*Default: null*
-
-Determines the number of processes that phpcs / phpcbf will use when running. Defaults to a single process.
 
 ## Framework presets
 

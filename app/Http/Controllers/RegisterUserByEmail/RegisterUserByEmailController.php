@@ -10,28 +10,31 @@ class RegisterUserByEmailController extends Controller
 {
     public function index(Request $request)
     {
-        header('Content-Type: application/json');
-
-        require_once __DIR__ . '/../../../../funcionesComunes.php';
-
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $request->json()->all();
 
         if (empty($data['email'])) {
-            http_response_code(400);
-            echo json_encode(["error" => "The email is mandatory"], JSON_PRETTY_PRINT);
-            exit;
+            return response()->json(
+                ["error" => "The email is mandatory"],
+                400,
+                [],
+                JSON_PRETTY_PRINT
+            );
         }
+
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            http_response_code(400);
-            echo json_encode(["error" => "The email must be a valid email address"], JSON_PRETTY_PRINT);
-            exit;
+            return response()->json(
+                ["error" => "The email must be a valid email address"],
+                400,
+                [],
+                JSON_PRETTY_PRINT
+            );
         }
 
         $email = $data['email'];
 
         try {
+            // Función externa para conectar a la base de datos
             $mysqli = conectarMysqli();
-
 
             $stmt = $mysqli->prepare("SELECT api_key FROM users WHERE email = ?");
             $stmt->bind_param("s", $email);
@@ -39,8 +42,8 @@ class RegisterUserByEmailController extends Controller
             $result = $stmt->get_result();
             $user   = $result->fetch_assoc();
 
-
             $apiKey = generateApiKey();
+
             if ($user) {
                 $stmt = $mysqli->prepare("UPDATE users SET api_key = ? WHERE email = ?");
                 $stmt->bind_param("ss", $apiKey, $email);
@@ -51,20 +54,20 @@ class RegisterUserByEmailController extends Controller
                 $stmt->execute();
             }
 
-            http_response_code(200);
-            echo json_encode(["api_key" => $apiKey], JSON_PRETTY_PRINT);
-            exit;
-
+            return response()->json(
+                ["api_key" => $apiKey],
+                200,
+                [],
+                JSON_PRETTY_PRINT
+            );
         } catch (Throwable $e) {
             error_log('[RegisterUser] ' . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(["error" => "Internal server error."], JSON_PRETTY_PRINT);
-            exit;
+            return response()->json(
+                ["error" => "Internal server error."],
+                500,
+                [],
+                JSON_PRETTY_PRINT
+            );
         }
-
     }
-
 }
-
-
-

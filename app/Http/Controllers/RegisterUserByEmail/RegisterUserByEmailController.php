@@ -10,6 +10,8 @@ class RegisterUserByEmailController extends Controller
 {
     public function index(Request $request)
     {
+        require_once __DIR__ . '/../../../../funcionesComunes.php';
+
         $data = $request->json()->all();
 
         if (empty($data['email'])) {
@@ -33,7 +35,6 @@ class RegisterUserByEmailController extends Controller
         $email = $data['email'];
 
         try {
-            // Función externa para conectar a la base de datos
             $mysqli = conectarMysqli();
 
             $stmt = $mysqli->prepare("SELECT api_key FROM users WHERE email = ?");

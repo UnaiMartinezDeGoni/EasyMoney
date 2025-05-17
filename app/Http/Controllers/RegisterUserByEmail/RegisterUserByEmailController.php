@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\RegisterUserByEmail;
 
+use App\Exceptions\ServerErrorException;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Throwable;
@@ -52,9 +53,9 @@ class RegisterUserByEmailController extends Controller
                 JSON_PRETTY_PRINT
             );
         } catch (Throwable $e) {
-            error_log('[RegisterUser] ' . $e->getMessage());
+            $serverError = new ServerErrorException();
             return response()->json(
-                ["error" => "Internal server error."],
+                ['error' => $serverError->getMessage()],
                 500,
                 [],
                 JSON_PRETTY_PRINT

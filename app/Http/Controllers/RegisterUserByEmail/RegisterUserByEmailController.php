@@ -14,18 +14,13 @@ class RegisterUserByEmailController extends Controller
 
         $data = $request->json()->all();
 
-        if (empty($data['email'])) {
-            return response()->json(
-                ["error" => "The email is mandatory"],
-                400,
-                [],
-                JSON_PRETTY_PRINT
-            );
-        }
+        $validator = new RegisterUserByEmailValidator();
 
-        if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
+        try {
+            $validator->validate($data);
+        } catch (\RuntimeException $e) {
             return response()->json(
-                ["error" => "The email must be a valid email address"],
+                ['error' => $e->getMessage()],
                 400,
                 [],
                 JSON_PRETTY_PRINT

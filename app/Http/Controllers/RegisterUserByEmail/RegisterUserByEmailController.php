@@ -5,15 +5,21 @@ namespace App\Http\Controllers\RegisterUserByEmail;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Throwable;
+use App\Repositories\DB_Repositories;
 
 class RegisterUserByEmailController extends Controller
 {
-    public function index(Request $request)
+    protected $dbRepo;
+
+    public function __construct()
     {
         require_once __DIR__ . '/../../../../funcionesComunes.php';
+        $this->dbRepo = new DB_Repositories();
+    }
 
+    public function index(Request $request)
+    {
         $data = $request->json()->all();
-
         $validator = new RegisterUserByEmailValidator();
 
         try {
@@ -27,27 +33,16 @@ class RegisterUserByEmailController extends Controller
             );
         }
 
-        $email = $data['email'];
+        $email  = $data['email'];
+        $apiKey = generateApiKey();
 
         try {
-            $mysqli = conectarMysqli();
-
-            $stmt = $mysqli->prepare("SELECT api_key FROM users WHERE email = ?");
-            $stmt->bind_param("s", $email);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $user   = $result->fetch_assoc();
-
-            $apiKey = generateApiKey();
+            $user = $this->dbRepo->findUserByEmail($email);
 
             if ($user) {
-                $stmt = $mysqli->prepare("UPDATE users SET api_key = ? WHERE email = ?");
-                $stmt->bind_param("ss", $apiKey, $email);
-                $stmt->execute();
+                $this->dbRepo->updateApiKey($email, $apiKey);
             } else {
-                $stmt = $mysqli->prepare("INSERT INTO users (email, api_key) VALUES (?, ?)");
-                $stmt->bind_param("ss", $email, $apiKey);
-                $stmt->execute();
+                $this->dbRepo->insertUser($email, $apiKey);
             }
 
             return response()->json(

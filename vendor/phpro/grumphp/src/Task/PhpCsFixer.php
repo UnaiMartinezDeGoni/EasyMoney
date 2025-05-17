@@ -8,16 +8,12 @@ use GrumPHP\Fixer\Provider\FixableProcessResultProvider;
 use GrumPHP\Formatter\PhpCsFixerFormatter;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Process\Process;
 
-/**
- * @extends AbstractExternalTask<PhpCsFixerFormatter>
- */
 class PhpCsFixer extends AbstractExternalTask
 {
     /**
@@ -25,7 +21,7 @@ class PhpCsFixer extends AbstractExternalTask
      */
     protected $formatter;
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -50,7 +46,7 @@ class PhpCsFixer extends AbstractExternalTask
         $resolver->addAllowedTypes('diff', ['bool']);
         $resolver->addAllowedTypes('triggered_by', ['array']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     /**

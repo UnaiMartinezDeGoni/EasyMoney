@@ -8,8 +8,11 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->post('/register', function () {
-    require_once __DIR__ . '/../src/registerUser.php';
+$router->post('/register', function (Request $request) {
+    return app()->call(
+        'App\Http\Controllers\RegisterUserByEmail\RegisterUserByEmailController@index',
+        ['request' => $request]
+    );
 });
 
 

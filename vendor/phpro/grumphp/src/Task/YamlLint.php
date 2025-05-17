@@ -9,7 +9,6 @@ use GrumPHP\Exception\RuntimeException;
 use GrumPHP\Linter\Yaml\YamlLinter;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
@@ -26,9 +25,9 @@ class YamlLint extends AbstractLinterTask
      */
     protected $linter;
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
-        $resolver = self::sharedOptionsResolver();
+        $resolver = parent::getConfigurableOptions();
         $resolver->setDefaults([
             'object_support' => false,
             'exception_on_invalid_type' => false,
@@ -43,7 +42,7 @@ class YamlLint extends AbstractLinterTask
         $resolver->addAllowedTypes('parse_custom_tags', ['bool']);
         $resolver->addAllowedTypes('whitelist_patterns', ['array']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function canRunInContext(ContextInterface $context): bool

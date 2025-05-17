@@ -7,9 +7,6 @@ namespace GrumPHP\Locator;
 use GrumPHP\Configuration\GuessedPaths;
 use GrumPHP\Util\Filesystem;
 
-/**
- * @psalm-suppress RedundantCast - We don't want to blindly assume variables in $_SERVER are from the string type.
- */
 class EnrichedGuessedPathsFromDotEnvLocator
 {
     /**

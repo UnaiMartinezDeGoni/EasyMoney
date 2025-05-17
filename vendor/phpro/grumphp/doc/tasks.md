@@ -54,17 +54,14 @@ grumphp:
         psalm: ~
         rector: ~
         robo: ~
-        securitychecker_composeraudit: ~
         securitychecker_enlightn: ~
         securitychecker_local: ~
         securitychecker_roave: ~
         securitychecker_symfony: ~
         shell: ~
         stylelint: ~
-        symfony_console: ~
         tester: ~
         twigcs: ~
-        twigcsfixer: ~
         xmllint: ~
         yamllint: ~
 ```
@@ -122,17 +119,14 @@ Every task has its own default configuration. It is possible to overwrite the pa
 - [Rector](tasks/rector.md)
 - [Robo](tasks/robo.md)
 - [Security Checker](tasks/securitychecker.md)
-  - [Composer Audit](tasks/securitychecker/composeraudit.md)
   - [Enlightn](tasks/securitychecker/enlightn.md)
   - [Local](tasks/securitychecker/local.md)
   - [Roave](tasks/securitychecker/roave.md)
   - [Symfony](tasks/securitychecker/symfony.md)
 - [Shell](tasks/shell.md)
 - [Stylelint](tasks/stylelint.md)
-- [Symfony Console](tasks/symfony_console.md)
 - [Tester](tasks/tester.md)
 - [TwigCs](tasks/twigcs.md)
-- [Twig-CS-Fixer](tasks/twigcsfixer.md)
 - [XmlLint](tasks/xmllint.md)
 - [YamlLint](tasks/yamllint.md)
 
@@ -203,7 +197,7 @@ When your task is written, you have to register it to the service manager and ad
 
 interface TaskInterface
 {
-    public static function getConfigurableOptions(): ConfigOptionsResolver;
+    public static function getConfigurableOptions(): OptionsResolver;
     public function canRunInContext(ContextInterface $context): bool;
     public function run(ContextInterface $context): TaskResultInterface;
     public function getConfig(): TaskConfigInterface;
@@ -237,21 +231,6 @@ You now registered your custom task! Pretty cool right?!
 
 ❗**Note:** Be careful with adding dependencies to your task. When GrumPHP runs in parallel mode, the task and all of its dependencies get serialized in order to run in a separate process. This could lead to a delay when e.g. serializing a depenency container or lead to errors on unserializable objects. [More info](https://github.com/phpro/grumphp/issues/815)
 
-❗**Note:** You can use Symfony's options-resolver to help configure the options for your task. However, if you want your task to work together with the `grumphp-shim` (phar) distribution, you will have to make sure to use `ConfigOptionsResolver::fromClosure()` This is because the Symfony's options-resolver gets scoped in the phar. Example:
-
-```php
-public static function getConfigurableOptions(): ConfigOptionsResolver
-{
-    $resolver = new OptionsResolver();
-
-    // ..... your config
-
-    return ConfigOptionsResolver::fromClosure(
-        static fn (array $options): array => $resolver->resolve($options)
-    );
-}
-```
-
 
 ## Testing your custom task.
 
@@ -266,7 +245,7 @@ For a more detailed view on how to use these classes, you can scroll through our
 
 In some cases you might want to run the same task but with different configuration.
 Good news: This is perfectly possible!
-You can use any name you want for the task, as long as you configure an existing task in the metadata section.
+You can use any name you want for the task, as long as you configure an existing task in the metadata section. 
 Configuration of the additional task will look like this:
 
 ```yaml

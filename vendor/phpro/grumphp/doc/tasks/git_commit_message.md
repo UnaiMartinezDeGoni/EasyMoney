@@ -14,7 +14,6 @@ grumphp:
             enforce_no_subject_trailing_period: true
             enforce_single_lined_subject: true
             type_scope_conventions: []
-            skip_on_merge_commit: true
             max_body_width: 72
             max_subject_width: 60
             matchers:
@@ -89,13 +88,6 @@ Mark the matchers as case-sensitive.
 *Default:true*
 
 Mark the matchers as multiline.
-
-
-**skip_on_merge_commit**
-
-*Default:true*
-
-Skips checking the commit message when the commit is a merge.
 
 
 **additional_modifiers**

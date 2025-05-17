@@ -44,7 +44,6 @@ class VerboseLoggerSubscriber implements EventSubscriberInterface
             return;
         }
 
-        /** @psalm-suppress DeprecatedConstant - Only possible to use enums from PHP 8.2*/
         $this->logger->pushHandler(new StreamHandler('php://stdout', Logger::DEBUG));
         $this->logGuessedPaths($output);
     }

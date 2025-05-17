@@ -6,8 +6,7 @@ namespace GrumPHP\Console\Command;
 
 use GrumPHP\Collection\FilesCollection;
 use GrumPHP\Collection\TestSuiteCollection;
-use GrumPHP\IO\IOFactory;
-use GrumPHP\IO\IOInterface;
+use GrumPHP\IO\ConsoleIO;
 use GrumPHP\Locator\RegisteredFiles;
 use GrumPHP\Locator\StdInFiles;
 use GrumPHP\Runner\TaskRunner;
@@ -45,14 +44,11 @@ class RunCommand extends Command
      */
     private $taskRunner;
 
-    private IOInterface $io;
-
     public function __construct(
         TestSuiteCollection $testSuites,
         StdInFiles $stdInFileLocator,
         RegisteredFiles $registeredFilesLocator,
-        TaskRunner $taskRunner,
-        IOInterface $io
+        TaskRunner $taskRunner
     ) {
         parent::__construct();
 
@@ -60,7 +56,6 @@ class RunCommand extends Command
         $this->stdInFileLocator = $stdInFileLocator;
         $this->registeredFilesLocator = $registeredFilesLocator;
         $this->taskRunner = $taskRunner;
-        $this->io = $io;
     }
 
     public static function getDefaultName(): string
@@ -88,13 +83,15 @@ class RunCommand extends Command
 
     public function execute(InputInterface $input, OutputInterface $output): int
     {
+        $io = new ConsoleIO($input, $output);
+
         /** @var string $taskNames */
         $taskNames = $input->getOption('tasks') ?? '';
 
         /** @var string $testsSuite */
         $testsSuite = $input->getOption('testsuite') ?? '';
 
-        $files = $this->detectFiles();
+        $files = $this->detectFiles($io);
         $tasks = Str::explodeWithCleanup(',', $taskNames);
 
         $context = new TaskRunnerContext(
@@ -110,9 +107,9 @@ class RunCommand extends Command
         return $results->isFailed() ? self::EXIT_CODE_NOK : self::EXIT_CODE_OK;
     }
 
-    private function detectFiles(): FilesCollection
+    private function detectFiles(ConsoleIO $io): FilesCollection
     {
-        if ($stdin = $this->io->readCommandInput(STDIN)) {
+        if ($stdin = $io->readCommandInput(STDIN)) {
             return $this->stdInFileLocator->locate($stdin);
         }
 

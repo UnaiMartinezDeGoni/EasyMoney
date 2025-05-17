@@ -5,15 +5,20 @@ declare(strict_types=1);
 namespace GrumPHP\Configuration\Resolver;
 
 use GrumPHP\Exception\TaskConfigResolverException;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\TaskInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class TaskConfigResolver
 {
     /**
      * @var array<string, string>
      */
-    private $taskMap;
+    private $taskMap = [];
+
+    /**
+     * @var array<OptionsResolver>
+     */
+    private $cachedResolvers = [];
 
     public function __construct(array $taskMap)
     {
@@ -38,17 +43,22 @@ class TaskConfigResolver
         return $resolver->resolve($config);
     }
 
-    public function fetchByName(string $taskName): ConfigOptionsResolver
+    public function fetchByName(string $taskName): OptionsResolver
     {
         if (!array_key_exists($taskName, $this->taskMap)) {
             throw TaskConfigResolverException::unknownTask($taskName);
         }
 
+        // Try to use cached version first:
         $class = $this->taskMap[$taskName];
+        if (array_key_exists($class, $this->cachedResolvers)) {
+            return $this->cachedResolvers[$class];
+        }
+
         if (!class_exists($class) || !is_subclass_of($class, TaskInterface::class)) {
             throw TaskConfigResolverException::unknownClass($class);
         }
 
-        return $class::getConfigurableOptions();
+        return $this->cachedResolvers[$class] = $class::getConfigurableOptions();
     }
 }

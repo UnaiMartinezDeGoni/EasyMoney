@@ -8,7 +8,6 @@ use GrumPHP\Exception\RuntimeException;
 use GrumPHP\Git\GitRepository;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Config\EmptyTaskConfig;
 use GrumPHP\Task\Config\TaskConfigInterface;
 use GrumPHP\Task\Context\ContextInterface;
@@ -20,9 +19,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CommitMessage implements TaskInterface
 {
-    public const MERGE_COMMIT_REGEX =
-        '(Merge branch|tag \'.+\'(?:\s.+)?|Merge remote-tracking branch \'.+\'|Merge pull request #\d+\s.+)';
-
     /**
      * @var TaskConfigInterface
      */
@@ -33,7 +29,7 @@ class CommitMessage implements TaskInterface
      */
     private $repository;
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -47,7 +43,6 @@ class CommitMessage implements TaskInterface
             'case_insensitive' => true,
             'multiline' => true,
             'type_scope_conventions' => [],
-            'skip_on_merge_commit' => true,
             'matchers' => [],
             'additional_modifiers' => '',
         ]);
@@ -61,12 +56,11 @@ class CommitMessage implements TaskInterface
         $resolver->addAllowedTypes('max_body_width', ['int']);
         $resolver->addAllowedTypes('max_subject_width', ['int']);
         $resolver->addAllowedTypes('case_insensitive', ['bool']);
-        $resolver->addAllowedTypes('skip_on_merge_commit', ['bool']);
         $resolver->addAllowedTypes('multiline', ['bool']);
         $resolver->addAllowedTypes('matchers', ['array']);
         $resolver->addAllowedTypes('additional_modifiers', ['string']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function __construct(GitRepository $repository)
@@ -93,18 +87,6 @@ class CommitMessage implements TaskInterface
         return $context instanceof GitCommitMsgContext;
     }
 
-    private static function withCommitMessage(string $errorMessage, string $commitMessage): string
-    {
-        return sprintf(
-            "%s%sOriginal commit message:%s%s",
-            $errorMessage,
-            PHP_EOL,
-            PHP_EOL,
-            $commitMessage
-        );
-    }
-
-
     public function run(ContextInterface $context): TaskResultInterface
     {
         assert($context instanceof GitCommitMsgContext);
@@ -112,17 +94,12 @@ class CommitMessage implements TaskInterface
         $config = $this->getConfig()->getOptions();
         $commitMessage = $context->getCommitMessage();
         $exceptions = [];
-        $isMergeCommit = $this->isMergeCommit($commitMessage);
-
-        if ($isMergeCommit && $config['skip_on_merge_commit']) {
-            return TaskResult::createSkipped($this, $context);
-        }
 
         if (!(bool) $config['allow_empty_message'] && '' === trim($commitMessage)) {
             return TaskResult::createFailed(
                 $this,
                 $context,
-                'Commit message should not be empty.',
+                'Commit message should not be empty.'
             );
         }
 
@@ -130,7 +107,7 @@ class CommitMessage implements TaskInterface
             return TaskResult::createFailed(
                 $this,
                 $context,
-                self::withCommitMessage('Subject should start with a capital letter.', $commitMessage)
+                'Subject should start with a capital letter.'
             );
         }
 
@@ -138,7 +115,7 @@ class CommitMessage implements TaskInterface
             return TaskResult::createFailed(
                 $this,
                 $context,
-                self::withCommitMessage('Subject should be one line and followed by a blank line.', $commitMessage)
+                'Subject should be one line and followed by a blank line.'
             );
         }
 
@@ -146,7 +123,7 @@ class CommitMessage implements TaskInterface
             return TaskResult::createFailed(
                 $this,
                 $context,
-                self::withCommitMessage('Please omit all punctuations from commit message subject.', $commitMessage)
+                'Please omit all punctuations from commit message subject.'
             );
         }
 
@@ -154,11 +131,12 @@ class CommitMessage implements TaskInterface
             return TaskResult::createFailed(
                 $this,
                 $context,
-                self::withCommitMessage('Please omit trailing period from commit message subject.', $commitMessage)
+                'Please omit trailing period from commit message subject.'
             );
         }
 
-        if (!$isMergeCommit && $this->enforceTypeScopeConventions()) {
+
+        if ($this->enforceTypeScopeConventions()) {
             try {
                 $this->checkTypeScopeConventions($context);
             } catch (RuntimeException $e) {
@@ -178,7 +156,11 @@ class CommitMessage implements TaskInterface
             return TaskResult::createFailed(
                 $this,
                 $context,
-                self::withCommitMessage(implode(PHP_EOL, $exceptions), $commitMessage)
+                implode(PHP_EOL, $exceptions).PHP_EOL.sprintf(
+                    'Original commit message: %s%s',
+                    PHP_EOL,
+                    $commitMessage
+                )
             );
         }
 
@@ -219,11 +201,7 @@ class CommitMessage implements TaskInterface
         }
 
         if (\count($errors)) {
-            return TaskResult::createFailed(
-                $this,
-                $context,
-                self::withCommitMessage(implode(PHP_EOL, $errors), $commitMessage)
-            );
+            return TaskResult::createFailed($this, $context, implode(PHP_EOL, $errors));
         }
 
         return TaskResult::createPassed($this, $context);
@@ -231,7 +209,6 @@ class CommitMessage implements TaskInterface
 
     private function runMatcher(array $config, string $commitMessage, string $rule, string $ruleName): void
     {
-        assert($rule !== '');
         $regex = new Regex($rule);
 
         if ((bool) $config['case_insensitive']) {
@@ -347,8 +324,6 @@ class CommitMessage implements TaskInterface
                     $everythingBelowWillBeIgnored = true;
                     return false;
                 }
-
-                /** @psalm-suppress RedundantCondition - False positive */
                 return 0 !== strpos($line, $commentChar) && !$everythingBelowWillBeIgnored;
             }
         ));
@@ -371,15 +346,24 @@ class CommitMessage implements TaskInterface
         $config = $this->getConfig()->getOptions();
         $subjectLine = $this->getSubjectLine($context);
 
-        $types = $config['type_scope_conventions']['types'] ?? [];
+        $types = isset($config['type_scope_conventions']['types'])
+            ? $config['type_scope_conventions']['types']
+            : [];
 
-        $scopes = $config['type_scope_conventions']['scopes'] ?? [];
+        $scopes = isset($config['type_scope_conventions']['scopes'])
+            ? $config['type_scope_conventions']['scopes']
+            : [];
 
         $specialPrefix = '(?:(?:fixup|squash)! )?';
         $typesPattern = '([a-zA-Z0-9]+)';
         $scopesPattern = '(:\s|(\(.+\)?:\s))';
 
-        $subjectPattern = $config['type_scope_conventions']['subject_pattern'] ?? '([a-zA-Z0-9-_ #@\'\/\\"]+)';
+        $subjectPattern = isset($config['type_scope_conventions']['subject_pattern'])
+            ? $config['type_scope_conventions']['subject_pattern']
+            : '([a-zA-Z0-9-_ #@\'\/\\"]+)';
+
+        $mergePattern =
+            '(Merge branch|tag \'.+\'(?:\s.+)?|Merge remote-tracking branch \'.+\'|Merge pull request #\d+\s.+)';
 
         if (count($types) > 0) {
             $types = implode('|', $types);
@@ -391,17 +375,12 @@ class CommitMessage implements TaskInterface
             $scopesPattern = '(:\s|(\((?:' . $scopes . ')\)?:\s))';
         }
 
-        $rule = '/^' . $specialPrefix . $typesPattern . $scopesPattern . $subjectPattern . '/';
+        $rule = '/^' . $specialPrefix . $typesPattern . $scopesPattern . $subjectPattern . '|' . $mergePattern . '/';
         try {
             $this->runMatcher($config, $subjectLine, $rule, 'Invalid Type/Scope Format');
         } catch (RuntimeException $e) {
             throw $e;
         }
-    }
-
-    private function isMergeCommit(string $commitMessage): bool
-    {
-        return (bool) \preg_match(self::MERGE_COMMIT_REGEX, $commitMessage);
     }
 
     /**

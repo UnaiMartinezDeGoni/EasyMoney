@@ -29,7 +29,6 @@ Class GetUserByIdController extends Controller{
 
         if (isset($respuesta['status']) && isset($respuesta['message'])) {
             $status = (int)$respuesta['status'];
-            // Si es unauthorized
             if ($status === 401) {
                 http_response_code(401);
                 echo json_encode(["error" => "Unauthorized: {$respuesta['message']}"], JSON_PRETTY_PRINT);

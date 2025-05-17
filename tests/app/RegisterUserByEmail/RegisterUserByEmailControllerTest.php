@@ -6,7 +6,7 @@ use Tests\TestCase;
 use Illuminate\Http\JsonResponse;
 use Mockery;
 
-class RegisterUserByIdControllerTest extends TestCase
+class RegisterUserByEmailControllerTest extends TestCase
 {
     /**
      * @test

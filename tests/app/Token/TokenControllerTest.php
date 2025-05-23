@@ -2,12 +2,14 @@
 
 namespace Tests\app\Token;
 
+use App\Services\TokenService;
+use Mockery;
 use Tests\TestCase;
 
 class TokenControllerTest extends TestCase
 {
-    protected string $endpoint;
-    protected array $headers;
+    protected string $endpoint = '/token';
+    protected array $headers = ['CONTENT_TYPE' => 'application/json'];
 
     protected function setUp(): void
     {
@@ -76,6 +78,36 @@ class TokenControllerTest extends TestCase
         $this->assertEquals(400, $response->status());
         $this->assertJsonStringEqualsJsonString(
             json_encode(['error' => 'The api_key is mandatory'], JSON_PRETTY_PRINT),
+            $response->getContent()
+        );
+    }
+    /**
+     * @test
+     */
+    public function gets200AndTokenWhenServiceIssuesIt(): void
+    {
+        $expectedToken = 'mocked-token';
+
+        $mockService = Mockery::mock(TokenService::class);
+        $mockService->shouldReceive('issueToken')
+            ->once()
+            ->with('foo@bar.com', 'secret-key')
+            ->andReturn($expectedToken);
+
+        $this->app->instance(TokenService::class, $mockService);
+
+        $payload = ['email' => 'foo@bar.com', 'api_key' => 'secret-key'];
+        $response = $this->call(
+            'POST',
+            $this->endpoint,
+            [], [], [],
+            $this->headers,
+            json_encode($payload)
+        );
+
+        $this->assertEquals(200, $response->status());
+        $this->assertJsonStringEqualsJsonString(
+            json_encode(['token' => $expectedToken], JSON_PRETTY_PRINT),
             $response->getContent()
         );
     }

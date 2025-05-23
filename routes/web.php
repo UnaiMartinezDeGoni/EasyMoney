@@ -16,7 +16,7 @@ $router->post('/register', function (Request $request) {
 });
 
 
-$router->post('/register', function (Request $request) {
+$router->post('/token', function (Request $request) {
     return app()->call(
         'App\Http\Controllers\Token\TokenController@generateToken',
         ['request' => $request]

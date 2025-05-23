@@ -1,0 +1,53 @@
+<?php
+
+namespace Tests\app\Token;
+
+use Tests\TestCase;
+
+class TokenControllerTest extends TestCase
+{
+    /**
+     * @test
+     */
+    public function gets400WhenEmailIsMissing(): void
+    {
+        $response = $this->call(
+            'POST',
+            '/register',
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([])
+        );
+
+        $this->assertEquals(400, $response->status());
+        $this->assertJsonStringEqualsJsonString(
+            json_encode(['error' => 'The email is mandatory'], JSON_PRETTY_PRINT),
+            $response->getContent()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function gets400WhenEmailIsInvalid(): void
+    {
+        $response = $this->call(
+            'POST',
+            '/register',
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode(['email' => 'invalido'])
+        );
+
+        $this->assertEquals(400, $response->status());
+        $this->assertJsonStringEqualsJsonString(
+            json_encode(['error' => 'The email must be a valid email address'], JSON_PRETTY_PRINT),
+            $response->getContent()
+        );
+    }
+
+}

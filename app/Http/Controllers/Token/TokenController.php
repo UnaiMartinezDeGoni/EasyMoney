@@ -11,7 +11,7 @@ class TokenController extends Controller
     {
 
         header('Content-Type: application/json');
-        require_once __DIR__ . '/../funcionesComunes.php';
+        require_once __DIR__ . '/../../../../funcionesComunes.php';
 
         // 1) Leer y validar JSON entrante
         $data = json_decode(file_get_contents('php://input'), true);

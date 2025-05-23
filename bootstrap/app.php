@@ -28,6 +28,16 @@ $app = new Laravel\Lumen\Application(
 |--------------------------------------------------------------------------
 */
 $app->singleton(
+    App\Http\Controllers\GetStreams\StreamsValidator::class,
+    function ($app) {
+        return new App\Http\Controllers\GetStreams\StreamsValidator(
+            $app->make(Illuminate\Contracts\Validation\Factory::class)
+        );
+    }
+);
+
+
+$app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
     App\Exceptions\Handler::class
 );

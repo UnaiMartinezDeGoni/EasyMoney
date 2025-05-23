@@ -27,6 +27,11 @@ $app = new Laravel\Lumen\Application(
 | Register Container Bindings
 |--------------------------------------------------------------------------
 */
+$app->bind(
+    App\Interfaces\TwitchApiRepositoryInterface::class,
+    App\Repositories\TwitchApiRepository::class
+);
+
 $app->singleton(
     App\Http\Controllers\GetStreams\StreamsValidator::class,
     function ($app) {
@@ -35,7 +40,6 @@ $app->singleton(
         );
     }
 );
-
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,

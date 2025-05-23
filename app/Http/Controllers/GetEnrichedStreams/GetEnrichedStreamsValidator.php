@@ -15,35 +15,33 @@ use App\Exceptions\InvalidLimitException;
  */
 class GetEnrichedStreamsValidator
 {
-    private const MAX_LIMIT = 20;
+    private const MIN = 1;   // Incluyente
+    private const MAX = 20;
 
     /**
-     * Valida y sanitiza el parámetro "limit".
-     *
-     * @param string|null $limit
-     * @return int  Límite validado y convertido a entero.
-     *
-     * @throws InvalidLimitException Si el parámetro no es válido.
+     * @throws InvalidLimitException Si el parámetro no es un número dentro de rango.
      */
-    public function validateLimit(?string $limit): int
+    public function validate(?string $limit): string
     {
-        // Debe existir y ser numérico
+        // 1. Debe suministrarse y ser numérico
         if ($limit === null || !is_numeric($limit)) {
-            throw new InvalidLimitException('The "limit" parameter must be a positive integer.');
+            throw new InvalidLimitException();
         }
 
-        // Sanitizar contra XSS/inyecciones tontas
-        $clean = filter_var($limit, FILTER_SANITIZE_NUMBER_INT);
-        if ($clean === '' || (int) $clean < 1) {
-            throw new InvalidLimitException('The "limit" parameter must be ≥ 1.');
+        // 2. Saneamos rápidamente y retiramos etiquetas/inyección
+        $trimmed = trim($limit);
+        $clean   = filter_var($trimmed, FILTER_SANITIZE_NUMBER_INT);
+
+        if ($clean === '') {
+            throw new InvalidLimitException();
         }
 
+        // 3. Rango permitido MIN‑MAX
         $value = (int) $clean;
-
-        if ($value > self::MAX_LIMIT) {
-            throw new InvalidLimitException(sprintf('The "limit" parameter must be ≤ %d.', self::MAX_LIMIT));
+        if ($value < self::MIN || $value > self::MAX) {
+            throw new InvalidLimitException();
         }
 
-        return $value;
+        return (string) $value;
     }
 }

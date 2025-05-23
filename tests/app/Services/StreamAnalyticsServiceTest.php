@@ -1,8 +1,8 @@
 <?php
 
-namespace TwitchAnalytics\Tests\app\Services;
+namespace Tests\app\Services;
 
-use TwitchAnalytics\Tests\TestCase;
+use Tests\TestCase;
 use App\Interfaces\TwitchApiRepositoryInterface;
 use App\Services\StreamAnalyticsService;
 use Illuminate\Http\JsonResponse;
@@ -10,7 +10,7 @@ use Illuminate\Http\JsonResponse;
 class StreamAnalyticsServiceTest extends TestCase
 {
     private TwitchApiRepositoryInterface $repo;
-    private StreamAnalyticsService         $service;
+    private StreamAnalyticsService       $service;
 
     public function createApplication()
     {
@@ -25,76 +25,65 @@ class StreamAnalyticsServiceTest extends TestCase
         $this->repo = $this->createMock(TwitchApiRepositoryInterface::class);
         $this->app->instance(TwitchApiRepositoryInterface::class, $this->repo);
 
+        // Instancia real del servicio
         $this->service = $this->app->make(StreamAnalyticsService::class);
     }
 
-    /**
-     * @test
-     */
-    public function returnsStreamsWhenRepoProvidesData(): void
+    /** @test */
+    public function returns_streams_when_repo_provides_data(): void
     {
-        $limit = 4;
         $data = [
-            ['id'=>'a','viewer_count'=>1],
-            ['id'=>'b','viewer_count'=>2],
-            ['id'=>'c','viewer_count'=>3],
-            ['id'=>'d','viewer_count'=>4],
+            ['id' => 'a', 'viewer_count' => 1],
+            ['id' => 'b', 'viewer_count' => 2],
         ];
 
-        $this->repo->expects($this->once())
+        $this->repo
+            ->expects($this->once())
             ->method('getStreams')
-            ->with($limit)
+            ->with(2)
             ->willReturn($data);
 
-        $response = $this->service->getStreams($limit);
+        $resp = $this->service->getStreams(2);
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame($data, $response->getData(true));
+        $this->assertInstanceOf(JsonResponse::class, $resp);
+        $this->assertSame(200, $resp->getStatusCode());
+        $this->assertSame($data, $resp->getData(true));
     }
 
-    /**
-     * @test
-     */
-    public function returnsEmptyArrayWhenRepoReturnsEmpty(): void
+    /** @test */
+    public function returns_empty_array_when_repo_returns_empty(): void
     {
         $this->repo->method('getStreams')->willReturn([]);
 
-        $response = $this->service->getStreams(7);
-
-        $this->assertSame([], $response->getData(true));
+        $resp = $this->service->getStreams(3);
+        $this->assertSame([], $resp->getData(true));
     }
 
-    /**
-     * @test
-     */
-    public function catchesRepoExceptionAndReturnsEmptyArray(): void
+    /** @test */
+    public function catches_repo_exception_and_returns_empty_array(): void
     {
-        $this->repo->expects($this->once())
+        $this->repo
+            ->expects($this->once())
             ->method('getStreams')
             ->will($this->throwException(new \Exception('boom')));
 
-        $response = $this->service->getStreams(5);
-
-        // Asumimos que la impl de repo atrapa, pero si no:
-        $this->assertSame([], $response->getData(true));
+        $resp = $this->service->getStreams(4);
+        $this->assertSame([], $resp->getData(true));
     }
 
-    /**
-     * @test
-     */
-    public function handlesLargeLimitsCorrectly(): void
+    /** @test */
+    public function handles_large_limits_correctly(): void
     {
         $limit = 100;
-        $data = array_fill(0, $limit, ['id'=>'x','viewer_count'=>0]);
+        $data  = array_fill(0, $limit, ['id' => 'x', 'viewer_count' => 0]);
 
-        $this->repo->expects($this->once())
+        $this->repo
+            ->expects($this->once())
             ->method('getStreams')
             ->with($limit)
             ->willReturn($data);
 
-        $response = $this->service->getStreams($limit);
-
-        $this->assertCount($limit, $response->getData(true));
+        $resp = $this->service->getStreams($limit);
+        $this->assertCount($limit, $resp->getData(true));
     }
 }

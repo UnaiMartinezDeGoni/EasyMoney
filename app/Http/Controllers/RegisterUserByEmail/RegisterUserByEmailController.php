@@ -2,64 +2,45 @@
 
 namespace App\Http\Controllers\RegisterUserByEmail;
 
-use App\Exceptions\ServerErrorException;
+use App\Exceptions\EmptyEmailException;
+use App\Exceptions\InvalidEmailException;
 use App\Http\Controllers\Controller;
+use App\Services\UserRegisterByEmailService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Throwable;
-use App\Repositories\DB_Repositories;
 
 class RegisterUserByEmailController extends Controller
 {
-    protected $dbRepo;
+    private RegisterUserByEmailValidator $validator;
+    private UserRegisterByEmailService   $userRegisterService;
 
-    public function __construct()
-    {
-        require_once __DIR__ . '/../../../../funcionesComunes.php';
-        $this->dbRepo = new DB_Repositories();
+    public function __construct(
+        RegisterUserByEmailValidator $validator,
+        UserRegisterByEmailService $userRegisterByEmailService
+    ) {
+        $this->validator           = $validator;
+        $this->userRegisterService = $userRegisterByEmailService;
     }
 
-    public function index(Request $request)
+
+    public function register(Request $request): JsonResponse
     {
         $data = $request->json()->all();
-        $validator = new RegisterUserByEmailValidator();
 
         try {
-            $validator->validate($data);
-        } catch (\RuntimeException $e) {
-            return response()->json(
-                ['error' => $e->getMessage()],
-                400,
-                [],
-                JSON_PRETTY_PRINT
-            );
-        }
+            $this->validator->validate($data);
+            $email = $data['email'];
 
-        $email  = $data['email'];
-        $apiKey = generateApiKey();
+            return $this->userRegisterService->register($email);
 
-        try {
-            $user = $this->dbRepo->findUserByEmail($email);
-
-            if ($user) {
-                $this->dbRepo->updateApiKey($email, $apiKey);
-            } else {
-                $this->dbRepo->insertUser($email, $apiKey);
-            }
-
-            return response()->json(
-                ["api_key" => $apiKey],
-                200,
-                [],
-                JSON_PRETTY_PRINT
-            );
-        } catch (Throwable $e) {
-            $serverError = new ServerErrorException();
-            return response()->json(
-                ['error' => $serverError->getMessage()],
-                500,
-                [],
-                JSON_PRETTY_PRINT
-            );
+        } catch (EmptyEmailException $e) {
+            return new JsonResponse([
+                'error' => $e->getMessage(),
+            ], 400);
+        } catch (InvalidEmailException $e) {
+            return new JsonResponse([
+                'error' => $e->getMessage(),
+            ], 400);
         }
     }
 }

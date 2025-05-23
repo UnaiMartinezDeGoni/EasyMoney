@@ -10,7 +10,7 @@ $router->get('/', function () use ($router) {
 
 $router->post('/register', function (Request $request) {
     return app()->call(
-        'App\Http\Controllers\RegisterUserByEmail\RegisterUserByEmailController@index',
+        'App\Http\Controllers\RegisterUserByEmail\RegisterUserByEmailController@register',
         ['request' => $request]
     );
 });

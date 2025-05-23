@@ -41,10 +41,10 @@ $router->get('/analytics/streams', function () use ($protected) {
     require_once __DIR__ . '/../src/consultarStreams.php';
 });
 
-$router->get('/analytics/streams/enriched', function () use ($protected) {
-    $protected();
-    require_once __DIR__ . '/../src/consultarEnriquecidos.php';
-});
+$router->get('/analytics/streams/enriched', [
+    'middleware' => 'auth',
+    'uses'       => 'GetEnrichedStreams\GetEnrichedStreamsController@getEnriched',
+]);
 
 $router->get('/analytics/topsofthetops', function () use ($protected) {
     $protected();

@@ -46,9 +46,11 @@ $router->get(
     ]
 );
 
-$router->get('/analytics/streams/enriched', function () use ($protected) {
-    $protected();
-    require_once __DIR__ . '/../src/consultarEnriquecidos.php';
+$router->post('/analytics/streams/enriched', function (Request $request) {
+    return app()->call(
+        'App\Http\Controllers\GetEnrichedStreams\GetEnrichedStreamsController@getEnrichedStreams',
+        ['request' => $request]
+    );
 });
 
 $router->get(

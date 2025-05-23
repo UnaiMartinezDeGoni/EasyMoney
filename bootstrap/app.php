@@ -27,6 +27,13 @@ $app = new Laravel\Lumen\Application(
 | Register Container Bindings
 |--------------------------------------------------------------------------
 */
+
+// Registrar middleware de ruta
+$app->routeMiddleware([
+    'auth.token' => App\Http\Middleware\AuthenticateToken::class,
+]);
+
+
 $app->bind(
     App\Interfaces\TwitchApiRepositoryInterface::class,
     App\Repositories\TwitchApiRepository::class

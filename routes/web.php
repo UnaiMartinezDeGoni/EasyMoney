@@ -39,8 +39,8 @@ $router->get('/analytics/user', function (Request $request) {
 $router->get(
     'analytics/streams',
     [
-        'middleware' => 'auth:api',
-        'uses'      => 'GetStreams\GetStreamsController'
+        'middleware' => 'auth.token',
+        'uses'       => 'GetStreams\GetStreamsController'
     ]
 );
 

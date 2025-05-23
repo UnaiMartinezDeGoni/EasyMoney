@@ -41,7 +41,7 @@ $router->get('/analytics/streams', function () use ($protected) {
     require_once __DIR__ . '/../src/consultarStreams.php';
 });
 
-$router->post('/register', function (Request $request) {
+$router->post('/analytics/streams/enriched', function (Request $request) {
     return app()->call(
         'App\Http\Controllers\GetEnrichedStreams\GetEnrichedStreamsController@getEnrichedStreams',
         ['request' => $request]

@@ -4,41 +4,40 @@ namespace App\Http\Controllers\Token;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Throwable;
 
 class TokenController extends Controller
 {
     public function generateToken(Request $request)
     {
-
-        header('Content-Type: application/json');
         require_once __DIR__ . '/../../../../funcionesComunes.php';
 
-        // 1) Leer y validar JSON entrante
-        $data = json_decode(file_get_contents('php://input'), true);
+        $data = $request->json()->all();
+
         if (empty($data['email'])) {
-            http_response_code(400);
-            echo json_encode(["error" => "The email is mandatory"], JSON_PRETTY_PRINT);
-            exit;
+            return response()->json([
+                'error' => 'The email is mandatory'
+            ], 400, ['Content-Type' => 'application/json']);
         }
+
         if (empty($data['api_key'])) {
-            http_response_code(400);
-            echo json_encode(["error" => "The api_key is mandatory"], JSON_PRETTY_PRINT);
-            exit;
+            return response()->json([
+                'error' => 'The api_key is mandatory'
+            ], 400, ['Content-Type' => 'application/json']);
         }
 
         $email = filter_var($data['email'], FILTER_VALIDATE_EMAIL);
         $api_key = $data['api_key'];
+
         if (!$email) {
-            http_response_code(400);
-            echo json_encode(["error" => "The email must be a valid email address"], JSON_PRETTY_PRINT);
-            exit;
+            return response()->json([
+                'error' => 'The email must be a valid email address'
+            ], 400, ['Content-Type' => 'application/json']);
         }
 
         try {
-            // 2) Conectar a la base de datos
             $mysqli = conectarMysqli();
 
-            // 3) Buscar usuario y su api_key
             $stmt = $mysqli->prepare("SELECT id, api_key FROM users WHERE email = ?");
             $stmt->bind_param("s", $email);
             $stmt->execute();
@@ -47,12 +46,12 @@ class TokenController extends Controller
             $stmt->close();
 
             if (!$user || $api_key !== $user['api_key']) {
-                http_response_code(401);
-                echo json_encode(["error" => "Unauthorized. API access token is invalid."], JSON_PRETTY_PRINT);
-                exit;
+                return response()->json([
+                    'error' => 'Unauthorized. API access token is invalid.'
+                ], 401, ['Content-Type' => 'application/json']);
             }
 
-            // 4) Si existe sesión activa, renueva su expires_at
+            // Verificar si hay sesión activa
             $stmt = $mysqli->prepare(
                 "SELECT token FROM sessions WHERE user_id = ? AND expires_at > NOW()"
             );
@@ -71,8 +70,9 @@ class TokenController extends Controller
                 $stmt->close();
             }
 
-            // 5) Generar y guardar nuevo token
+            // Crear nuevo token
             $new = generateApiToken();
+
             $stmt = $mysqli->prepare(
                 "INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)"
             );
@@ -80,16 +80,15 @@ class TokenController extends Controller
             $stmt->execute();
             $stmt->close();
 
-            // 6) Responder con el token
-            http_response_code(200);
-            echo json_encode(["token" => $new['token']], JSON_PRETTY_PRINT);
-            exit;
+            return response()->json([
+                'token' => $new['token']
+            ], 200, ['Content-Type' => 'application/json']);
 
         } catch (Throwable $e) {
             error_log('[ObtenerToken] ' . $e->getMessage());
-            http_response_code(500);
-            echo json_encode(["error" => "Internal server error."], JSON_PRETTY_PRINT);
-            exit;
+            return response()->json([
+                'error' => 'Internal server error.'
+            ], 500, ['Content-Type' => 'application/json']);
         }
     }
 }

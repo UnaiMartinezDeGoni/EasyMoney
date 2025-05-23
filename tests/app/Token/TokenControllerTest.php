@@ -13,7 +13,7 @@ class TokenControllerTest extends TestCase
     {
         $response = $this->call(
             'POST',
-            '/register',
+            '/token',
             [],
             [],
             [],
@@ -35,12 +35,15 @@ class TokenControllerTest extends TestCase
     {
         $response = $this->call(
             'POST',
-            '/register',
+            '/token',
             [],
             [],
             [],
             ['CONTENT_TYPE' => 'application/json'],
-            json_encode(['email' => 'invalido'])
+            json_encode([
+                'email' => 'invalido',
+                'api_key' => '123456'
+            ])
         );
 
         $this->assertEquals(400, $response->status());
@@ -49,5 +52,30 @@ class TokenControllerTest extends TestCase
             $response->getContent()
         );
     }
+    /**
+     * @test
+     */
+    public function gets400WhenApiKeyIsMissing(): void
+    {
+        $response = $this->call(
+            'POST',
+            '/token',
+            [],
+            [],
+            [],
+            ['CONTENT_TYPE' => 'application/json'],
+            json_encode([
+                'email'   => 'usuario@dominio.com'
+            ])
+        );
+
+        $this->assertEquals(400, $response->status());
+        $this->assertJsonStringEqualsJsonString(
+            json_encode(['error' => 'The api_key is mandatory'], JSON_PRETTY_PRINT),
+            $response->getContent()
+        );
+    }
+
+
 
 }

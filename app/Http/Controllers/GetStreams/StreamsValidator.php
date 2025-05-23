@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Contracts\Validation\Factory as ValidatorFactory;
 use Illuminate\Validation\ValidationException;
 
-class GetStreamsValidator
+class StreamsValidator
 {
     public function __construct(
         private readonly ValidatorFactory $validatorFactory

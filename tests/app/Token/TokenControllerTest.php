@@ -6,6 +6,18 @@ use Tests\TestCase;
 
 class TokenControllerTest extends TestCase
 {
+    protected string $endpoint;
+    protected array $headers;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->endpoint = '/token';
+
+        $this->headers = ['CONTENT_TYPE' => 'application/json'];
+    }
+
     /**
      * @test
      */
@@ -13,11 +25,8 @@ class TokenControllerTest extends TestCase
     {
         $response = $this->call(
             'POST',
-            '/token',
-            [],
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
+            $this->endpoint,
+            [], [], [], $this->headers,
             json_encode([])
         );
 
@@ -35,11 +44,8 @@ class TokenControllerTest extends TestCase
     {
         $response = $this->call(
             'POST',
-            '/token',
-            [],
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
+            $this->endpoint,
+            [], [], [], $this->headers,
             json_encode([
                 'email' => 'invalido',
                 'api_key' => '123456'
@@ -52,6 +58,7 @@ class TokenControllerTest extends TestCase
             $response->getContent()
         );
     }
+
     /**
      * @test
      */
@@ -59,13 +66,10 @@ class TokenControllerTest extends TestCase
     {
         $response = $this->call(
             'POST',
-            '/token',
-            [],
-            [],
-            [],
-            ['CONTENT_TYPE' => 'application/json'],
+            $this->endpoint,
+            [], [], [], $this->headers,
             json_encode([
-                'email'   => 'usuario@dominio.com'
+                'email' => 'usuario@dominio.com'
             ])
         );
 
@@ -75,7 +79,4 @@ class TokenControllerTest extends TestCase
             $response->getContent()
         );
     }
-
-
-
 }

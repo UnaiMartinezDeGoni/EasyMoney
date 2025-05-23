@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\app\RegisterUserByEmail;
+namespace Tests\app\Http\Controllers\RegisterUserByEmail;
 
 use App\Exceptions\EmptyEmailException;
 use App\Exceptions\InvalidEmailException;

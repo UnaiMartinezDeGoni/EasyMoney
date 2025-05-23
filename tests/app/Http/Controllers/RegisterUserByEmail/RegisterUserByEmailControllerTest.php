@@ -1,10 +1,10 @@
 <?php
 
-namespace Tests\app\RegisterUserByEmail;
+namespace Tests\app\Http\Controllers\RegisterUserByEmail;
 
-use Tests\TestCase;
 use Illuminate\Http\JsonResponse;
 use Mockery;
+use Tests\TestCase;
 
 class RegisterUserByEmailControllerTest extends TestCase
 {

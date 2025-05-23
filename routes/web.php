@@ -36,10 +36,13 @@ $router->get('/analytics/user', function (Request $request) {
 });
 
 
-$router->get('/analytics/streams', function () use ($protected) {
-    $protected();
-    require_once __DIR__ . '/../src/consultarStreams.php';
-});
+$router->get(
+    'analytics/streams',
+    [
+        'middleware' => 'auth.token',
+        'uses'       => 'GetStreams\GetStreamsController'
+    ]
+);
 
 $router->get('/analytics/streams/enriched', function () use ($protected) {
     $protected();

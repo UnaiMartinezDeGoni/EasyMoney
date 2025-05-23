@@ -27,6 +27,33 @@ $app = new Laravel\Lumen\Application(
 | Register Container Bindings
 |--------------------------------------------------------------------------
 */
+
+// Registrar middleware de ruta
+// Registrar AuthService
+$app->singleton(
+    App\Services\AuthService::class,
+    fn($app) => new App\Services\AuthService()
+);
+
+$app->routeMiddleware([
+    'auth.token' => App\Http\Middleware\AuthenticateToken::class,
+]);
+
+
+$app->bind(
+    App\Interfaces\TwitchApiRepositoryInterface::class,
+    App\Repositories\TwitchApiRepository::class
+);
+
+$app->singleton(
+    App\Http\Controllers\GetStreams\StreamsValidator::class,
+    function ($app) {
+        return new App\Http\Controllers\GetStreams\StreamsValidator(
+            $app->make(Illuminate\Contracts\Validation\Factory::class)
+        );
+    }
+);
+
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
     App\Exceptions\Handler::class

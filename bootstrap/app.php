@@ -29,6 +29,12 @@ $app = new Laravel\Lumen\Application(
 */
 
 // Registrar middleware de ruta
+// Registrar AuthService
+$app->singleton(
+    App\Services\AuthService::class,
+    fn($app) => new App\Services\AuthService()
+);
+
 $app->routeMiddleware([
     'auth.token' => App\Http\Middleware\AuthenticateToken::class,
 ]);

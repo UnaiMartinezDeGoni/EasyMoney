@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\GetStreams;
 
 use Illuminate\Http\Request;
@@ -13,31 +12,24 @@ class StreamsValidator
     ) {}
 
     /**
-     * Valida el request y devuelve los datos saneados.
+     * Valida el parámetro `limit` y devuelve su valor (o 10 por defecto).
      *
      * @param Request $request
-     * @return array Datos validados con 'limit' (int)
+     * @return int
      * @throws ValidationException
      */
-    public function validate(Request $request): array
+    public function validate(Request $request): int
     {
-        $rules = [
-            'limit' => 'sometimes|integer|min:1|max:100',
-        ];
-
         $data = $request->all();
-        $validator = $this->validatorFactory->make($data, $rules);
+
+        $validator = $this->validatorFactory->make($data, [
+            'limit' => 'sometimes|integer|min:1|max:100',
+        ]);
 
         if ($validator->fails()) {
-            // arroja 422 con el array de errores en JSON
             throw new ValidationException($validator);
         }
 
-        // asigna valor por defecto si no viene
-        $data['limit'] = isset($data['limit'])
-            ? (int) $data['limit']
-            : 10;
-
-        return $data;
+        return isset($data['limit']) ? (int)$data['limit'] : 10;
     }
 }

@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Token;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Throwable;
+use App\Exceptions\EmptyEmailException;
+use App\Exceptions\InvalidEmailException;
+use App\Exceptions\EmptyApiKeyException;
 
 class TokenController extends Controller
 {
@@ -14,26 +17,18 @@ class TokenController extends Controller
 
         $data = $request->json()->all();
 
-        if (empty($data['email'])) {
+        $validator = new TokenValidator();
+
+        try {
+            $validator->validate($data);
+        } catch (EmptyEmailException | InvalidEmailException | EmptyApiKeyException $e) {
             return response()->json([
-                'error' => 'The email is mandatory'
+                'error' => $e->getMessage()
             ], 400, ['Content-Type' => 'application/json']);
         }
 
-        if (empty($data['api_key'])) {
-            return response()->json([
-                'error' => 'The api_key is mandatory'
-            ], 400, ['Content-Type' => 'application/json']);
-        }
-
-        $email = filter_var($data['email'], FILTER_VALIDATE_EMAIL);
+        $email = $data['email'];
         $api_key = $data['api_key'];
-
-        if (!$email) {
-            return response()->json([
-                'error' => 'The email must be a valid email address'
-            ], 400, ['Content-Type' => 'application/json']);
-        }
 
         try {
             $mysqli = conectarMysqli();

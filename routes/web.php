@@ -16,9 +16,11 @@ $router->post('/register', function (Request $request) {
 });
 
 
-$router->post('/token', function () {
-    header('Content-Type: application/json');
-    require_once __DIR__ . '/../src/obtenerToken.php';
+$router->post('/token', function (Request $request) {
+    return app()->call(
+        'App\Http\Controllers\Token\TokenController@generateToken',
+        ['request' => $request]
+    );
 });
 
 $protected = function () {

@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Repositories;
 
 use mysqli;
@@ -10,7 +8,6 @@ use RuntimeException;
 class DB_Repositories
 {
     private mysqli $db;
-
 
     public function __construct()
     {
@@ -34,10 +31,9 @@ class DB_Repositories
         $this->db->set_charset('utf8mb4');
     }
 
-
     public function findUserByEmail(string $email): ?array
     {
-        $stmt = $this->db->prepare('SELECT api_key FROM users WHERE email = ?');
+        $stmt = $this->db->prepare('SELECT id, api_key FROM users WHERE email = ?');
         if (! $stmt) {
             throw new RuntimeException('Error al preparar SELECT: ' . $this->db->error);
         }
@@ -45,39 +41,59 @@ class DB_Repositories
         $stmt->bind_param('s', $email);
         $stmt->execute();
 
-        $result = $stmt->get_result();
-        $user   = $result->fetch_assoc();
-
+        $user = $stmt->get_result()->fetch_assoc();
         $stmt->close();
+
         return $user ?: null;
     }
 
-
-    public function insertUser(string $email, string $apiKey): bool
+    public function createSession(int $userId, string $token, string $expiresAt): bool
     {
-        $stmt = $this->db->prepare('INSERT INTO users (email, api_key) VALUES (?, ?)');
+        $stmt = $this->db->prepare(
+            'INSERT INTO sessions (user_id, token, expires_at) VALUES (?, ?, ?)'
+        );
         if (! $stmt) {
-            throw new RuntimeException('Error al preparar INSERT: ' . $this->db->error);
+            throw new RuntimeException('Error al preparar INSERT sesión: ' . $this->db->error);
         }
 
-        $stmt->bind_param('ss', $email, $apiKey);
+        $stmt->bind_param('iss', $userId, $token, $expiresAt);
         $success = $stmt->execute();
         $stmt->close();
 
         return $success;
     }
 
-    public function updateApiKey(string $email, string $apiKey): bool
+    public function refreshSession(int $userId, string $token): bool
     {
-        $stmt = $this->db->prepare('UPDATE users SET api_key = ? WHERE email = ?');
+        $stmt = $this->db->prepare(
+            'UPDATE sessions SET expires_at = NOW() WHERE user_id = ? AND token = ?'
+        );
         if (! $stmt) {
-            throw new RuntimeException('Error al preparar UPDATE: ' . $this->db->error);
+            throw new RuntimeException('Error al preparar UPDATE sesión: ' . $this->db->error);
         }
 
-        $stmt->bind_param('ss', $apiKey, $email);
+        $stmt->bind_param('is', $userId, $token);
         $success = $stmt->execute();
         $stmt->close();
 
         return $success;
+    }
+
+    public function getActiveSession(int $userId): ?string
+    {
+        $stmt = $this->db->prepare(
+            'SELECT token FROM sessions WHERE user_id = ? AND expires_at > NOW()'
+        );
+        if (! $stmt) {
+            throw new RuntimeException('Error al preparar SELECT sesión: ' . $this->db->error);
+        }
+
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+
+        $row = $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+
+        return $row['token'] ?? null;
     }
 }

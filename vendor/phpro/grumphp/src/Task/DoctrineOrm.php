@@ -4,27 +4,24 @@ declare(strict_types=1);
 
 namespace GrumPHP\Task;
 
-use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
+ * DoctrineOrm task.
  */
 class DoctrineOrm extends AbstractExternalTask
 {
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
             'skip_mapping' => false,
             'skip_sync' => false,
-            'skip_property_types' => false,
             'triggered_by' => ['php', 'xml', 'yml'],
         ]);
 
@@ -32,7 +29,7 @@ class DoctrineOrm extends AbstractExternalTask
         $resolver->addAllowedTypes('skip_sync', ['bool']);
         $resolver->addAllowedTypes('triggered_by', ['array']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     /**
@@ -59,7 +56,6 @@ class DoctrineOrm extends AbstractExternalTask
         $arguments->add('orm:validate-schema');
         $arguments->addOptionalArgument('--skip-mapping', $config['skip_mapping']);
         $arguments->addOptionalArgument('--skip-sync', $config['skip_sync']);
-        $arguments->addOptionalArgument('--skip-property-types', $config['skip_property_types']);
 
         $process = $this->processBuilder->buildProcess($arguments);
 

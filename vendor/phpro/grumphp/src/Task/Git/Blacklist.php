@@ -10,14 +10,10 @@ use GrumPHP\Process\ProcessBuilder;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
 use GrumPHP\Task\AbstractExternalTask;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
- */
 class Blacklist extends AbstractExternalTask
 {
     /**
@@ -37,7 +33,7 @@ class Blacklist extends AbstractExternalTask
         parent::__construct($processBuilder, $formatter);
     }
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -58,7 +54,7 @@ class Blacklist extends AbstractExternalTask
         $resolver->addAllowedTypes('match_word', ['bool']);
         $resolver->addAllowedTypes('ignore_patterns', ['array']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function canRunInContext(ContextInterface $context): bool

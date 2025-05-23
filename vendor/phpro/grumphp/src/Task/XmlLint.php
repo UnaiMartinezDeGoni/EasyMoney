@@ -8,7 +8,6 @@ use GrumPHP\Exception\RuntimeException;
 use GrumPHP\Linter\Xml\XmlLinter;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
@@ -24,9 +23,9 @@ class XmlLint extends AbstractLinterTask
      */
     protected $linter;
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
-        $resolver = self::sharedOptionsResolver();
+        $resolver = parent::getConfigurableOptions();
         $resolver->setDefaults([
             'load_from_net' => false,
             'x_include' => false,
@@ -41,7 +40,7 @@ class XmlLint extends AbstractLinterTask
         $resolver->addAllowedTypes('scheme_validation', ['bool']);
         $resolver->addAllowedTypes('triggered_by', ['array']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     /**

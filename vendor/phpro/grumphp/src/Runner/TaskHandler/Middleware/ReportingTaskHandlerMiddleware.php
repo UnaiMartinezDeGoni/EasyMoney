@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace GrumPHP\Runner\TaskHandler\Middleware;
 
-use GrumPHP\Runner\StopOnFailure;
-use function Amp\async;
-use Amp\Future;
+use function Amp\call;
+use Amp\Promise;
 use GrumPHP\Runner\Reporting\TaskResultsReporter;
 use GrumPHP\Runner\TaskResultInterface;
 use GrumPHP\Runner\TaskRunnerContext;
@@ -24,15 +23,15 @@ class ReportingTaskHandlerMiddleware implements TaskHandlerMiddlewareInterface
         $this->reporter = $reporter;
     }
 
-    public function handle(
-        TaskInterface $task,
-        TaskRunnerContext $runnerContext,
-        StopOnFailure $stopOnFailure,
-        callable $next
-    ): Future {
-        return async(
-            function () use ($task, $runnerContext, $stopOnFailure, $next): TaskResultInterface {
-                $result = $next($task, $runnerContext, $stopOnFailure)->await();
+    public function handle(TaskInterface $task, TaskRunnerContext $runnerContext, callable $next): Promise
+    {
+        return call(
+            /**
+             * @return \Generator<mixed, Promise<TaskResultInterface>, mixed, TaskResultInterface>
+             */
+            function () use ($task, $runnerContext, $next) {
+                /** @var TaskResultInterface $result */
+                $result = yield $next($task, $runnerContext);
 
                 $this->reporter->report($runnerContext);
 

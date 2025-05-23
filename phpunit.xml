@@ -10,8 +10,13 @@
         </testsuite>
     </testsuites>
     <php>
-        <env name="APP_ENV" value="testing"/>
-        <env name="CACHE_DRIVER" value="array"/>
-        <env name="QUEUE_CONNECTION" value="sync"/>
+   
+        <env name="APP_ENV"       value="testing"/>
+        <env name="DB_HOST"       value="maglev.proxy.rlwy.net"/>
+        <env name="DB_PORT"       value="23194"/>
+        <env name="DB_DATABASE"   value="railway"/>
+        <env name="DB_USERNAME"   value="root"/>
+        <env name="DB_PASSWORD"   value="kCwqBEfywfsygCgckyRBJTcCNewgWqkz"/>
+
     </php>
 </phpunit>

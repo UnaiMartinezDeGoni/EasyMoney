@@ -36,7 +36,7 @@ abstract class AbstractLinterTask implements TaskInterface
         $this->config = new EmptyTaskConfig();
     }
 
-    protected static function sharedOptionsResolver(): OptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([

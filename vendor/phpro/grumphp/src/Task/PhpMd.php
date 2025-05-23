@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace GrumPHP\Task;
 
-use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
+ * PhpMd task.
  */
 class PhpMd extends AbstractExternalTask
 {
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -36,7 +34,7 @@ class PhpMd extends AbstractExternalTask
         $resolver->addAllowedTypes('ruleset', ['array']);
         $resolver->addAllowedTypes('triggered_by', ['array']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     /**
@@ -73,9 +71,6 @@ class PhpMd extends AbstractExternalTask
         $arguments->addOptionalCommaSeparatedArgument('%s', $config['ruleset']);
         $arguments->addOptionalArgument('--exclude', !empty($config['exclude']));
         $arguments->addOptionalCommaSeparatedArgument('%s', $config['exclude']);
-
-        $arguments->addOptionalArgument('--suffixes', !empty($extensions));
-        $arguments->addOptionalCommaSeparatedArgument('%s', $extensions);
 
         $process = $this->processBuilder->buildProcess($arguments);
         $process->run();

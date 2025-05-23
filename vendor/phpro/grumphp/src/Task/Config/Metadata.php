@@ -18,7 +18,7 @@ class Metadata
         $this->metadata = self::getConfigurableOptions()->resolve($metadata);
     }
 
-    public static function getConfigurableOptions(): \GrumPHP\Task\Config\ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         static $resolver;
         if (null === $resolver) {
@@ -32,7 +32,7 @@ class Metadata
             ]);
         }
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function priority(): int

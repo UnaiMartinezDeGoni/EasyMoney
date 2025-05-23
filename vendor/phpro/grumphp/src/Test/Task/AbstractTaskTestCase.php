@@ -6,6 +6,7 @@ namespace GrumPHP\Test\Task;
 
 use GrumPHP\Collection\FilesCollection;
 use GrumPHP\Runner\TaskResult;
+use GrumPHP\Runner\TaskResultInterface;
 use GrumPHP\Task\Config\EmptyTaskConfig;
 use GrumPHP\Task\Config\Metadata;
 use GrumPHP\Task\Config\TaskConfig;
@@ -46,7 +47,7 @@ abstract class AbstractTaskTestCase extends TestCase
     public function it_contains_configurable_options(array $input, ?array $output): void
     {
         if (!$output) {
-            $this->expectException(ExceptionInterface::class);
+            self::expectException(ExceptionInterface::class);
         }
 
         $resolver = $this->task::getConfigurableOptions();
@@ -95,8 +96,7 @@ abstract class AbstractTaskTestCase extends TestCase
         ContextInterface $context,
         callable $configurator,
         string $expectedErrorMessage,
-        string $resultClass = TaskResult::class,
-        int $resultCode = TaskResult::FAILED,
+        string $resultClass = TaskResult::class
     ): void {
         $task = $this->configureTask($config);
         \Closure::bind($configurator, $this)($task->getConfig()->getOptions(), $context);
@@ -104,7 +104,7 @@ abstract class AbstractTaskTestCase extends TestCase
         $result = $task->run($context);
 
         self::assertInstanceOf($resultClass, $result);
-        self::assertSame($resultCode, $result->getResultCode());
+        self::assertSame(TaskResult::FAILED, $result->getResultCode());
         self::assertSame($task, $result->getTask());
         self::assertSame($context, $result->getContext());
 

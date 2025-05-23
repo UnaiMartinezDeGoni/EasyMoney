@@ -8,16 +8,12 @@ use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Process\ProcessBuilder;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use GrumPHP\Util\Filesystem;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-/**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
- */
 class SecurityCheckerRoave extends AbstractExternalTask
 {
     /** @var Filesystem */
@@ -32,7 +28,7 @@ class SecurityCheckerRoave extends AbstractExternalTask
         $this->filesystem = $filesystem;
     }
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -45,7 +41,7 @@ class SecurityCheckerRoave extends AbstractExternalTask
         $resolver->addAllowedTypes('lockfile', ['string']);
         $resolver->addAllowedTypes('run_always', ['bool']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function canRunInContext(ContextInterface $context): bool

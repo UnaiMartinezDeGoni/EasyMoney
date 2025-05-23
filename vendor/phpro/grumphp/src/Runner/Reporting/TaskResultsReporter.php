@@ -80,7 +80,7 @@ class TaskResultsReporter
 
         // Always add content if we decided that an overwrite is not possible!
         if (!$this->isOverwritePossible()) {
-            $this->outputSection->writeln([...$message, '']);
+            $this->outputSection->writeln(array_merge($message, ['']));
             return;
         }
 

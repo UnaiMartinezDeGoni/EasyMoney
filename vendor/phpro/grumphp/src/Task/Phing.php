@@ -4,21 +4,19 @@ declare(strict_types=1);
 
 namespace GrumPHP\Task;
 
-use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
+ * Phing task.
  */
 class Phing extends AbstractExternalTask
 {
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -31,7 +29,7 @@ class Phing extends AbstractExternalTask
         $resolver->addAllowedTypes('task', ['null', 'string']);
         $resolver->addAllowedTypes('triggered_by', ['array']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     /**

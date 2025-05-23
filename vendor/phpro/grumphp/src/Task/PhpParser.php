@@ -4,42 +4,37 @@ declare(strict_types=1);
 
 namespace GrumPHP\Task;
 
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
+use Symfony\Component\OptionsResolver\OptionsResolver;
 
 /**
  * @extends AbstractParserTask<PhpParser>
  */
 class PhpParser extends AbstractParserTask
 {
+    const KIND_PHP5 = 'php5';
+    const KIND_PHP7 = 'php7';
+
     /**
      * @var \GrumPHP\Parser\Php\PhpParser
      */
     protected $parser;
 
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
-        $resolver = self::sharedOptionsResolver();
+        $resolver = parent::getConfigurableOptions();
+
         $resolver->setDefaults([
             'triggered_by' => ['php'],
-            'php_version' => null,
-            'kind' => null,
+            'kind' => self::KIND_PHP7,
             'visitors' => [],
         ]);
 
-        $resolver->setAllowedTypes('php_version', ['string', 'null']);
-        $resolver->setDeprecated(
-            'kind',
-            'phpro/grumphp',
-            '2.5',
-            'The option "%name%" is deprecated and replaced by the php_version option.'
-        );
-
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function canRunInContext(ContextInterface $context): bool

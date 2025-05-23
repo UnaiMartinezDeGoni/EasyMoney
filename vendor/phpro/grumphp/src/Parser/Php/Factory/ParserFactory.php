@@ -4,21 +4,16 @@ declare(strict_types=1);
 
 namespace GrumPHP\Parser\Php\Factory;
 
+use GrumPHP\Task\PhpParser;
 use PhpParser\ParserFactory as PhpParserFactory;
-use PhpParser\PhpVersion;
 
 class ParserFactory
 {
     public function createFromOptions(array $options): \PhpParser\Parser
     {
-        $version = $options['php_version'] ?? null;
+        $kind = (PhpParser::KIND_PHP5 === $options['kind'])
+            ? PhpParserFactory::PREFER_PHP5 : PhpParserFactory::PREFER_PHP7;
 
-        return (new PhpParserFactory())->createForVersion(
-            match ($version) {
-                null => PhpVersion::getHostVersion(),
-                'latest' => PhpVersion::getNewestSupported(),
-                default => PhpVersion::fromString($version)
-            }
-        );
+        return (new PhpParserFactory())->create($kind);
     }
 }

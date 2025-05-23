@@ -5,22 +5,17 @@ declare(strict_types=1);
 namespace GrumPHP\Task;
 
 use GrumPHP\Fixer\Provider\FixableProcessResultProvider;
-use GrumPHP\Formatter\ProcessFormatterInterface;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
-use GrumPHP\Task\Config\ConfigOptionsResolver;
 use GrumPHP\Task\Context\ContextInterface;
 use GrumPHP\Task\Context\GitPreCommitContext;
 use GrumPHP\Task\Context\RunContext;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Process\Process;
 
-/**
- * @extends AbstractExternalTask<ProcessFormatterInterface>
- */
 class Rector extends AbstractExternalTask
 {
-    public static function getConfigurableOptions(): ConfigOptionsResolver
+    public static function getConfigurableOptions(): OptionsResolver
     {
         $resolver = new OptionsResolver();
         $resolver->setDefaults([
@@ -37,7 +32,7 @@ class Rector extends AbstractExternalTask
         $resolver->addAllowedTypes('clear_cache', ['bool']);
         $resolver->addAllowedTypes('no_diffs', ['bool']);
 
-        return ConfigOptionsResolver::fromOptionsResolver($resolver);
+        return $resolver;
     }
 
     public function canRunInContext(ContextInterface $context): bool

@@ -5,8 +5,6 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
-    findUnusedBaselineEntry="false"
-    findUnusedCode="false"
 >
     <projectFiles>
         <directory name="src" />
@@ -18,11 +16,8 @@
             <file name="src/Parser/Php/Visitor/AbstractVisitor.php" />
         </ignoreFiles>
     </projectFiles>
-    <issueHandlers>
-        <RiskyTruthyFalsyComparison>
-            <errorLevel type="suppress">
-                <directory name="src/" />
-            </errorLevel>
-        </RiskyTruthyFalsyComparison>
-    </issueHandlers>
+
+    <stubs>
+        <file name="stubs/Amp.php"/>
+    </stubs>
 </psalm>

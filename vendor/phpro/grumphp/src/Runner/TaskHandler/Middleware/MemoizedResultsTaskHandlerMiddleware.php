@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace GrumPHP\Runner\TaskHandler\Middleware;
 
-use GrumPHP\Runner\StopOnFailure;
-use function Amp\async;
-use Amp\Future;
+use function Amp\call;
+use Amp\Promise;
 use GrumPHP\Runner\MemoizedTaskResultMap;
 use GrumPHP\Runner\TaskResult;
 use GrumPHP\Runner\TaskResultInterface;
@@ -25,16 +24,16 @@ class MemoizedResultsTaskHandlerMiddleware implements TaskHandlerMiddlewareInter
         $this->resultMap = $resultMap;
     }
 
-    public function handle(
-        TaskInterface $task,
-        TaskRunnerContext $runnerContext,
-        StopOnFailure $stopOnFailure,
-        callable $next
-    ): Future {
-        return async(
-            function () use ($task, $runnerContext, $stopOnFailure, $next) : TaskResultInterface {
+    public function handle(TaskInterface $task, TaskRunnerContext $runnerContext, callable $next): Promise
+    {
+        return call(
+            /**
+             * @return \Generator<mixed, Promise<TaskResultInterface>, mixed, TaskResultInterface>
+             */
+            function () use ($task, $runnerContext, $next) : \Generator {
                 try {
-                    $result = $next($task, $runnerContext, $stopOnFailure)->await();
+                    /** @var TaskResultInterface $result */
+                    $result = yield $next($task, $runnerContext);
                 } catch (\Throwable $error) {
                     $result = TaskResult::createFailed($task, $runnerContext->getTaskContext(), $error->getMessage());
                 }

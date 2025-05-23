@@ -19,7 +19,7 @@ function conectarMysqli(): mysqli
     $database = getenv('DB_DATABASE') ?: 'forge';
     $username = getenv('DB_USERNAME') ?: 'forge';
     $password = getenv('DB_PASSWORD') ?: '';
-    
+
     $mysqli = new mysqli($host, $username, $password, $database, $port);
     if ($mysqli->connect_error) {
         throw new RuntimeException("MySQL connection error: " . $mysqli->connect_error);

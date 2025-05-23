@@ -8,6 +8,11 @@ use Tests\TestCase;
 
 class RegisterUserByEmailControllerTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
+    }
     /**
      * @test
      */
@@ -59,41 +64,33 @@ class RegisterUserByEmailControllerTest extends TestCase
     {
         $email = 'test@example.com';
 
-        // Creamos una respuesta JSON simulada que se espera retorne el endpoint.
         $mockResponse = new JsonResponse([
             'api_key' => 'api_key_value',
         ], 200);
 
-        // Creamos un mock del controlador, forzando que el método "index" retorne la respuesta simulada.
-        $mockController = \Mockery::mock(\App\Http\Controllers\RegisterUserByEmail\RegisterUserByEmailController::class);
-        $mockController->shouldReceive('index')
+        $mockController = Mockery::mock(\App\Http\Controllers\RegisterUserByEmail\RegisterUserByEmailController::class);
+        $mockController
+            ->shouldReceive('register')
             ->once()
-            // No nos importan los parámetros que reciba; se puede usar withAnyArgs() o with(Mockery::any())
             ->withAnyArgs()
             ->andReturn($mockResponse);
 
-        // Inyectamos el mock en el contenedor, de modo que al resolver el controlador se use el mock.
         $this->app->instance(
             \App\Http\Controllers\RegisterUserByEmail\RegisterUserByEmailController::class,
             $mockController
         );
 
-        // Realizamos la petición POST al endpoint '/register' con un email válido.
         $response = $this->call(
             'POST',
             '/register',
-            [],
-            [],
-            [],
+            [], [], [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode(['email' => $email])
         );
 
-        // Comprobamos que la respuesta tiene un status 200 y que el JSON contiene el campo "api_key".
         $this->assertEquals(200, $response->status());
         $content = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('api_key', $content);
         $this->assertNotEmpty($content['api_key']);
     }
-
 }

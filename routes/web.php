@@ -49,7 +49,10 @@ $router->get('/analytics/streams/enriched', function () use ($protected) {
     require_once __DIR__ . '/../src/consultarEnriquecidos.php';
 });
 
-$router->get('/analytics/topsofthetops', function () use ($protected) {
-    $protected();
-    require_once __DIR__ . '/../src/topOfTheTops.php';
-});
+$router->get(
+    'analytics/topsofthetops',
+    [
+        'middleware' => 'auth.token',
+        'uses'       => 'TopOfTheTops\TopOfTheTopsController@index'
+    ]
+);

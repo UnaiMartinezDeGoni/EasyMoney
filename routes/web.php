@@ -29,13 +29,10 @@ $protected = function () {
     verificarAutenticacion();
 };
 
-$router->get('/analytics/user', function (Request $request) {
-    require_once __DIR__ . '/../auth.php';
-    verificarAutenticacion();
-    return app()->call('App\Http\Controllers\GetUserId\GetUserByIdController@index', [
-        'request' => $request
-    ]);
-});
+$router->get(
+    '/analytics/streamer',
+    ['uses' => 'GetStreamerById\GetStreamerByIdController@index']
+);
 
 
 $router->get(

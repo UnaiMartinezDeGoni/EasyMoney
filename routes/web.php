@@ -31,9 +31,11 @@ $protected = function () {
 
 $router->get(
     '/analytics/streamer',
-    ['uses' => 'GetStreamerById\GetStreamerByIdController@index']
+    [
+        'middleware' => 'auth.token',
+        'uses'       => 'GetStreamerById\GetStreamerByIdController@index',
+    ]
 );
-
 
 $router->get(
     'analytics/streams',

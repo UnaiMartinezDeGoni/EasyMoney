@@ -32,4 +32,23 @@ class TwitchApiRepository implements TwitchApiRepositoryInterface
             return [];
         }
     }
+
+    public function getStreamerById(string $id): array
+    {
+        try {
+            $response = $this->http->get('https://api.twitch.tv/helix/users', [
+                'headers' => [
+                    'Client-ID'     => env('TWITCH_CLIENT_ID'),
+                    'Authorization' => 'Bearer ' . env('TWITCH_TOKEN'),
+                ],
+                'query' => ['id' => $id],
+            ]);
+
+            $body = json_decode((string) $response->getBody(), true);
+            return $body['data'][0] ?? [];
+        } catch (GuzzleException $e) {
+            // En caso de fallo en la llamada externa, devolvemos un array vacío
+            return [];
+        }
+    }
 }

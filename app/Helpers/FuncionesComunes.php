@@ -1,5 +1,4 @@
 <?php
-// src/Helpers/FuncionesComunes.php
 
 namespace App\Helpers;
 
@@ -8,11 +7,7 @@ use mysqli;
 
 class FuncionesComunes
 {
-    /**
-     * Conecta a la base de datos y devuelve un objeto mysqli
-     *
-     * @throws RuntimeException si falla la conexión
-     */
+
     public static function conectarMysqli(): mysqli
     {
         $host     = getenv('DB_HOST');
@@ -29,12 +24,8 @@ class FuncionesComunes
         return $mysqli;
     }
 
-    /**
-     * Cualquier otra función común que uses…
-     */
     public static function enrichStreams(array $streams): array
     {
-        // ejemplo de enriquecimiento
         return array_map(fn($s) => [
             'id'           => $s['id'],
             'viewer_count' => $s['viewer_count'],

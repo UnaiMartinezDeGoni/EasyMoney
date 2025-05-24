@@ -11,15 +11,12 @@ class GetStreamAnalyticsService
         private readonly TwitchApiRepositoryInterface $repo
     ) {}
 
-    /**
-     * Obtiene y devuelve los streams sin parámetros adicionales.
-     */
     public function getStreams(): JsonResponse
     {
         try {
-            $streams = $this->repo->getStreams();  // <-- Llama siempre sin args
+            $streams = $this->repo->getStreams();
         } catch (\Throwable $e) {
-            $streams = [];                        // <-- Captura cualquier excepción
+            $streams = [];
         }
 
         return new JsonResponse($streams, 200);

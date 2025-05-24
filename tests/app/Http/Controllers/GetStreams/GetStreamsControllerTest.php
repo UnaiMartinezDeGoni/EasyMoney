@@ -6,7 +6,7 @@ use Tests\TestCase;
 use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
 use App\Services\AuthService;
-use App\Services\GetLiveStreamsService;
+use App\Services\GetStreamAnalyticsService;
 
 class GetStreamsControllerTest extends TestCase
 {
@@ -14,28 +14,28 @@ class GetStreamsControllerTest extends TestCase
     {
         parent::setUp();
 
-        // Mock AuthService para validar tokens
         $mockAuth = \Mockery::mock(AuthService::class);
         $mockAuth->shouldReceive('validateToken')
             ->andReturnUsing(fn(string $token) => $token === 'e59a7c4b2d301af8');
         $this->app->instance(AuthService::class, $mockAuth);
 
-        // Mock GetLiveStreamsService para devolver un listado fijo
-        $mockService = \Mockery::mock(GetLiveStreamsService::class);
+        $mockService = \Mockery::mock(GetStreamAnalyticsService::class);
         $mockService->shouldReceive('getStreams')
             ->andReturn(new JsonResponse([
                 ['title' => 'Stream 1', 'user_name' => 'User1'],
                 ['title' => 'Stream 2', 'user_name' => 'User2'],
             ], Response::HTTP_OK));
-        $this->app->instance(GetLiveStreamsService::class, $mockService);
+        $this->app->instance(GetStreamAnalyticsService::class, $mockService);
     }
 
+    /** @test */
     public function testWithoutAuthHeaderReturns401(): void
     {
         $response = $this->call('GET', '/analytics/streams');
         $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
+    /** @test */
     public function testWithInvalidTokenReturns401(): void
     {
         $response = $this->call(
@@ -46,6 +46,7 @@ class GetStreamsControllerTest extends TestCase
         $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
+    /** @test */
     public function testValidRequestReturnsExpectedData(): void
     {
         $response = $this->call(
@@ -59,10 +60,10 @@ class GetStreamsControllerTest extends TestCase
             ->assertJsonFragment(['title' => 'Stream 2', 'user_name' => 'User2']);
     }
 
+    /** @test */
     public function testEmptyResultReturnsEmptyArray(): void
     {
-        // Rebind el servicio para devolver []
-        $this->app->instance(GetLiveStreamsService::class, \Mockery::mock(GetLiveStreamsService::class, function ($m) {
+        $this->app->instance(GetStreamAnalyticsService::class, \Mockery::mock(GetStreamAnalyticsService::class, function ($m) {
             $m->shouldReceive('getStreams')->andReturn(new JsonResponse([], Response::HTTP_OK));
         }));
 
@@ -74,4 +75,18 @@ class GetStreamsControllerTest extends TestCase
 
         $response->assertStatus(Response::HTTP_OK)->assertExactJson([]);
     }
+
+    /** @test */
+    public function testMalformedAuthHeaderReturns401(): void
+    {
+        $response = $this->call(
+            'GET',
+            '/analytics/streams',
+            [], [], [],
+            ['HTTP_AUTHORIZATION' => 'BearerXYZ']
+        );
+
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
+    }
+
 }

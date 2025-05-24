@@ -21,11 +21,11 @@ class GetStreamAnalyticsServiceTest extends TestCase
     {
         parent::setUp();
 
-        // 1) Crea el mock del repositorio
+        // 1) Mock del repositorio
         $this->repo = $this->createMock(TwitchApiRepositoryInterface::class);
         $this->app->instance(TwitchApiRepositoryInterface::class, $this->repo);
 
-        // 2) Resuelve la instancia real del servicio
+        // 2) Instancia real del servicio
         $this->service = $this->app->make(GetStreamAnalyticsService::class);
     }
 
@@ -58,8 +58,9 @@ class GetStreamAnalyticsServiceTest extends TestCase
 
         $response = $this->service->getStreams();
 
-        $this->assertSame([], $response->getData(true));
+        $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame([], $response->getData(true));
     }
 
     /** @test */
@@ -72,7 +73,8 @@ class GetStreamAnalyticsServiceTest extends TestCase
 
         $response = $this->service->getStreams();
 
-        $this->assertSame([], $response->getData(true));
+        $this->assertInstanceOf(JsonResponse::class, $response);
         $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame([], $response->getData(true));
     }
 }

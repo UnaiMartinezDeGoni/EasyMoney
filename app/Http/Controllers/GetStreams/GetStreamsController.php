@@ -15,12 +15,8 @@ class GetStreamsController extends Controller
         private readonly AuthService           $auth
     ) {}
 
-    /**
-     * GET /analytics/streams
-     */
     public function __invoke(Request $request): JsonResponse
     {
-        // 1) Autenticación
         $header = $request->header('Authorization', '');
         if (
             ! preg_match('/^Bearer\s+(\S+)$/i', $header, $m) ||
@@ -29,7 +25,6 @@ class GetStreamsController extends Controller
             return new JsonResponse(['error' => 'Unauthorized'], 401);
         }
 
-        // 2) Lógica de negocio (sin validaciones extra)
         return $this->service->getStreams();
     }
 }

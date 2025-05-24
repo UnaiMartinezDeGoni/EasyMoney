@@ -7,15 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use App\Services\GetStreamAnalyticsService;
 use App\Services\AuthService;
-use App\Http\Controllers\GetStreams\StreamsValidator;
-use Illuminate\Validation\ValidationException;
 
 class GetStreamsController extends Controller
 {
     public function __construct(
         private readonly GetStreamAnalyticsService $service,
-        private readonly AuthService                $auth,
-        private readonly StreamsValidator           $validator
+        private readonly AuthService           $auth
     ) {}
 
     /**
@@ -32,14 +29,7 @@ class GetStreamsController extends Controller
             return new JsonResponse(['error' => 'Unauthorized'], 401);
         }
 
-        // 2) Validación de 'limit'
-        try {
-            $limit = $this->validator->validate($request);
-        } catch (ValidationException $e) {
-            return new JsonResponse($e->errors(), 422);
-        }
-
-        // 3) Lógica de negocio
-        return $this->service->getStreams($limit);
+        // 2) Lógica de negocio (sin validaciones extra)
+        return $this->service->getStreams();
     }
 }

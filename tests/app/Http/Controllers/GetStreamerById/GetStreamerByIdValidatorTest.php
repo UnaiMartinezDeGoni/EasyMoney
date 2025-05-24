@@ -30,6 +30,7 @@ class GetStreamerByIdValidatorTest extends TestCase
 
     public function testNullIdThrows(): void
     {
+        
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate(null);
     }

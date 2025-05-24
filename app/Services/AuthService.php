@@ -6,9 +6,6 @@ use RuntimeException;
 
 class AuthService
 {
-    /**
-     * Valida un token contra la tabla sessions.
-     */
     public function validateToken(string $token): bool
     {
         try {

@@ -3,8 +3,7 @@
 namespace App\Services;
 
 use App\Interfaces\TwitchApiRepositoryInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use App\Helpers\FuncionesComunes;
+use Illuminate\Http\JsonResponse;
 
 class GetStreamAnalyticsService
 {
@@ -12,19 +11,12 @@ class GetStreamAnalyticsService
         private readonly TwitchApiRepositoryInterface $repo
     ) {}
 
-    /**
-     * Obtiene, transforma y devuelve los streams
-     *
-     * @param int $limit
-     * @return JsonResponse
-     */
-    public function getStreams(int $limit): JsonResponse
+    public function getStreams(): JsonResponse
     {
-        $streams = $this->repo->getStreams($limit);
-
-        // Usa tus funciones comunes para filtrar/enriquecer
-        if (class_exists(FuncionesComunes::class)) {
-            $streams = FuncionesComunes::enrichStreams($streams);
+        try {
+            $streams = $this->repo->getStreams();
+        } catch (\Throwable $e) {
+            $streams = [];
         }
 
         return new JsonResponse($streams, 200);

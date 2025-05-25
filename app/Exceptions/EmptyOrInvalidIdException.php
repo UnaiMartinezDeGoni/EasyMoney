@@ -4,6 +4,7 @@
 namespace App\Exceptions;
 
 use InvalidArgumentException;
+
 class EmptyOrInvalidIdException extends InvalidArgumentException
 {
     public function __construct(

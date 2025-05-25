@@ -1,4 +1,5 @@
 <?php
+// app/Services/GetStreamerByIdService.php
 
 namespace App\Services;
 
@@ -14,24 +15,15 @@ class GetStreamerByIdService
     public function getStreamerById(string $id): JsonResponse
     {
         try {
-            $streamer = $this->repo->getStreamerById($id);
-        } catch (\Throwable $e) {
-            return new JsonResponse(
-                ['error' => 'Internal server error.'],
-                500
-            );
+            $data = $this->repo->getStreamerById($id);
+        } catch (\Throwable) {
+            return new JsonResponse(['error' => 'Internal server error.'], 500);
         }
 
-        if (empty($streamer)) {
-            return new JsonResponse(
-                ['error' => 'Streamer not found.'],
-                404
-            );
+        if (empty($data)) {
+            return new JsonResponse(['error' => 'Streamer not found.'], 404);
         }
 
-        return new JsonResponse(
-            $streamer,
-            200
-        );
+        return new JsonResponse($data, 200);
     }
 }

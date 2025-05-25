@@ -91,3 +91,9 @@ Una vez cumplimentado lo anterior, disponemos de estos 4 enlaces posibles, uno p
     - -Para acceder al tercera caso debe acceder a la url https://localhost/analytics/topsofthetops. 
     También existe la posibilidad de ejecutarlo con un parámetro "since" para forzar la actualización más reciente de Twitch.
     La url es de este tipo: https://localhost/analytics/streams/topOfTheTops?since="Segundos que quieras".
+
+**3.Ejecutar Test en docker:**
+
+Primero debes crear la imagen y el contenedor, para eso en la raiz del proyecto debes abrir una terminal y ejecutar el comando docker-compose up -d --build.
+A continuación para ejecutar todos los tests debes ejecutar docker-compose exec app ./vendor/bin/phpunit.
+En caso de que no funcione y de algun tipo de error ejecuta docker-compose exec app composer update y a continuacion vuelve a probar la ejecución de los tests.

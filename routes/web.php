@@ -35,15 +35,11 @@ $router->group(['middleware' => 'auth.token'], function () use ($router) {
         ['uses' => 'GetStreams\GetStreamsController']
     );
 
-    $router->post(
-        '/analytics/streams/enriched',
-        function (Request $request) {
-            return app()->call(
-                'App\Http\Controllers\GetEnrichedStreams\GetEnrichedStreamsController@getEnrichedStreams',
-                ['request' => $request]
-            );
-        }
-    );
+
+    $router->get('/analytics/streams/enriched', [
+        'middleware' => 'auth',   // <-- aquí estaba 'auth'
+        'uses'       => 'GetEnrichedStreams\GetEnrichedStreamsController@getEnrichedStreams',
+    ]);
 
     $router->get(
         '/analytics/topsofthetops',

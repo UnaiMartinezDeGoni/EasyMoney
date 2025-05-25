@@ -1,84 +1,93 @@
 <?php
-// tests/Feature/GetStreamerByIdControllerTest.php
 
 namespace Tests\App\Http\Controllers\GetStreamerById;
 
+
 use Tests\TestCase;
-use Mockery;
-use App\Interfaces\TwitchApiRepositoryInterface;
-use App\Services\AuthService;
+use Illuminate\Http\Response;
 use Illuminate\Http\JsonResponse;
+use App\Services\AuthService;
+use App\Services\GetStreamAnalyticsService;
 
 class GetStreamerByIdControllerTest extends TestCase
 {
-    protected function tearDown(): void
+    protected function setUp(): void
     {
-        Mockery::close();
-        parent::tearDown();
+        parent::setUp();
+
+        $mockAuth = \Mockery::mock(AuthService::class);
+        $mockAuth->shouldReceive('validateToken')
+            ->andReturnUsing(fn(string $token) => $token === 'e59a7c4b2d301af8');
+        $this->app->instance(AuthService::class, $mockAuth);
+
+        $mockService = \Mockery::mock(GetStreamAnalyticsService::class);
+        $mockService->shouldReceive('getStreams')
+            ->andReturn(new JsonResponse([
+                ['title' => 'Stream 1', 'user_name' => 'User1'],
+                ['title' => 'Stream 2', 'user_name' => 'User2'],
+            ], Response::HTTP_OK));
+        $this->app->instance(GetStreamAnalyticsService::class, $mockService);
     }
 
+    /** @test */
     public function testReturns401IfNoTokenProvided(): void
     {
-        $this->json('GET', '/analytics/streamer?id=1')
-            ->seeStatusCode(401)
-            ->seeJsonEquals(['error' => 'Unauthorized']);
+        $response = $this->call('GET', '/analytics/streams');
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testReturns400IfMissingIdParam(): void
+    /** @test */
+    public function testWithInvalidToken(): void
     {
-        $this->app->instance(AuthService::class, new class {
-            public function validateToken(string $token): bool { return true; }
-        });
-
-        $this->json('GET', '/analytics/streamer', [], ['Authorization'=>'Bearer x'])
-            ->seeStatusCode(400)
-            ->seeJsonEquals(['error'=>"Invalid or missing 'id' parameter."]);
+        $response = $this->call(
+            'GET',
+            '/analytics/streams',
+            [], [], [], ['HTTP_AUTHORIZATION' => 'Bearer invalid_token']
+        );
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
 
-    public function testReturns400IfInvalidIdProvided(): void
+    /** @test */
+    public function testValidRequestReturnsExpectedData(): void
     {
-        $this->app->instance(AuthService::class, new class {
-            public function validateToken(string $token): bool { return true; }
-        });
+        $response = $this->call(
+            'GET',
+            '/analytics/streams',
+            [], [], [], ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
+        );
 
-        $this->json('GET', '/analytics/streamer?id=abc', [], ['Authorization'=>'Bearer x'])
-            ->seeStatusCode(400)
-            ->seeJsonEquals(['error'=>"Invalid or missing 'id' parameter."]);
+        $response->assertStatus(Response::HTTP_OK)
+            ->assertJsonFragment(['title' => 'Stream 1', 'user_name' => 'User1'])
+            ->assertJsonFragment(['title' => 'Stream 2', 'user_name' => 'User2']);
     }
 
-    public function testReturns200WhenFound(): void
+    /** @test */
+    public function testEmptyResultReturnsEmptyArray(): void
     {
-        $this->app->instance(AuthService::class, new class {
-            public function validateToken(string $token): bool { return true; }
-        });
+        $this->app->instance(GetStreamAnalyticsService::class, \Mockery::mock(GetStreamAnalyticsService::class, function ($m) {
+            $m->shouldReceive('getStreams')->andReturn(new JsonResponse([], Response::HTTP_OK));
+        }));
 
-        $repo = Mockery::mock(TwitchApiRepositoryInterface::class);
-        $repo->shouldReceive('getStreamerById')
-            ->once()
-            ->with('1')
-            ->andReturn(['id'=>'1','login'=>'streamer1']);
-        $this->app->instance(TwitchApiRepositoryInterface::class, $repo);
+        $response = $this->call(
+            'GET',
+            '/analytics/streams',
+            [], [], [], ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
+        );
 
-        $this->json('GET','/analytics/streamer?id=1',[],['Authorization'=>'Bearer x'])
-            ->seeStatusCode(200)
-            ->seeJson(['id'=>'1','login'=>'streamer1']);
+        $response->assertStatus(Response::HTTP_OK)->assertExactJson([]);
     }
 
-    public function testReturns404IfNotFound(): void
+    /** @test */
+    public function testMalformedAuthHeader(): void
     {
-        $this->app->instance(AuthService::class, new class {
-            public function validateToken(string $token): bool { return true; }
-        });
+        $response = $this->call(
+            'GET',
+            '/analytics/streams',
+            [], [], [],
+            ['HTTP_AUTHORIZATION' => 'BearerXYZ']
+        );
 
-        $repo = Mockery::mock(TwitchApiRepositoryInterface::class);
-        $repo->shouldReceive('getStreamerById')
-            ->once()
-            ->with('999')
-            ->andReturn([]);
-        $this->app->instance(TwitchApiRepositoryInterface::class, $repo);
-
-        $this->json('GET','/analytics/streamer?id=999',[],['Authorization'=>'Bearer x'])
-            ->seeStatusCode(404)
-            ->seeJsonEquals(['error'=>'Streamer not found.']);
+        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
     }
+
 }

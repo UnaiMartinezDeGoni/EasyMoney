@@ -1,45 +1,50 @@
 <?php
+// file: app/Http/Controllers/TopOfTheTops/TopOfTheTopsController.php
+declare(strict_types=1);
 
 namespace App\Http\Controllers\TopOfTheTops;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Services\TopOfTheTopsService;
-use App\Exceptions\InvalidSinceParameterException;
-use App\Exceptions\TopOfTheTopsServerException;
-use Throwable;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Laravel\Lumen\Routing\Controller as BaseController;
 
-class TopOfTheTopsController extends Controller
+class TopOfTheTopsController extends BaseController
 {
     public function __construct(
-        private TopOfTheTopsService $topOfTheTopsService
+        private readonly TopOfTheTopsService $service
     ) {}
 
-    public function index(Request $request)
+    /**
+     * GET /analytics/topsofthetops?since={n}
+     */
+    public function index(Request $request): JsonResponse
     {
-        $data = $request->query();
-        $validator = new TopOfTheTopsValidator();
-        try {
-            $validator->validate($data);
-        } catch (InvalidSinceParameterException $e) {
-            return response()->json(
-                ['error' => $e->getMessage()],
-                $e->getCode(),
-                [],
-                JSON_PRETTY_PRINT
-            );
+        // 1) Validamos `since`
+        $raw = $request->query('since');
+        if (isset($raw)) {
+            if (!ctype_digit($raw) || (int)$raw <= 0) {
+                return new JsonResponse([
+                    'error' => "Bad Request. Invalid or missing parameters: 'since' must be a positive integer."
+                ], 400);
+            }
+            $since = (int)$raw;
+        } else {
+            $since = 600;
         }
 
-        $since = isset($data['since']) ? (int)$data['since'] : 600;
+        // 2) Llamamos al servicio
+        $resp  = $this->service->getTopVideos($since);      // devuelve JsonResponse
+        $items = $resp->getData(true);                     // obtenemos array
 
-        try {
-            $response = $this->topOfTheTopsService->getTopVideos($since);
-        } catch (Throwable $e) {
-            \Log::error('[TopOfTheTops] ' . $e->getMessage());
-            // Podrías revisar el tipo de excepción y, si es una excepcion interna, lanzar TopOfTheTopsServerException
-            throw new ServerErrorException();
+        // 3) Si vacío → 404 con el mensaje exacto
+        if (empty($items)) {
+            return new JsonResponse([
+                'error' => 'Not Found. No data available.'
+            ], 404);
         }
 
-        return $response;
+        // 4) Datos OK → 200
+        return new JsonResponse($items, 200);
     }
 }

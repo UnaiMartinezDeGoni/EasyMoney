@@ -16,6 +16,11 @@ class GetEnrichedStreamsService
         private readonly TokenManager $tokenManager
     ) {
     }
+    public function getEnriched(string $limit): JsonResponse
+    {
+        // simplemente delega en tu lógica existente
+        return $this->getEnrichedStreams($limit);
+    }
 
     /**
      * Devuelve los streams más populares junto con información del usuario.

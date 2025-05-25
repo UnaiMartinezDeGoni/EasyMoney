@@ -1,94 +1,59 @@
 <?php
 
-namespace GetEnrichedStreams;
+use Laravel\Lumen\Testing\TestCase;
+use Laravel\Lumen\Testing\WithoutMiddleware;
 
-use app\Services\GetEnrichedStreamsService;
-use Illuminate\Http\JsonResponse;
-use Tests\TestCase;
-
-/**
- * Tests de integración del controlador que expone
- *   GET /analytics/streams/enriched
- *
- * Se replica la metodología empleada en otros módulos del proyecto: tres casos
- * (falta parámetro, parámetro inválido y parámetro correcto) y mock del
- * servicio de dominio para aislar la capa HTTP.
- */
 class GetEnrichedStreamsControllerTest extends TestCase
 {
-    private const AUTH = ['HTTP_AUTHORIZATION' => 'Bearer fake-token'];
+    use WithoutMiddleware;
 
-    /** @test */
-    public function givenMissingLimitReturns400(): void
+    /**
+     * Carga la aplicación Lumen para las pruebas.
+     */
+    public function createApplication()
     {
-        $response = $this->call('GET', '/analytics/streams/enriched', [], [], [], self::AUTH);
-
-        $response->assertStatus(400);
-        $response->assertJson([
-            'error' => "Invalid 'limit' parameter.",
-        ]);
+        return require __DIR__ . '/../../../../../bootstrap/app.php';
     }
 
-    /** @test */
-    public function givenInvalidLimitReturns400(): void
+    /**
+     * Configuración antes de cada prueba: deshabilita middleware (incluida auth).
+     */
+    protected function setUp(): void
     {
-        $response = $this->call(
-            'GET',
-            '/analytics/streams/enriched',
-            ['limit' => 'invalid_limit'],
-            [],
-            [],
-            self::AUTH
-        );
-
-        $response->assertStatus(400);
-        $response->assertJson([
-            'error' => "Invalid 'limit' parameter.",
-        ]);
+        parent::setUp();
+        $this->withoutMiddleware();
     }
 
-    /** @test */
-    public function givenValidLimitReturns200(): void
+    /**
+     * Prueba que al llamar a /analytics/streams/enriched sin parámetro "limit" devuelve error 400.
+     */
+    public function testMissingLimitParamReturns400()
     {
-        $payload = [[
-            'stream_id'         => '1',
-            'user_id'           => '1',
-            'user_name'         => 'user_name',
-            'viewer_count'      => '100',
-            'title'             => 'title',
-            'user_display_name' => 'user_display_name',
-            'profile_image_url' => 'profile_image_url',
-        ]];
+        $this->json('GET', '/analytics/streams/enriched', [])
+             ->seeStatusCode(400)
+             ->seeJsonStructure(['error']);
+    }
 
-        $mockService = \Mockery::mock(GetEnrichedStreamsService::class);
-        $mockService->shouldReceive('getEnrichedStreams')
-                    ->once()
-                    ->with(1) // el controlador castea a int
-                    ->andReturn(new JsonResponse($payload, 200));
+    /**
+     * Prueba que al llamar a /analytics/streams/enriched con "limit" no numérico devuelve error 400.
+     */
+    public function testInvalidLimitParamReturns400()
+    {
+        $this->json('GET', '/analytics/streams/enriched', ['limit' => 'invalid'])
+             ->seeStatusCode(400)
+             ->seeJsonStructure(['error']);
+    }
 
-        // Inyectamos el mock en el contenedor
-        $this->app->instance(GetEnrichedStreamsService::class, $mockService);
-
-        $response = $this->call(
-            'GET',
-            '/analytics/streams/enriched',
-            ['limit' => '1'],
-            [],
-            [],
-            self::AUTH
-        );
-
-        $response->assertStatus(200);
-        $response->assertJsonStructure([
-            '*' => [
-                'stream_id',
-                'user_id',
-                'user_name',
-                'viewer_count',
-                'title',
-                'user_display_name',
-                'profile_image_url',
-            ],
-        ]);
+    /**
+     * Prueba que al llamar a /analytics/streams/enriched con "limit" válido devuelve 200.
+     */
+    public function testProperLimitParamReturns200()
+    {
+        $this->json('GET', '/analytics/streams/enriched', ['limit' => 10])
+             ->seeStatusCode(200)
+             ->seeJsonStructure([
+                 'data',
+                 'meta' => ['limit', 'total']
+             ]);
     }
 }

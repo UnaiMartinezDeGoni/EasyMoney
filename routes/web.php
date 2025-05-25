@@ -1,7 +1,6 @@
 <?php
 /** @var \Laravel\Lumen\Routing\Router $router */
 
-
 use Illuminate\Http\Request;
 
 $router->get('/', function () use ($router) {
@@ -15,7 +14,6 @@ $router->post('/register', function (Request $request) {
     );
 });
 
-
 $router->post('/token', function (Request $request) {
     return app()->call(
         'App\Http\Controllers\Token\TokenController@generateToken',
@@ -23,40 +21,32 @@ $router->post('/token', function (Request $request) {
     );
 });
 
-$protected = function () {
-    header('Content-Type: application/json');
-    require_once __DIR__ . '/../auth.php';
-    verificarAutenticacion();
-};
-
-$router->get('/analytics/user', function (Request $request) {
-    require_once __DIR__ . '/../auth.php';
-    verificarAutenticacion();
-    return app()->call('App\Http\Controllers\GetUserId\GetUserByIdController@index', [
-        'request' => $request
-    ]);
-});
-
-
 $router->get(
-    'analytics/streams',
+    '/analytics/streamer',
     [
-        'middleware' => 'auth.token',
-        'uses'       => 'GetStreams\GetStreamsController'
+        'middleware' => 'auth.streamer',
+        'uses'       => 'GetStreamerById\GetStreamerByIdController@index',
     ]
 );
 
-$router->post('/analytics/streams/enriched', function (Request $request) {
-    return app()->call(
-        'App\Http\Controllers\GetEnrichedStreams\GetEnrichedStreamsController@getEnrichedStreams',
-        ['request' => $request]
+$router->group(['middleware' => 'auth.token'], function () use ($router) {
+    $router->get(
+        '/analytics/streams',
+        ['uses' => 'GetStreams\GetStreamsController']
+    );
+
+    $router->post(
+        '/analytics/streams/enriched',
+        function (Request $request) {
+            return app()->call(
+                'App\Http\Controllers\GetEnrichedStreams\GetEnrichedStreamsController@getEnrichedStreams',
+                ['request' => $request]
+            );
+        }
+    );
+
+    $router->get(
+        '/analytics/topsofthetops',
+        ['uses' => 'TopOfTheTops\TopOfTheTopsController@index']
     );
 });
-
-$router->get(
-    'analytics/topsofthetops',
-    [
-        'middleware' => 'auth.token',
-        'uses'       => 'TopOfTheTops\TopOfTheTopsController@index'
-    ]
-);

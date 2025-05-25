@@ -1,8 +1,6 @@
 <?php
 
-require_once __DIR__.'/../vendor/autoload.php';
-
-
+require_once __DIR__ . '/../vendor/autoload.php';
 
 date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 
@@ -24,35 +22,26 @@ $app = new Laravel\Lumen\Application(
 
 /*
 |--------------------------------------------------------------------------
-| Register Container Bindings
+| Register Container Bindings & Middleware
 |--------------------------------------------------------------------------
 */
-
-// Registrar middleware de ruta
-// Registrar AuthService
+// Registrar AuthService para inyección y para que los tests mockeen
 $app->singleton(
     App\Services\AuthService::class,
-    fn($app) => new App\Services\AuthService()
+    fn() => new App\Services\AuthService()
 );
 
-$app->routeMiddleware([
-    'auth.token' => App\Http\Middleware\AuthenticateToken::class,
-]);
-
-
+// Registrar interfaz de TwitchApiRepository para que los tests mockeen
 $app->bind(
     App\Interfaces\TwitchApiRepositoryInterface::class,
     App\Repositories\TwitchApiRepository::class
 );
 
-$app->singleton(
-    App\Http\Controllers\GetStreams\StreamsValidator::class,
-    function ($app) {
-        return new App\Http\Controllers\GetStreams\StreamsValidator(
-            $app->make(Illuminate\Contracts\Validation\Factory::class)
-        );
-    }
-);
+// Registrar ambos alias de middleware, apuntando a la misma clase AuthenticateToken
+$app->routeMiddleware([
+    'auth.token'    => App\Http\Middleware\AuthenticateToken::class,
+    'auth.streamer' => App\Http\Middleware\AuthenticateToken::class,
+]);
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
@@ -74,37 +63,13 @@ $app->configure('database');
 
 /*
 |--------------------------------------------------------------------------
-| Register Middleware
-|--------------------------------------------------------------------------
-*/
-// Aquí puedes registrar middleware global o de rutas.
-// $app->middleware([
-//     App\Http\Middleware\ExampleMiddleware::class
-// ]);
-
-// $app->routeMiddleware([
-//     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
-
-/*
-|--------------------------------------------------------------------------
-| Register Service Providers
-|--------------------------------------------------------------------------
-*/
-// Puedes registrar service providers adicionales si lo necesitas.
-// $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
-// $app->register(App\Providers\EventServiceProvider::class);
-
-/*
-|--------------------------------------------------------------------------
 | Load The Application Routes
 |--------------------------------------------------------------------------
 */
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
-    require __DIR__.'/../routes/web.php';
+    require __DIR__ . '/../routes/web.php';
 });
 
 return $app;

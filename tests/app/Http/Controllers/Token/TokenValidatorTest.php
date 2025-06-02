@@ -1,12 +1,12 @@
 <?php
 
-namespace Tests\app\Token;
+namespace Tests\app\Http\Controllers\Token;
 
-use PHPUnit\Framework\TestCase;
-use App\Http\Controllers\Token\TokenValidator;
+use App\Exceptions\EmptyApiKeyException;
 use App\Exceptions\EmptyEmailException;
 use App\Exceptions\InvalidEmailException;
-use App\Exceptions\EmptyApiKeyException;
+use App\Http\Controllers\Token\TokenValidator;
+use PHPUnit\Framework\TestCase;
 
 class TokenValidatorTest extends TestCase
 {
@@ -19,24 +19,23 @@ class TokenValidatorTest extends TestCase
     }
 
     /**
-     * Verifica que no se lance excepción cuando se envían datos válidos.
+     * @test
      */
-    public function testValidDataDoesNotThrowException(): void
+    public function validDataDoesNotGetException(): void
     {
         $data = [
             'email'   => 'user@example.com',
             'api_key' => 'secret-key'
         ];
 
-        // Si la validación no lanza excepción, la prueba es satisfactoria.
         $this->expectNotToPerformAssertions();
         $this->validator->validate($data);
     }
 
     /**
-     * Verifica que se lance la excepción EmptyEmailException cuando no se proporciona el email.
+     * @test
      */
-    public function testThrowsEmptyEmailExceptionWhenEmailIsMissing(): void
+    public function getEmptyEmailExceptionWhenEmailIsMissing(): void
     {
         $this->expectException(EmptyEmailException::class);
         $data = [
@@ -47,9 +46,9 @@ class TokenValidatorTest extends TestCase
     }
 
     /**
-     * Verifica que se lance la excepción InvalidEmailException cuando se proporciona un email inválido.
+     * @test
      */
-    public function testThrowsInvalidEmailExceptionWhenEmailIsInvalid(): void
+    public function getInvalidEmailExceptionWhenEmailIsInvalid(): void
     {
         $this->expectException(InvalidEmailException::class);
         $data = [
@@ -60,9 +59,9 @@ class TokenValidatorTest extends TestCase
     }
 
     /**
-     * Verifica que se lance la excepción EmptyApiKeyException cuando falta el api_key.
+     * @test
      */
-    public function testThrowsEmptyApiKeyExceptionWhenApiKeyIsMissing(): void
+    public function getEmptyApiKeyExceptionWhenApiKeyIsMissing(): void
     {
         $this->expectException(EmptyApiKeyException::class);
         $data = [

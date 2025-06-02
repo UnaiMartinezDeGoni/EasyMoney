@@ -1,8 +1,9 @@
 <?php
 
-namespace Tests\app\Token;
+namespace Tests\app\Http\Controllers\Token;
 
-use App\Services\TokenService;
+use App\Http\Controllers\Token\TokenValidator;
+use App\Repositories\DB_Repositories;
 use Mockery;
 use Tests\TestCase;
 
@@ -11,13 +12,21 @@ class TokenControllerTest extends TestCase
     protected string $endpoint = '/token';
     protected array $headers = ['CONTENT_TYPE' => 'application/json'];
 
+    private $dbRepoMock;
+
     protected function setUp(): void
     {
         parent::setUp();
 
         $this->endpoint = '/token';
+        $this->headers  = ['CONTENT_TYPE' => 'application/json'];
 
-        $this->headers = ['CONTENT_TYPE' => 'application/json'];
+        $this->dbRepoMock = Mockery::mock(DB_Repositories::class);
+        $this->app->instance(DB_Repositories::class, $this->dbRepoMock);
+
+        $this->app->instance(TokenValidator::class, new TokenValidator());
+
+
     }
 
     /**
@@ -49,8 +58,8 @@ class TokenControllerTest extends TestCase
             $this->endpoint,
             [], [], [], $this->headers,
             json_encode([
-                'email' => 'invalido',
-                'api_key' => '123456'
+                'email'   => 'invalido',
+                'api_key' => '123456',
             ])
         );
 
@@ -71,7 +80,7 @@ class TokenControllerTest extends TestCase
             $this->endpoint,
             [], [], [], $this->headers,
             json_encode([
-                'email' => 'usuario@dominio.com'
+                'email' => 'usuario@dominio.com',
             ])
         );
 
@@ -81,33 +90,50 @@ class TokenControllerTest extends TestCase
             $response->getContent()
         );
     }
+
     /**
      * @test
      */
     public function gets200AndTokenWhenServiceIssuesIt(): void
     {
-        $expectedToken = 'mocked-token';
 
-        $mockService = Mockery::mock(TokenService::class);
-        $mockService->shouldReceive('issueToken')
+        $this->dbRepoMock
+            ->shouldReceive('findUserByEmail')
             ->once()
-            ->with('foo@bar.com', 'secret-key')
-            ->andReturn($expectedToken);
+            ->with('foo@bar.com')
+            ->andReturn([
+                'id'      => 1,
+                'api_key' => 'secret-key',
+            ]);
 
-        $this->app->instance(TokenService::class, $mockService);
+        $this->dbRepoMock
+            ->shouldReceive('getActiveSession')
+            ->once()
+            ->with(1)
+            ->andReturn('existing-token');
 
-        $payload = ['email' => 'foo@bar.com', 'api_key' => 'secret-key'];
+        $this->dbRepoMock
+            ->shouldReceive('refreshSession')
+            ->once()
+            ->with(1, 'existing-token')
+            ->andReturnTrue();
+
+
+        $payload = [
+            'email'   => 'foo@bar.com',
+            'api_key' => 'secret-key',
+        ];
+
         $response = $this->call(
             'POST',
             $this->endpoint,
-            [], [], [],
-            $this->headers,
+            [], [], [], $this->headers,
             json_encode($payload)
         );
 
         $this->assertEquals(200, $response->status());
         $this->assertJsonStringEqualsJsonString(
-            json_encode(['token' => $expectedToken], JSON_PRETTY_PRINT),
+            json_encode(['token' => 'existing-token'], JSON_PRETTY_PRINT),
             $response->getContent()
         );
     }

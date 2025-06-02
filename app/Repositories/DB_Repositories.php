@@ -96,4 +96,31 @@ class DB_Repositories
 
         return $row['token'] ?? null;
     }
+    public function insertUser(string $email, string $apiKey): bool
+    {
+        $stmt = $this->db->prepare('INSERT INTO users (email, api_key) VALUES (?, ?)');
+        if (! $stmt) {
+            throw new RuntimeException('Error al preparar INSERT: ' . $this->db->error);
+        }
+
+        $stmt->bind_param('ss', $email, $apiKey);
+        $success = $stmt->execute();
+        $stmt->close();
+
+        return $success;
+    }
+
+    public function updateApiKey(string $email, string $apiKey): bool
+    {
+        $stmt = $this->db->prepare('UPDATE users SET api_key = ? WHERE email = ?');
+        if (! $stmt) {
+            throw new RuntimeException('Error al preparar UPDATE: ' . $this->db->error);
+        }
+
+        $stmt->bind_param('ss', $apiKey, $email);
+        $success = $stmt->execute();
+        $stmt->close();
+
+        return $success;
+    }
 }

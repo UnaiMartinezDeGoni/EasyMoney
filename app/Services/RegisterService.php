@@ -7,7 +7,7 @@ use App\Repositories\DB_Repositories;
 use Illuminate\Http\JsonResponse;
 use Throwable;
 
-class UserRegisterByEmailService
+class RegisterService
 {
     private DB_Repositories $dbRepo;
 
@@ -35,7 +35,6 @@ class UserRegisterByEmailService
             ], 200, [], JSON_PRETTY_PRINT);
 
         } catch (Throwable $e) {
-            // Captura errores de BD u otros
             $serverError = new ServerErrorException();
             return response()->json([
                 'error' => $serverError->getMessage(),

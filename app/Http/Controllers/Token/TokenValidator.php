@@ -11,15 +11,15 @@ class TokenValidator
     public function validate(array $data): void
     {
         if (empty($data['email'])) {
-            throw new EmptyEmailException('The email is mandatory.');
+            throw new EmptyEmailException();
         }
 
         if (!filter_var($data['email'], FILTER_VALIDATE_EMAIL)) {
-            throw new InvalidEmailException('The email must be a valid email address.');
+            throw new InvalidEmailException();
         }
 
         if (empty($data['api_key'])) {
-            throw new EmptyApiKeyException('The api_key is mandatory.');
+            throw new EmptyApiKeyException();
         }
     }
 }

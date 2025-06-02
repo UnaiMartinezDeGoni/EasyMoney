@@ -1,24 +1,25 @@
 <?php
-namespace App\Http\Controllers\RegisterUserByEmail;
+
+namespace App\Http\Controllers\Register;
 
 use App\Exceptions\EmptyEmailException;
 use App\Exceptions\InvalidEmailException;
-use App\Services\UserRegisterByEmailService;
+use App\Services\RegisterService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class RegisterUserByEmailController
+class RegisterController
 {
     public function register(Request $request): JsonResponse
     {
         $data = $request->json()->all();
 
-        $validator = new RegisterUserByEmailValidator();
+        $validator = app(RegisterValidator::class);
 
         try {
             $validator->validate($data);
             $email = $data['email'];
-        } catch (EmptyEmailException|InvalidEmailException $e) {
+        } catch (EmptyEmailException | InvalidEmailException $e) {
             return new JsonResponse(
                 ['error' => $e->getMessage()],
                 400,
@@ -27,9 +28,7 @@ class RegisterUserByEmailController
             );
         }
 
-
-        $service = app(UserRegisterByEmailService::class);
-
+        $service = app(RegisterService::class);
         return $service->register($email);
     }
 }

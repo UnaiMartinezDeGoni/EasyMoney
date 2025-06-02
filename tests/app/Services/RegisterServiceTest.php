@@ -3,13 +3,13 @@
 namespace Tests\app\Services;
 
 use App\Repositories\DB_Repositories;
-use App\Services\UserRegisterByEmailService;
+use App\Services\RegisterService;
 use Illuminate\Http\JsonResponse;
 use Mockery;
 use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
-class RegisterUserByEmailServiceTest extends TestCase
+class RegisterServiceTest extends TestCase
 {
     protected function tearDown(): void
     {
@@ -45,7 +45,7 @@ class RegisterUserByEmailServiceTest extends TestCase
             ->shouldReceive('updateApiKey')
             ->never();
 
-        $service = new UserRegisterByEmailService($mockRepo);
+        $service = new RegisterService($mockRepo);
 
         $response = $service->register($email);
 
@@ -91,7 +91,7 @@ class RegisterUserByEmailServiceTest extends TestCase
             ->shouldReceive('insertUser')
             ->never();
 
-        $service = new UserRegisterByEmailService($mockRepo);
+        $service = new RegisterService($mockRepo);
 
         $response = $service->register($email);
 

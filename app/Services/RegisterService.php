@@ -7,7 +7,7 @@ use App\Repositories\DB_Repositories;
 use Illuminate\Http\JsonResponse;
 use Throwable;
 
-class UserRegisterByEmailService
+class RegisterService
 {
     private DB_Repositories $dbRepo;
 

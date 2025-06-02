@@ -1,20 +1,20 @@
 <?php
 
-namespace Tests\app\Http\Controllers\RegisterUserByEmail;
+namespace Tests\app\Http\Controllers\Register;
 
 use App\Exceptions\EmptyEmailException;
 use App\Exceptions\InvalidEmailException;
-use App\Http\Controllers\RegisterUserByEmail\RegisterUserByEmailValidator;
+use App\Http\Controllers\Register\RegisterValidator;
 use Tests\TestCase;
 
-class RegisterUserByEmailValidatorTest extends TestCase
+class RegisterValidatorTest extends TestCase
 {
-    private RegisterUserByEmailValidator $validator;
+    private RegisterValidator $validator;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->validator = new RegisterUserByEmailValidator();
+        $this->validator = new RegisterValidator();
     }
     /**
      * @test

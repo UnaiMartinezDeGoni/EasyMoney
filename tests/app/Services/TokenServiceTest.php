@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Unit\Services;
+namespace Tests\app\Services;
 
 use App\Services\TokenService;
 use App\Repositories\DB_Repositories;

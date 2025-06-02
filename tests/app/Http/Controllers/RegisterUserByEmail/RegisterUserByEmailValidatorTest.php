@@ -16,14 +16,18 @@ class RegisterUserByEmailValidatorTest extends TestCase
         parent::setUp();
         $this->validator = new RegisterUserByEmailValidator();
     }
-
-    public function testEmptyEmailThrowsEmptyEmailException(): void
+    /**
+     * @test
+     */
+    public function getsEmptyEmailException(): void
     {
         $this->expectException(EmptyEmailException::class);
         $this->validator->validate(['email' => '']);
     }
-
-    public function testInvalidEmailThrowsInvalidEmailException(): void
+    /**
+     * @test
+     */
+    public function getsInvalidEmailException(): void
     {
         $this->expectException(InvalidEmailException::class);
         $this->validator->validate(['email' => 'invalid-email']);

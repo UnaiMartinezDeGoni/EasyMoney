@@ -87,7 +87,6 @@ class TokenServiceTest extends TestCase
                        ->with($userId)
                        ->willReturn(null);
 
-        // Esperamos llamada a createSession
         $this->mockRepo->expects($this->once())
                        ->method('createSession')
                        ->with(

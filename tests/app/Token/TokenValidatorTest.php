@@ -19,6 +19,7 @@ class TokenValidatorTest extends TestCase
     }
 
     /**
+     * @test
      */
     public function validDataDoesNotGetException(): void
     {
@@ -32,6 +33,7 @@ class TokenValidatorTest extends TestCase
     }
 
     /**
+     * @test
      */
     public function getEmptyEmailExceptionWhenEmailIsMissing(): void
     {
@@ -44,6 +46,7 @@ class TokenValidatorTest extends TestCase
     }
 
     /**
+     * @test
      */
     public function getInvalidEmailExceptionWhenEmailIsInvalid(): void
     {
@@ -56,6 +59,7 @@ class TokenValidatorTest extends TestCase
     }
 
     /**
+     * @test
      */
     public function getEmptyApiKeyExceptionWhenApiKeyIsMissing(): void
     {

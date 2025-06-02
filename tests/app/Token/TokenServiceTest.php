@@ -15,7 +15,6 @@ class TokenServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        // Mockeamos el repositorio de base de datos
         $this->mockRepo = $this->getMockBuilder(DB_Repositories::class)
                                ->disableOriginalConstructor()
                                ->getMock();
@@ -25,7 +24,7 @@ class TokenServiceTest extends TestCase
     /**
      * @test
      */
-    public function throws_exception_when_user_not_found(): void
+    public function getsExceptionWhenUserNotFound(): void
     {
         $this->mockRepo->expects($this->once())
                        ->method('findUserByEmail')
@@ -41,9 +40,8 @@ class TokenServiceTest extends TestCase
     /**
      * @test
      */
-    public function throws_exception_when_api_key_mismatch(): void
+    public function getExceptionWhenApiKeyMismatch(): void
     {
-        // Usuario encontrado pero api_key incorrecta
         $user = ['id' => '10', 'api_key' => 'correct_key'];
         $this->mockRepo->method('findUserByEmail')
                        ->willReturn($user);
@@ -56,7 +54,7 @@ class TokenServiceTest extends TestCase
     /**
      * @test
      */
-    public function returns_existing_token_and_refreshes_session(): void
+    public function getExistingTokenAndRefreshesSession(): void
     {
         $userId = 5;
         $user = ['id' => (string)$userId, 'api_key' => 'key123'];
@@ -78,7 +76,7 @@ class TokenServiceTest extends TestCase
     /**
      * @test
      */
-    public function creates_new_token_when_no_active_session(): void
+    public function getNewTokenWhenNoActiveSession(): void
     {
         $userId = 8;
         $user = ['id' => (string)$userId, 'api_key' => 'keyABC'];

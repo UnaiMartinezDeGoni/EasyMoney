@@ -18,14 +18,7 @@ class RegisterUserByEmailController
         try {
             $validator->validate($data);
             $email = $data['email'];
-        } catch (EmptyEmailException $e) {
-            return new JsonResponse(
-                ['error' => $e->getMessage()],
-                400,
-                [],
-                JSON_PRETTY_PRINT
-            );
-        } catch (InvalidEmailException $e) {
+        } catch (EmptyEmailException|InvalidEmailException $e) {
             return new JsonResponse(
                 ['error' => $e->getMessage()],
                 400,

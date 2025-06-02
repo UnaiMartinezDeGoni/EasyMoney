@@ -19,24 +19,21 @@ class TokenValidatorTest extends TestCase
     }
 
     /**
-     * Verifica que no se lance excepción cuando se envían datos válidos.
      */
-    public function testValidDataDoesNotThrowException(): void
+    public function validDataDoesNotGetException(): void
     {
         $data = [
             'email'   => 'user@example.com',
             'api_key' => 'secret-key'
         ];
 
-        // Si la validación no lanza excepción, la prueba es satisfactoria.
         $this->expectNotToPerformAssertions();
         $this->validator->validate($data);
     }
 
     /**
-     * Verifica que se lance la excepción EmptyEmailException cuando no se proporciona el email.
      */
-    public function testThrowsEmptyEmailExceptionWhenEmailIsMissing(): void
+    public function getEmptyEmailExceptionWhenEmailIsMissing(): void
     {
         $this->expectException(EmptyEmailException::class);
         $data = [
@@ -47,9 +44,8 @@ class TokenValidatorTest extends TestCase
     }
 
     /**
-     * Verifica que se lance la excepción InvalidEmailException cuando se proporciona un email inválido.
      */
-    public function testThrowsInvalidEmailExceptionWhenEmailIsInvalid(): void
+    public function getInvalidEmailExceptionWhenEmailIsInvalid(): void
     {
         $this->expectException(InvalidEmailException::class);
         $data = [
@@ -60,9 +56,8 @@ class TokenValidatorTest extends TestCase
     }
 
     /**
-     * Verifica que se lance la excepción EmptyApiKeyException cuando falta el api_key.
      */
-    public function testThrowsEmptyApiKeyExceptionWhenApiKeyIsMissing(): void
+    public function getEmptyApiKeyExceptionWhenApiKeyIsMissing(): void
     {
         $this->expectException(EmptyApiKeyException::class);
         $data = [

@@ -1,12 +1,12 @@
 <?php
 
-namespace Tests\app\Token;
+namespace Tests\app\Http\Controllers\Token;
 
-use PHPUnit\Framework\TestCase;
-use App\Http\Controllers\Token\TokenValidator;
+use App\Exceptions\EmptyApiKeyException;
 use App\Exceptions\EmptyEmailException;
 use App\Exceptions\InvalidEmailException;
-use App\Exceptions\EmptyApiKeyException;
+use App\Http\Controllers\Token\TokenValidator;
+use PHPUnit\Framework\TestCase;
 
 class TokenValidatorTest extends TestCase
 {

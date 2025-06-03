@@ -12,7 +12,7 @@ class GetStreamsController extends Controller
 {
     public function __construct(
         private readonly GetStreamAnalyticsService $service,
-        private readonly AuthService           $auth
+        private readonly AuthService $auth
     ) {}
 
     public function __invoke(Request $request): JsonResponse
@@ -22,9 +22,20 @@ class GetStreamsController extends Controller
             ! preg_match('/^Bearer\s+(\S+)$/i', $header, $m) ||
             ! $this->auth->validateToken($m[1])
         ) {
-            return new JsonResponse(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        return $this->service->getStreams();
+        // Llamamos al servicio y obtenemos un array de streams (o vacío)
+        $streams = $this->service->listarStreams();
+
+        // Formateamos la respuesta: data + meta
+        $payload = [
+            'data' => $streams,
+            'meta' => [
+                'total' => count($streams),
+            ],
+        ];
+
+        return response()->json($payload, 200);
     }
 }

@@ -23,7 +23,6 @@ class RegisterServiceTest extends TestCase
     {
         $email = 'newuser@example.com';
 
-        /** @var \Mockery\MockInterface|DB_Repositories $mockRepo */
         $mockRepo = Mockery::mock(DB_Repositories::class);
 
         $mockRepo
@@ -49,7 +48,6 @@ class RegisterServiceTest extends TestCase
 
         $result = $service->register($email);
 
-        // Ahora register() devuelve un array, no un JsonResponse
         $this->assertIsArray($result);
         $this->assertArrayHasKey('api_key', $result);
         $this->assertIsString($result['api_key']);
@@ -109,7 +107,6 @@ class RegisterServiceTest extends TestCase
     {
         $email = 'error@example.com';
 
-        /** @var \Mockery\MockInterface|DB_Repositories $mockRepo */
         $mockRepo = Mockery::mock(DB_Repositories::class);
 
         $mockRepo

@@ -4,13 +4,14 @@ namespace App\Http\Controllers\Token;
 
 use App\Exceptions\EmptyApiKeyException;
 use App\Exceptions\EmptyEmailException;
+use App\Exceptions\InvalidApiKeyException;
 use App\Exceptions\InvalidEmailException;
-use App\Http\Controllers\Controller;
+use App\Exceptions\ServerErrorException;
 use App\Services\TokenService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class TokenController extends Controller
+class TokenController
 {
     private TokenService $service;
     private TokenValidator $validator;
@@ -21,25 +22,17 @@ class TokenController extends Controller
         $this->validator = $validator;
     }
 
-    /**
-     * @param  Request  $request
-     * @return JsonResponse
-     *
-     * En este método ya NO atrapamos la excepción de InvalidApiKeyException,
-     * porque quien maneja la autorización es directamente el servicio.
-     * El controlador sólo valida que el email y api_key estén presentes y bien formados,
-     * y luego “retorna” lo que el servicio produce.
-     */
     public function generateToken(Request $request): JsonResponse
     {
         $data = $request->json()->all();
 
-        // 1) Validar campos: si falta email, email inválido o falta api_key → 400
         try {
             $this->validator->validate($data);
+            $email  = $data['email'];
+            $apiKey = $data['api_key'];
         }
         catch (EmptyEmailException | InvalidEmailException | EmptyApiKeyException $e) {
-            return response()->json(
+            return new JsonResponse(
                 ['error' => $e->getMessage()],
                 400,
                 [],
@@ -47,6 +40,30 @@ class TokenController extends Controller
             );
         }
 
-        return $this->service->issueToken($data['email'], $data['api_key']);
+        try {
+            $result = $this->service->issueToken($email, $apiKey);
+            return new JsonResponse(
+                $result,
+                200,
+                [],
+                JSON_PRETTY_PRINT
+            );
+        }
+        catch (InvalidApiKeyException $e) {
+            return new JsonResponse(
+                ['error' => 'Unauthorized. ' . $e->getMessage()],
+                401,
+                [],
+                JSON_PRETTY_PRINT
+            );
+        }
+        catch (ServerErrorException $e) {
+            return new JsonResponse(
+                ['error' => $e->getMessage()],
+                500,
+                [],
+                JSON_PRETTY_PRINT
+            );
+        }
     }
 }

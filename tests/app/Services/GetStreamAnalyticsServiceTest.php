@@ -40,7 +40,6 @@ class GetStreamAnalyticsServiceTest extends TestCase
         $this->assertEquals('abc123', $result[0]['id']);
         $this->assertEquals('A Single Test Stream', $result[0]['title']);
     }
-    s
 
     /** @test */
     public function testListStreamsReturnsEmptyArrayWhenRepositoryThrowsException(): void

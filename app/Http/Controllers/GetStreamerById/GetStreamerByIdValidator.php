@@ -1,5 +1,5 @@
 <?php
-// app/Http/Controllers/GetStreamerById/GetStreamerByIdValidator.php
+declare(strict_types=1);
 
 namespace App\Http\Controllers\GetStreamerById;
 
@@ -8,7 +8,7 @@ use App\Exceptions\EmptyOrInvalidIdException;
 class GetStreamerByIdValidator
 {
     /**
-     * @param  mixed  $idParam
+     * @param mixed $idParam
      * @return string
      * @throws EmptyOrInvalidIdException
      */

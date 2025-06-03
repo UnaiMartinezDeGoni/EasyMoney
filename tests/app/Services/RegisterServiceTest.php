@@ -2,7 +2,7 @@
 
 namespace Tests\app\Services;
 
-use App\Repositories\DB_Repositories;
+use App\Repositories\DBRepositories;
 use App\Services\RegisterService;
 use Illuminate\Http\JsonResponse;
 use Mockery;
@@ -24,7 +24,7 @@ class RegisterServiceTest extends TestCase
     {
         $email = 'newuser@example.com';
 
-        $mockRepo = Mockery::mock(DB_Repositories::class);
+        $mockRepo = Mockery::mock(DBRepositories::class);
 
         $mockRepo
             ->shouldReceive('findUserByEmail')
@@ -70,7 +70,7 @@ class RegisterServiceTest extends TestCase
             'api_key' => $oldApiKey,
         ];
 
-        $mockRepo = Mockery::mock(DB_Repositories::class);
+        $mockRepo = Mockery::mock(DBRepositories::class);
 
         $mockRepo
             ->shouldReceive('findUserByEmail')

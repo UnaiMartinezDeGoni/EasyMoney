@@ -3,7 +3,7 @@
 namespace Tests\app\Services;
 
 use App\Services\TokenService;
-use App\Repositories\DB_Repositories;
+use App\Repositories\DBRepositories;
 use Illuminate\Http\JsonResponse;
 use Tests\TestCase;
 
@@ -16,7 +16,7 @@ class TokenServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->mockRepo = $this->getMockBuilder(DB_Repositories::class)
+        $this->mockRepo = $this->getMockBuilder(DBRepositories::class)
             ->disableOriginalConstructor()
             ->getMock();
 

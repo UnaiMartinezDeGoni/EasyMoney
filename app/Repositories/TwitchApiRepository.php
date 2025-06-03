@@ -28,7 +28,6 @@ class TwitchApiRepository implements TwitchApiRepositoryInterface
             $body = json_decode($response->getBody()->getContents(), true);
             return $body['data'] ?? [];
         } catch (GuzzleException $e) {
-            // En caso de error de conexión o de la API, devolvemos un array vacío
             return [];
         }
     }
@@ -43,7 +42,7 @@ class TwitchApiRepository implements TwitchApiRepositoryInterface
                 ],
                 'query' => ['id' => $id],
             ]);
-            $body = json_decode((string) $resp->getBody(), true);
+            $body = json_decode((string)$resp->getBody(), true);
             return $body['data'][0] ?? [];
         } catch (GuzzleException $e) {
             return [];

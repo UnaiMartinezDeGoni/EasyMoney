@@ -21,24 +21,13 @@ class TokenController extends Controller
         $this->validator = $validator;
     }
 
-    /**
-     * @param  Request  $request
-     * @return JsonResponse
-     *
-     * En este método ya NO atrapamos la excepción de InvalidApiKeyException,
-     * porque quien maneja la autorización es directamente el servicio.
-     * El controlador sólo valida que el email y api_key estén presentes y bien formados,
-     * y luego “retorna” lo que el servicio produce.
-     */
     public function generateToken(Request $request): JsonResponse
     {
         $data = $request->json()->all();
 
-        // 1) Validar campos: si falta email, email inválido o falta api_key → 400
         try {
             $this->validator->validate($data);
-        }
-        catch (EmptyEmailException | InvalidEmailException | EmptyApiKeyException $e) {
+        } catch (EmptyEmailException | InvalidEmailException | EmptyApiKeyException $e) {
             return response()->json(
                 ['error' => $e->getMessage()],
                 400,

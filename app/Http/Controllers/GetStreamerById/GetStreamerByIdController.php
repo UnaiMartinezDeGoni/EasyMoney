@@ -16,7 +16,7 @@ class GetStreamerByIdController extends Controller
         private readonly GetStreamerByIdService $service
     ) {}
 
-    public function index(Request $request): JsonResponse
+    public function getStreamer(Request $request): JsonResponse
     {
         try {
             $validator = new GetStreamerByIdValidator();

@@ -25,7 +25,7 @@ $router->get(
     '/analytics/user',
     [
         'middleware' => 'auth.streamer',
-        'uses'       => 'GetStreamerById\GetStreamerByIdController@index',
+        'uses'       => 'GetStreamerById\GetStreamerByIdController@getStreamer',
     ]
 );
 

@@ -24,7 +24,7 @@ class GetEnrichedStreamsController extends BaseController
             $cleanLimit = $validator->validate($limitParam);
             $limit = (int) $cleanLimit;
         } catch (InvalidLimitException $e) {
-            return new JsonResponse(
+            return response()->json(
                 ['error' => $e->getMessage()],
                 400
             );
@@ -32,9 +32,9 @@ class GetEnrichedStreamsController extends BaseController
 
         try {
             $result = $this->service->getEnrichedStreams($limit);
-            return new JsonResponse($result, 200);
+            return response()->json($result, 200);
         } catch (ServerErrorException $e) {
-            return new JsonResponse(
+            return response()->json(
                 ['error' => $e->getMessage()],
                 500
             );

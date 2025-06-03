@@ -13,6 +13,7 @@ class StreamerAuthorizationMiddleware
     public function handle(Request $request, Closure $next)
     {
         $authHeader = $request->header('Authorization');
+
         if (! $authHeader) {
             return new JsonResponse(['error' => 'Unauthorized. Token is invalid or expired.'], 401);
         }

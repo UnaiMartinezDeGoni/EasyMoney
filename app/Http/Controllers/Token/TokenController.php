@@ -26,13 +26,15 @@ class TokenController
     {
         $data = $request->json()->all();
 
+        // 1) Validar campos: si falta email, email inválido o falta api_key → 400
         try {
             $this->validator->validate($data);
             $email  = $data['email'];
             $apiKey = $data['api_key'];
         }
+
         catch (EmptyEmailException | InvalidEmailException | EmptyApiKeyException $e) {
-            return new JsonResponse(
+            return response()->json(
                 ['error' => $e->getMessage()],
                 400,
                 [],
@@ -42,7 +44,7 @@ class TokenController
 
         try {
             $result = $this->service->issueToken($email, $apiKey);
-            return new JsonResponse(
+            return response()->json(
                 $result,
                 200,
                 [],
@@ -50,7 +52,7 @@ class TokenController
             );
         }
         catch (InvalidApiKeyException $e) {
-            return new JsonResponse(
+            return response()->json(
                 ['error' => 'Unauthorized. ' . $e->getMessage()],
                 401,
                 [],
@@ -58,7 +60,7 @@ class TokenController
             );
         }
         catch (ServerErrorException $e) {
-            return new JsonResponse(
+            return response()->json(
                 ['error' => $e->getMessage()],
                 500,
                 [],

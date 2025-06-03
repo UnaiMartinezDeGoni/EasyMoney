@@ -5,7 +5,7 @@ namespace App\Repositories;
 use mysqli;
 use RuntimeException;
 
-class DB_Repositories
+class DBRepositories
 {
     private mysqli $db;
 

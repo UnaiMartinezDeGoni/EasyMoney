@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\TopOfTheTops;
 
 use App\Services\TopOfTheTopsService;
-use App\Http\Controllers\TopOfTheTops\TopOfTheTopsValidator;
 use App\Exceptions\InvalidSinceParameterException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -37,18 +36,18 @@ class TopOfTheTopsController extends BaseController
             $videos = $this->service->getTopVideos($since);
         } catch (\RuntimeException $e) {
 
-            return new JsonResponse([
+            return response()->json([
                 'error' => $e->getMessage()
             ], 500);
         }
 
         if (empty($videos)) {
-            return new JsonResponse([
+            return response()->json([
                 'error' => 'Not Found. No data available.'
             ], 404);
         }
 
-        return new JsonResponse(array_values($videos), 200);
+        return response()->json(array_values($videos), 200);
     }
 
 

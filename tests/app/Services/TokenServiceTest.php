@@ -2,9 +2,10 @@
 
 namespace Tests\app\Services;
 
-use App\Services\TokenService;
-use App\Repositories\DB_Repositories;
 use App\Exceptions\InvalidApiKeyException;
+use App\Services\TokenService;
+use App\Repositories\DBRepositories;
+use Illuminate\Http\JsonResponse;
 use Mockery;
 use Tests\TestCase;
 
@@ -17,7 +18,7 @@ class TokenServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->mockRepo = $this->getMockBuilder(DB_Repositories::class)
+        $this->mockRepo = $this->getMockBuilder(DBRepositories::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -33,7 +34,7 @@ class TokenServiceTest extends TestCase
     /**
      * @test
      */
-    public function throwsInvalidApiKeyWhenUserNotFound(): void
+    public function gets401WhenUserNotFound(): void
     {
         $this->mockRepo
             ->expects($this->once())
@@ -50,7 +51,7 @@ class TokenServiceTest extends TestCase
     /**
      * @test
      */
-    public function throwsInvalidApiKeyWhenApiKeyMismatch(): void
+    public function gets401WhenApiKeyMismatch(): void
     {
         $user = ['id' => '10', 'api_key' => 'correct_key'];
         $this->mockRepo
@@ -68,7 +69,7 @@ class TokenServiceTest extends TestCase
     /**
      * @test
      */
-    public function returnsExistingTokenAndRefreshesSession(): void
+    public function getsExistingTokenAndRefreshesSession(): void
     {
         $userId = 5;
         $user = ['id' => (string)$userId, 'api_key' => 'key123'];
@@ -102,7 +103,7 @@ class TokenServiceTest extends TestCase
     /**
      * @test
      */
-    public function generatesNewTokenWhenNoActiveSession(): void
+    public function getsNewTokenWhenNoActiveSession(): void
     {
         $userId = 8;
         $user = ['id' => (string)$userId, 'api_key' => 'keyABC'];
@@ -118,6 +119,7 @@ class TokenServiceTest extends TestCase
             ->method('getActiveSession')
             ->with($userId)
             ->willReturn(null);
+
 
         $this->mockRepo
             ->expects($this->once())

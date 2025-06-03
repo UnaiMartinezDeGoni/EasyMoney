@@ -3,14 +3,14 @@
 namespace App\Services;
 
 use App\Exceptions\ServerErrorException;
-use App\Repositories\DB_Repositories;
+use App\Repositories\DBRepositories;
 use Throwable;
 
 class RegisterService
 {
-    private DB_Repositories $dbRepo;
+    private DBRepositories $dbRepo;
 
-    public function __construct(DB_Repositories $dbRepo)
+    public function __construct(DBRepositories $dbRepo)
     {
         $this->dbRepo = $dbRepo;
     }

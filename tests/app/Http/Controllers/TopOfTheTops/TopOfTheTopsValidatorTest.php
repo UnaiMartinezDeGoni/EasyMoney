@@ -10,7 +10,7 @@ class TopOfTheTopsValidatorTest extends TestCase
     public function testValidatorWithNoSinceParameter(): void
     {
         $validator = new TopOfTheTopsValidator();
-        $data = []; 
+        $data = [];
         $this->expectNotToPerformAssertions();
         $validator->validate($data);
     }

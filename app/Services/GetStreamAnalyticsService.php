@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Interfaces\TwitchApiRepositoryInterface;
-use Illuminate\Http\JsonResponse;
 
 class GetStreamAnalyticsService
 {
@@ -11,14 +10,16 @@ class GetStreamAnalyticsService
         private readonly TwitchApiRepositoryInterface $repo
     ) {}
 
-    public function getStreams(): JsonResponse
+    /**
+     * Devuelve un array con todos los streams obtenidos desde el repositorio.
+     * Si hay un error devuelve un array vacío.
+     */
+    public function listarStreams(): array
     {
         try {
-            $streams = $this->repo->getStreams();
+            return $this->repo->getStreams();
         } catch (\Throwable $e) {
-            $streams = [];
+            return [];
         }
-
-        return new JsonResponse($streams, 200);
     }
 }

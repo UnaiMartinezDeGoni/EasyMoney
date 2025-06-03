@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Middleware;
 
 use Closure;
@@ -19,12 +20,11 @@ class AuthenticateToken
         }
 
         if (
-            ! preg_match('/^Bearer\s+(\S+)$/i', $authHeader, $m) ||
-            ! $this->authService->validateToken($m[1])
+            !preg_match('/^Bearer\s+(\S+)$/i', $authHeader, $m) ||
+            !$this->authService->validateToken($m[1])
         ) {
             return new JsonResponse(['error' => 'Unauthorized. Token is invalid or expired.'], 401);
         }
-
         return $next($request);
     }
 }

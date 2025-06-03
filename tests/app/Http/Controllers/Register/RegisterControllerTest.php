@@ -2,7 +2,7 @@
 
 namespace Tests\app\Http\Controllers\Register;
 
-use App\Repositories\DB_Repositories;
+use App\Repositories\DBRepositories;
 use Mockery;
 use Tests\TestCase;
 
@@ -130,6 +130,9 @@ class RegisterControllerTest extends TestCase
         $this->mockRepo
             ->shouldReceive('insertUser')
             ->never();
+
+        $this->app->instance(DBRepositories::class, $mockRepo);
+
 
         $response = $this->call(
             'POST',

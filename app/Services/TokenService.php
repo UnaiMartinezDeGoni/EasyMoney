@@ -4,18 +4,17 @@ namespace App\Services;
 
 use App\Exceptions\InvalidApiKeyException;
 use App\Exceptions\ServerErrorException;
-use App\Repositories\DB_Repositories;
+use App\Repositories\DBRepositories;
 use Throwable;
 
 class TokenService
 {
-    private DB_Repositories $repo;
+    private DBRepositories $repo;
 
-    public function __construct(DB_Repositories $repo)
+    public function __construct(DBRepositories $repo)
     {
         $this->repo = $repo;
     }
-
 
     public function issueToken(string $email, string $apiKey): array
     {

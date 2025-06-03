@@ -14,14 +14,16 @@ class AuthenticateToken
     public function handle(Request $request, Closure $next)
     {
         $authHeader = $request->header('Authorization', null);
-        if (!$authHeader) {
+
+        if (! $authHeader) {
             $authHeader = $request->server('HTTP_AUTHORIZATION', '');
         }
+
         if (
             !preg_match('/^Bearer\s+(\S+)$/i', $authHeader, $m) ||
             !$this->authService->validateToken($m[1])
         ) {
-            return new JsonResponse(['error' => 'Unauthorized'], 401);
+            return new JsonResponse(['error' => 'Unauthorized. Token is invalid or expired.'], 401);
         }
         return $next($request);
     }

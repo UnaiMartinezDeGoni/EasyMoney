@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\App\Http\Controllers\GetStreamerById;
+namespace tests\App\Http\Controllers\GetStreamerById;
 
 use Tests\TestCase;
 use App\Http\Controllers\GetStreamerById\GetStreamerByIdValidator;
@@ -15,37 +15,46 @@ class GetStreamerByIdValidatorTest extends TestCase
         parent::setUp();
         $this->validator = new GetStreamerByIdValidator();
     }
-
-    public function testValidNumericIdIsReturnedClean(): void
+    /**
+     * @test
+     */
+    public function validNumericIdIsReturned(): void
     {
         $this->assertSame('123', $this->validator->validate('123'));
         $this->assertSame('456', $this->validator->validate(' 456 '));
     }
-
-    public function testEmptyIdThrows(): void
+    /**
+     * @test
+     */
+    public function emptyIdThrowsException(): void
     {
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate('');
     }
-
-    public function testNullIdThrows(): void
+    /**
+     * @test
+     */
+    public function nullIdThrowsException(): void
     {
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate(null);
     }
-
-    public function testNonNumericIdThrows(): void
+    /**
+     * @test
+     */
+    public function nonNumericIdThrowsException(): void
     {
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate('abc');
     }
-
-    public function testZeroOrNegativeIdThrows(): void
+    /**
+     * @test
+     */
+    public function zeroOrNegativeIdThrowsException(): void
     {
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate('0');
 
-        // Para cubrir negativo
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate('-5');
     }

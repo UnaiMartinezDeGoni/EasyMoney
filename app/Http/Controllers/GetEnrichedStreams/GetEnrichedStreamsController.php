@@ -1,33 +1,35 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\GetEnrichedStreams;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller as BaseController;
+use App\Exceptions\InvalidLimitException;
+use App\Services\GetEnrichedStreamsService;
 
 class GetEnrichedStreamsController extends BaseController
 {
+    public function __construct(
+        private readonly GetEnrichedStreamsService $service
+    ) {}
+
     public function getEnrichedStreams(Request $request): JsonResponse
     {
         $limitParam = $request->get('limit');
 
-        if ($limitParam === null || !is_numeric($limitParam)) {
-            return new JsonResponse([
-                'error' => "Invalid 'limit' parameter.",
-            ], 400);
+        try {
+            $validator  = new GetEnrichedStreamsValidator();
+            $cleanLimit = $validator->validate($limitParam);
+        } catch (InvalidLimitException $e) {
+            return new JsonResponse(
+                ['error' => $e->getMessage()],
+                400
+            );
         }
 
-        $limit = (int) $limitParam;
+        $limit = (int) $cleanLimit;
 
-        return new JsonResponse([
-            'data' => [],
-            'meta' => [
-                'limit' => $limit,
-                'total' => 0,
-            ],
-        ], 200);
+        return $this->service->getEnrichedStreams($limit);
     }
 }

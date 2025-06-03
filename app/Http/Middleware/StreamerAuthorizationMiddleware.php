@@ -13,16 +13,16 @@ class StreamerAuthorizationMiddleware
     public function handle(Request $request, Closure $next)
     {
         $authHeader = $request->header('Authorization');
-        
+
         if (! $authHeader) {
-            return new JsonResponse(['error' => 'Unauthorized'], 401);
+            return new JsonResponse(['error' => 'Unauthorized. Token is invalid or expired.'], 401);
         }
 
         if (
             ! preg_match('/^Bearer\s+(\S+)$/i', $authHeader, $m)
             || ! $this->authService->validateToken($m[1])
         ) {
-            return new JsonResponse(['error' => 'Unauthorized'], 401);
+            return new JsonResponse(['error' => 'Unauthorized. Token is invalid or expired.'], 401);
         }
 
         return $next($request);

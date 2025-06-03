@@ -7,11 +7,6 @@ use App\Exceptions\EmptyOrInvalidIdException;
 
 class GetStreamerByIdValidator
 {
-    /**
-     * @param mixed $idParam
-     * @return string
-     * @throws EmptyOrInvalidIdException
-     */
     public function validate(?string $idParam): string
     {
         $id = trim((string)$idParam);

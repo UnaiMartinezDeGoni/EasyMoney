@@ -28,7 +28,7 @@ class RegisterController
             $validator->validate($data);
             $email = $data['email'];
         } catch (EmptyEmailException | InvalidEmailException $e) {
-            return new JsonResponse(
+            return response()->json(
                 ['error' => $e->getMessage()],
                 400,
                 [],
@@ -38,14 +38,14 @@ class RegisterController
 
         try {
             $result = $this->service->register($email);
-            return new JsonResponse(
+            return response()->json(
                 $result,
                 200,
                 [],
                 JSON_PRETTY_PRINT
             );
         } catch (ServerErrorException $e) {
-            return new JsonResponse(
+            return response()->json(
                 ['error' => $e->getMessage()],
                 500,
                 [],

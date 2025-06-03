@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\app\Http\Controllers\Register;
+namespace Tests\App\Http\Controllers\Register;
 
 use App\Repositories\DBRepositories;
 use Mockery;
@@ -14,8 +14,11 @@ class RegisterControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->mockRepo = Mockery::mock(DB_Repositories::class);
-        $this->app->instance(DB_Repositories::class, $this->mockRepo);
+        $this->mockRepo = Mockery::mock(DBRepositories::class);
+
+        $this->app->instance(DBRepositories::class, $this->mockRepo);
+
+
     }
 
     protected function tearDown(): void
@@ -24,16 +27,15 @@ class RegisterControllerTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function gets400WhenEmailIsMissing(): void
     {
-
         $response = $this->call(
             'POST',
             '/register',
-            [], [], [],
+            [],
+            [],
+            [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([])
         );
@@ -45,16 +47,15 @@ class RegisterControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function gets400WhenEmailIsInvalid(): void
     {
-
         $response = $this->call(
             'POST',
             '/register',
-            [], [], [],
+            [],
+            [],
+            [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode(['email' => 'invalido'])
         );
@@ -93,7 +94,9 @@ class RegisterControllerTest extends TestCase
         $response = $this->call(
             'POST',
             '/register',
-            [], [], [],
+            [],
+            [],
+            [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode(['email' => $email])
         );
@@ -131,13 +134,12 @@ class RegisterControllerTest extends TestCase
             ->shouldReceive('insertUser')
             ->never();
 
-        $this->app->instance(DBRepositories::class, $mockRepo);
-
-
         $response = $this->call(
             'POST',
             '/register',
-            [], [], [],
+            [],
+            [],
+            [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode(['email' => $email])
         );

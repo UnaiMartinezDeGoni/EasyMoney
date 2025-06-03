@@ -24,7 +24,7 @@ class TopOfTheTopsController extends BaseController
                 $this->validator->validate(['since' => $raw]);
                 $since = (int) $raw;
             } catch (InvalidSinceParameterException $e) {
-                return new JsonResponse([
+                return response()->json([
                     'error' => $e->getMessage()
                 ], 400);
             }

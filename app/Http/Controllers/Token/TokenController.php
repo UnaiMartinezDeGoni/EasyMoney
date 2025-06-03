@@ -26,7 +26,6 @@ class TokenController
     {
         $data = $request->json()->all();
 
-        // 1) Validar campos: si falta email, email inválido o falta api_key → 400
         try {
             $this->validator->validate($data);
             $email  = $data['email'];

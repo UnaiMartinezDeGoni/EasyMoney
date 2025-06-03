@@ -6,40 +6,27 @@ namespace App\Http\Controllers\GetStreamerById;
 use Laravel\Lumen\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use App\Interfaces\TwitchApiRepositoryInterface;
+use App\Services\GetStreamerByIdService;
+use App\Http\Controllers\GetStreamerById\GetStreamerByIdValidator;
+use App\Exceptions\EmptyOrInvalidIdException;
 
 class GetStreamerByIdController extends Controller
 {
-    /**
-     * GET /analytics/streamer?id={id}
-     */
+    public function __construct(
+        private readonly GetStreamerByIdService $service
+    ) {}
+
     public function index(Request $request): JsonResponse
     {
-        // Validate 'id' parameter
-        $id = trim((string) $request->input('id', ''));
-        if ($id === '' || !ctype_digit($id) || (int) $id < 1) {
+        try {
+            $validator = new GetStreamerByIdValidator();
+            $id = $validator->validate($request->input('id'));
+        } catch (EmptyOrInvalidIdException $e) {
             return response()->json([
-                'error' => "Invalid or missing 'id' parameter."
+                'error' => $e->getMessage()
             ], 400);
         }
 
-        // Fetch data from repository
-        try {
-            $streamer = app(TwitchApiRepositoryInterface::class)->getStreamerById($id);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'error' => 'Internal server error.'
-            ], 500);
-        }
-
-        // If not found, return 404
-        if (empty($streamer)) {
-            return response()->json([
-                'error' => 'Streamer not found.'
-            ], 404);
-        }
-
-        // Return streamer data
-        return response()->json($streamer, 200);
+        return $this->service->getStreamerById($id);
     }
 }

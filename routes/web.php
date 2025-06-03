@@ -22,7 +22,7 @@ $router->post('/token', function (Request $request) {
 });
 
 $router->get(
-    '/analytics/streamer',
+    '/analytics/user',
     [
         'middleware' => 'auth.streamer',
         'uses'       => 'GetStreamerById\GetStreamerByIdController@index',

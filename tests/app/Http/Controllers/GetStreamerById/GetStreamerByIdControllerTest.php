@@ -2,12 +2,10 @@
 
 namespace Tests\App\Http\Controllers\GetStreamerById;
 
-
 use Tests\TestCase;
 use Illuminate\Http\Response;
-use Illuminate\Http\JsonResponse;
 use App\Services\AuthService;
-use App\Services\GetStreamAnalyticsService;
+use App\Interfaces\TwitchApiRepositoryInterface;
 
 class GetStreamerByIdControllerTest extends TestCase
 {
@@ -20,74 +18,75 @@ class GetStreamerByIdControllerTest extends TestCase
             ->andReturnUsing(fn(string $token) => $token === 'e59a7c4b2d301af8');
         $this->app->instance(AuthService::class, $mockAuth);
 
-        $mockService = \Mockery::mock(GetStreamAnalyticsService::class);
-        $mockService->shouldReceive('getStreams')
-            ->andReturn(new JsonResponse([
-                ['title' => 'Stream 1', 'user_name' => 'User1'],
-                ['title' => 'Stream 2', 'user_name' => 'User2'],
-            ], Response::HTTP_OK));
-        $this->app->instance(GetStreamAnalyticsService::class, $mockService);
+        $mockRepo = \Mockery::mock(TwitchApiRepositoryInterface::class);
+        $mockRepo->shouldReceive('getStreamerById')
+            ->andReturnUsing(function (string $id) {
+                if ($id === '123') {
+                    return [
+                        'id'        => '123',
+                        'user_name' => 'StreamerUser',
+                        'title'     => 'Live now!'
+                    ];
+                }
+                return [];
+            });
+        $this->app->instance(TwitchApiRepositoryInterface::class, $mockRepo);
+
     }
 
     /** @test */
-    public function testReturns401IfNoTokenProvided(): void
-    {
-        $response = $this->call('GET', '/analytics/streams');
-        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
-    }
-
-    /** @test */
-    public function testWithInvalidToken(): void
-    {
-        $response = $this->call(
-            'GET',
-            '/analytics/streams',
-            [], [], [], ['HTTP_AUTHORIZATION' => 'Bearer invalid_token']
-        );
-        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
-    }
-
-    /** @test */
-    public function testValidRequestReturnsExpectedData(): void
+    public function get400WhenMissingId(): void
     {
         $response = $this->call(
             'GET',
-            '/analytics/streams',
-            [], [], [], ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
+            '/analytics/user',
+            [],
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
         );
 
-        $response->assertStatus(Response::HTTP_OK)
-            ->assertJsonFragment(['title' => 'Stream 1', 'user_name' => 'User1'])
-            ->assertJsonFragment(['title' => 'Stream 2', 'user_name' => 'User2']);
+        $response->assertStatus(Response::HTTP_BAD_REQUEST);
+        $response->assertJson([
+            'error' => "Invalid or missing 'id' parameter.",
+        ]);
     }
 
     /** @test */
-    public function testEmptyResultReturnsEmptyArray(): void
+    public function get400WhenInvalidId(): void
     {
-        $this->app->instance(GetStreamAnalyticsService::class, \Mockery::mock(GetStreamAnalyticsService::class, function ($m) {
-            $m->shouldReceive('getStreams')->andReturn(new JsonResponse([], Response::HTTP_OK));
-        }));
-
         $response = $this->call(
             'GET',
-            '/analytics/streams',
-            [], [], [], ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
+            '/analytics/user',
+            ['id' => 'invalid_id'],
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
         );
 
-        $response->assertStatus(Response::HTTP_OK)->assertExactJson([]);
+        $response->assertStatus(Response::HTTP_BAD_REQUEST);
+        $response->assertJson([
+            'error' => "Invalid or missing 'id' parameter.",
+        ]);
     }
 
     /** @test */
-    public function testMalformedAuthHeader(): void
+    public function get200WhenValidId(): void
     {
         $response = $this->call(
             'GET',
-            '/analytics/streams',
-            [], [], [],
-            ['HTTP_AUTHORIZATION' => 'BearerXYZ']
+            '/analytics/user',
+            ['id' => '123'],
+            [],
+            [],
+            ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
         );
 
-        $response->assertStatus(Response::HTTP_UNAUTHORIZED);
+        $response->assertStatus(Response::HTTP_OK);
+        $response->assertJson([
+            'id'        => '123',
+            'user_name' => 'StreamerUser',
+            'title'     => 'Live now!'
+        ]);
     }
-
 }

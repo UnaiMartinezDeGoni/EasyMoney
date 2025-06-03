@@ -16,36 +16,35 @@ class GetStreamerByIdValidatorTest extends TestCase
         $this->validator = new GetStreamerByIdValidator();
     }
 
-    public function testValidNumericIdIsReturnedClean(): void
+    public function validNumericIdIsReturned(): void
     {
         $this->assertSame('123', $this->validator->validate('123'));
         $this->assertSame('456', $this->validator->validate(' 456 '));
     }
 
-    public function testEmptyIdThrows(): void
+    public function emptyIdThrowsException(): void
     {
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate('');
     }
 
-    public function testNullIdThrows(): void
+    public function nullIdThrowsException(): void
     {
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate(null);
     }
 
-    public function testNonNumericIdThrows(): void
+    public function nonNumericIdThrowsException(): void
     {
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate('abc');
     }
 
-    public function testZeroOrNegativeIdThrows(): void
+    public function zeroOrNegativeIdThrowsException(): void
     {
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate('0');
 
-        // Para cubrir negativo
         $this->expectException(EmptyOrInvalidIdException::class);
         $this->validator->validate('-5');
     }

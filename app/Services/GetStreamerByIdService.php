@@ -13,16 +13,6 @@ class GetStreamerByIdService
         private readonly TwitchApiRepositoryInterface $repo
     ) {}
 
-    /**
-     * Recupera info cruda del streamer o lanza excepciones:
-     * - StreamerNotFoundException si no existe.
-     * - ServerErrorException ante cualquier error interno.
-     *
-     * @param string $id
-     * @return array<string, mixed>
-     * @throws StreamerNotFoundException
-     * @throws ServerErrorException
-     */
     public function getStreamerById(string $id): array
     {
         try {

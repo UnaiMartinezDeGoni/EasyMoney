@@ -1,14 +1,12 @@
 <?php
 
-namespace GetEnrichedStreams;
+namespace Tests\app\Http\Controllers\GetEnrichedStreams;
 
 
-use App\Exceptions\InvalidLimitException;                   
+use App\Exceptions\InvalidLimitException;
 use App\Http\Controllers\GetEnrichedStreams\GetEnrichedStreamsValidator;
 use PHPUnit\Framework\TestCase;
-/**
- * Tests unitarios del validador de parámetro `limit`.
- */
+
 class GetEnrichedStreamsValidatorTest extends TestCase
 {
     private GetEnrichedStreamsValidator $validator;

@@ -22,12 +22,16 @@ $router->post('/token', function (Request $request) {
 });
 
 $router->get(
-    '/analytics/streamer',
+    '/analytics/user',
     [
         'middleware' => 'auth.streamer',
-        'uses'       => 'GetStreamerById\GetStreamerByIdController@index',
+        'uses'       => 'GetStreamerById\GetStreamerByIdController@getStreamer',
     ]
 );
+$router->get('/analytics/streams/enriched', [
+    'middleware' => 'auth.streamer',
+    'uses'       => 'GetEnrichedStreams\GetEnrichedStreamsController@getEnrichedStreams',
+]);
 
 $router->group(['middleware' => 'auth.token'], function () use ($router) {
     $router->get(
@@ -35,11 +39,6 @@ $router->group(['middleware' => 'auth.token'], function () use ($router) {
         ['uses' => 'GetStreams\GetStreamsController']
     );
 
-
-    $router->get('/analytics/streams/enriched', [
-        'middleware' => 'auth',   // <-- aquí estaba 'auth'
-        'uses'       => 'GetEnrichedStreams\GetEnrichedStreamsController@getEnrichedStreams',
-    ]);
 
     $router->get(
         '/analytics/topsofthetops',

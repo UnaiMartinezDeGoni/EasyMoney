@@ -1,40 +1,36 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Controllers\GetEnrichedStreams;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller as BaseController;
+use App\Exceptions\InvalidLimitException;
+use App\Services\GetEnrichedStreamsService;
 
 class GetEnrichedStreamsController extends BaseController
 {
-    /**
-     * GET /analytics/streams/enriched?limit={n}
-     */
+    public function __construct(
+        private readonly GetEnrichedStreamsService $service
+    ) {}
+
     public function getEnrichedStreams(Request $request): JsonResponse
     {
-        // 1) Obtener parámetro 'limit'
         $limitParam = $request->get('limit');
 
-        // 2) Validar presencia y que sea numérico
-        if ($limitParam === null || !is_numeric($limitParam)) {
-            return new JsonResponse([
-                'error' => "Invalid 'limit' parameter.",
-            ], 400);
+        try {
+            $validator  = new GetEnrichedStreamsValidator();
+            $cleanLimit = $validator->validate($limitParam);
+        } catch (InvalidLimitException $e) {
+            return new JsonResponse(
+                ['error' => $e->getMessage()],
+                400
+            );
         }
 
-        // 3) Convertir a entero y generar la respuesta
-        $limit = (int) $limitParam;
+        $limit = (int) $cleanLimit;
 
-        // Aquí podrías delegar a un servicio real, pero para pasar los tests devolvemos datos vacíos
-        return new JsonResponse([
-            'data' => [],
-            'meta' => [
-                'limit' => $limit,
-                'total' => 0,
-            ],
-        ], 200);
+
+        return $this->service->getEnrichedStreams($limit);
     }
 }

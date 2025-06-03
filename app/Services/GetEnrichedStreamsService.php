@@ -11,7 +11,7 @@ class GetEnrichedStreamsService
         private readonly TwitchApiRepositoryInterface $twitchApiRepository
     ) {}
 
-    
+
     public function getEnrichedStreams(int $limit): array
     {
         try {

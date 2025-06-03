@@ -13,6 +13,5 @@ class TopOfTheTopsValidator
                 throw new InvalidSinceParameterException();
             }
         }
-        // Si no se envía 'since', se asignará el valor por defecto en el Controller.
     }
 }

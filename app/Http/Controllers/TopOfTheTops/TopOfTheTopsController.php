@@ -1,10 +1,10 @@
 <?php
-// file: app/Http/Controllers/TopOfTheTops/TopOfTheTopsController.php
-declare(strict_types=1);
 
 namespace App\Http\Controllers\TopOfTheTops;
 
 use App\Services\TopOfTheTopsService;
+use App\Http\Controllers\TopOfTheTops\TopOfTheTopsValidator;
+use App\Exceptions\InvalidSinceParameterException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Laravel\Lumen\Routing\Controller as BaseController;
@@ -12,39 +12,44 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 class TopOfTheTopsController extends BaseController
 {
     public function __construct(
-        private readonly TopOfTheTopsService $service
+        private readonly TopOfTheTopsService $service,
+        private readonly TopOfTheTopsValidator $validator
     ) {}
 
-    /**
-     * GET /analytics/topsofthetops?since={n}
-     */
     public function index(Request $request): JsonResponse
     {
-        // 1) Validamos `since`
         $raw = $request->query('since');
+
         if (isset($raw)) {
-            if (!ctype_digit($raw) || (int)$raw <= 0) {
+            try {
+                $this->validator->validate(['since' => $raw]);
+                $since = (int) $raw;
+            } catch (InvalidSinceParameterException $e) {
                 return new JsonResponse([
-                    'error' => "Bad Request. Invalid or missing parameters: 'since' must be a positive integer."
+                    'error' => $e->getMessage()
                 ], 400);
             }
-            $since = (int)$raw;
         } else {
             $since = 600;
         }
 
-        // 2) Llamamos al servicio
-        $resp  = $this->service->getTopVideos($since);      // devuelve JsonResponse
-        $items = $resp->getData(true);                     // obtenemos array
+        try {
+            $videos = $this->service->getTopVideos($since);
+        } catch (\RuntimeException $e) {
 
-        // 3) Si vacío → 404 con el mensaje exacto
-        if (empty($items)) {
+            return new JsonResponse([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+        if (empty($videos)) {
             return new JsonResponse([
                 'error' => 'Not Found. No data available.'
             ], 404);
         }
 
-        // 4) Datos OK → 200
-        return new JsonResponse($items, 200);
+        return new JsonResponse(array_values($videos), 200);
     }
+
+
 }

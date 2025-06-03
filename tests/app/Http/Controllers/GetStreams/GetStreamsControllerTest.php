@@ -25,7 +25,6 @@ class GetStreamsControllerTest extends TestCase
             });
         $this->app->instance(AuthService::class, $mockAuth);
     }
-    s
 
     protected function tearDown(): void
     {

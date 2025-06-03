@@ -30,7 +30,6 @@ class GetEnrichedStreamsController extends BaseController
 
         $limit = (int) $cleanLimit;
 
-
         return $this->service->getEnrichedStreams($limit);
     }
 }

@@ -2,79 +2,57 @@
 
 namespace Tests\app\Services;
 
-use Tests\TestCase;
-use App\Interfaces\TwitchApiRepositoryInterface;
+use Mockery;
+use PHPUnit\Framework\TestCase;
 use App\Services\GetStreamAnalyticsService;
-use Illuminate\Http\JsonResponse;
+use App\Interfaces\TwitchApiRepositoryInterface;
 
 class GetStreamAnalyticsServiceTest extends TestCase
 {
-    private TwitchApiRepositoryInterface $repo;
-    private GetStreamAnalyticsService    $service;
-
-    public function createApplication()
+    protected function tearDown(): void
     {
-        return require __DIR__ . '/../../../bootstrap/app.php';
-    }
-
-    protected function setUp(): void
-    {
-        parent::setUp();
-
-        // 1) Mock del repositorio
-        $this->repo = $this->createMock(TwitchApiRepositoryInterface::class);
-        $this->app->instance(TwitchApiRepositoryInterface::class, $this->repo);
-
-        // 2) Instancia real del servicio
-        $this->service = $this->app->make(GetStreamAnalyticsService::class);
+        Mockery::close();
+        parent::tearDown();
     }
 
     /** @test */
-    public function returns_streams_when_repo_returns_data(): void
+    public function testListStreamsCallsRepositoryAndReturnsData(): void
     {
-        $streams = [
-            ['title' => 'Stream 1', 'user_name' => 'User1'],
-            ['title' => 'Stream 2', 'user_name' => 'User2'],
+        $stubStreams = [
+            [
+                'id'           => 'abc123',
+                'title'        => 'A Single Test Stream',
+                'user_name'    => 'UserX',
+                'viewer_count' => 50,
+            ],
         ];
 
-        $this->repo
-            ->expects($this->once())
-            ->method('getStreams')
-            ->willReturn($streams);
+        $repoMock = Mockery::mock(TwitchApiRepositoryInterface::class);
+        $repoMock->shouldReceive('getStreams')
+            ->once()
+            ->andReturn($stubStreams);
 
-        $response = $this->service->getStreams();
+        $service = new GetStreamAnalyticsService($repoMock);
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame($streams, $response->getData(true));
+        $result = $service->listarStreams();
+        $this->assertIsArray($result);
+        $this->assertCount(1, $result);
+        $this->assertEquals('abc123', $result[0]['id']);
+        $this->assertEquals('A Single Test Stream', $result[0]['title']);
     }
 
     /** @test */
-    public function returns_empty_array_when_repo_returns_nothing(): void
+    public function testListStreamsReturnsEmptyArrayWhenRepositoryThrowsException(): void
     {
-        $this->repo
-            ->method('getStreams')
-            ->willReturn([]);
+        $repoMock = Mockery::mock(TwitchApiRepositoryInterface::class);
+        $repoMock->shouldReceive('getStreams')
+            ->once()
+            ->andThrow(new \Exception('Twitch connection failed'));
 
-        $response = $this->service->getStreams();
+        $service = new GetStreamAnalyticsService($repoMock);
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame([], $response->getData(true));
-    }
-
-    /** @test */
-    public function returns_empty_array_on_repo_exception(): void
-    {
-        $this->repo
-            ->expects($this->once())
-            ->method('getStreams')
-            ->will($this->throwException(new \Exception('API failure')));
-
-        $response = $this->service->getStreams();
-
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame([], $response->getData(true));
+        $result = $service->listarStreams();
+        $this->assertIsArray($result);
+        $this->assertEmpty($result);
     }
 }

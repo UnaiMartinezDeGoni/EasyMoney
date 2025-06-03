@@ -2,7 +2,7 @@
 
 namespace Tests\app\Http\Controllers\Register;
 
-use App\Repositories\DB_Repositories;
+use App\Repositories\DBRepositories;
 use Mockery;
 use Tests\TestCase;
 
@@ -64,7 +64,7 @@ class RegisterControllerTest extends TestCase
         $email = 'test@example.com';
 
 
-        $mockRepo = Mockery::mock(DB_Repositories::class);
+        $mockRepo = Mockery::mock(DBRepositories::class);
 
         $mockRepo
             ->shouldReceive('findUserByEmail')
@@ -82,7 +82,7 @@ class RegisterControllerTest extends TestCase
             ->shouldReceive('updateApiKey')
             ->never();
 
-        $this->app->instance(DB_Repositories::class, $mockRepo);
+        $this->app->instance(DBRepositories::class, $mockRepo);
 
 
         $response = $this->call(
@@ -108,7 +108,7 @@ class RegisterControllerTest extends TestCase
         $email = 'existing@example.com';
 
 
-        $mockRepo = Mockery::mock(DB_Repositories::class);
+        $mockRepo = Mockery::mock(DBRepositories::class);
 
         $mockRepo
             ->shouldReceive('findUserByEmail')
@@ -129,7 +129,7 @@ class RegisterControllerTest extends TestCase
             ->shouldReceive('insertUser')
             ->never();
 
-        $this->app->instance(DB_Repositories::class, $mockRepo);
+        $this->app->instance(DBRepositories::class, $mockRepo);
 
 
         $response = $this->call(

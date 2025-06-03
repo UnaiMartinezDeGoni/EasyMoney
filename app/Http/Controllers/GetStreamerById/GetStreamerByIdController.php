@@ -30,3 +30,4 @@ class GetStreamerByIdController extends Controller
         return $this->service->getStreamerById($id);
     }
 }
+

@@ -1,5 +1,4 @@
 <?php
-// app/Exceptions/TwitchUnauthorizedException.php
 
 namespace App\Exceptions;
 

@@ -1,5 +1,4 @@
 <?php
-// file: app/Http/Controllers/TopOfTheTops/TopOfTheTopsController.php
 declare(strict_types=1);
 
 namespace App\Http\Controllers\TopOfTheTops;
@@ -15,12 +14,8 @@ class TopOfTheTopsController extends BaseController
         private readonly TopOfTheTopsService $service
     ) {}
 
-    /**
-     * GET /analytics/topsofthetops?since={n}
-     */
     public function index(Request $request): JsonResponse
     {
-        // 1) Validamos `since`
         $raw = $request->query('since');
         if (isset($raw)) {
             if (!ctype_digit($raw) || (int)$raw <= 0) {
@@ -33,18 +28,15 @@ class TopOfTheTopsController extends BaseController
             $since = 600;
         }
 
-        // 2) Llamamos al servicio
-        $resp  = $this->service->getTopVideos($since);      // devuelve JsonResponse
-        $items = $resp->getData(true);                     // obtenemos array
+        $resp  = $this->service->getTopVideos($since);
+        $items = $resp->getData(true);
 
-        // 3) Si vacío → 404 con el mensaje exacto
         if (empty($items)) {
             return new JsonResponse([
                 'error' => 'Not Found. No data available.'
             ], 404);
         }
 
-        // 4) Datos OK → 200
         return new JsonResponse($items, 200);
     }
 }

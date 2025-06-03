@@ -7,7 +7,6 @@ use mysqli;
 
 class FuncionesComunes
 {
-
     public static function conectarMysqli(): mysqli
     {
         $host     = getenv('DB_HOST');
@@ -26,10 +25,10 @@ class FuncionesComunes
 
     public static function enrichStreams(array $streams): array
     {
-        return array_map(fn($s) => [
-            'id'           => $s['id'],
-            'viewer_count' => $s['viewer_count'],
-            'url'          => 'https://twitch.tv/' . ($s['user_login'] ?? '')
+        return array_map(fn($stream) => [
+            'id'           => $stream['id'],
+            'viewer_count' => $stream['viewer_count'],
+            'url'          => 'https://twitch.tv/' . ($stream['user_login'] ?? '')
         ], $streams);
     }
 }

@@ -17,5 +17,4 @@ class RegisterValidator
             throw new InvalidEmailException();
         }
     }
-
 }

@@ -4,10 +4,8 @@ namespace App\Http\Controllers\GetEnrichedStreams;
 
 use App\Exceptions\InvalidLimitException;
 
-
 class GetEnrichedStreamsValidator
 {
-
     public function validate(?string $limit): string
     {
         if ($limit === null || trim($limit) === '') {
@@ -31,3 +29,4 @@ class GetEnrichedStreamsValidator
         return (string) $intValue;
     }
 }
+

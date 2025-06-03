@@ -11,13 +11,7 @@ class GetEnrichedStreamsService
         private readonly TwitchApiRepositoryInterface $twitchApiRepository
     ) {}
 
-    /**
-     * Obtiene y enriquece streams; devuelve un array crudo de streams o lanza excepciones.
-     *
-     * @param int $limit
-     * @return array<int, array<string, mixed>>
-     * @throws ServerErrorException Si ocurre cualquier fallo interno (API, repositorio, etc.).
-     */
+    
     public function getEnrichedStreams(int $limit): array
     {
         try {

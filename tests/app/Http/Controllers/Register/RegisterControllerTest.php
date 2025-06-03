@@ -8,9 +8,20 @@ use Tests\TestCase;
 
 class RegisterControllerTest extends TestCase
 {
+    private $mockRepo;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->mockRepo = Mockery::mock(DB_Repositories::class);
+        $this->app->instance(DB_Repositories::class, $this->mockRepo);
+    }
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
     }
 
     /**
@@ -18,6 +29,7 @@ class RegisterControllerTest extends TestCase
      */
     public function gets400WhenEmailIsMissing(): void
     {
+
         $response = $this->call(
             'POST',
             '/register',
@@ -38,6 +50,7 @@ class RegisterControllerTest extends TestCase
      */
     public function gets400WhenEmailIsInvalid(): void
     {
+
         $response = $this->call(
             'POST',
             '/register',
@@ -56,34 +69,26 @@ class RegisterControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function gets200AndReturnsApiKeyWhenEmailIsValidAndUserDoesNotExist(): void
     {
         $email = 'test@example.com';
 
-
-        $mockRepo = Mockery::mock(DB_Repositories::class);
-
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('findUserByEmail')
             ->once()
             ->with($email)
-            ->andReturn(null);
+            ->andReturnNull();
 
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('insertUser')
             ->once()
             ->with($email, Mockery::type('string'))
             ->andReturnTrue();
 
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('updateApiKey')
             ->never();
-
-        $this->app->instance(DB_Repositories::class, $mockRepo);
-
 
         $response = $this->call(
             'POST',
@@ -97,40 +102,34 @@ class RegisterControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('api_key', $content);
-        $this->assertNotEmpty($content['api_key']);
+        $this->assertIsString($content['api_key']);
+        $this->assertEquals(16, strlen($content['api_key']));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function gets200AndReturnsApiKeyWhenEmailIsValidAndUserExists(): void
     {
         $email = 'existing@example.com';
+        $oldApiKey = 'oldapikeyval';
 
-
-        $mockRepo = Mockery::mock(DB_Repositories::class);
-
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('findUserByEmail')
             ->once()
             ->with($email)
             ->andReturn([
                 'id'      => 42,
-                'api_key' => 'old_api_key_value',
+                'api_key' => $oldApiKey,
             ]);
 
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('updateApiKey')
             ->once()
             ->with($email, Mockery::type('string'))
             ->andReturnTrue();
 
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('insertUser')
             ->never();
-
-        $this->app->instance(DB_Repositories::class, $mockRepo);
-
 
         $response = $this->call(
             'POST',
@@ -144,6 +143,8 @@ class RegisterControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('api_key', $content);
-        $this->assertNotEmpty($content['api_key']);
+        $this->assertIsString($content['api_key']);
+        $this->assertEquals(16, strlen($content['api_key']));
+        $this->assertNotEquals($oldApiKey, $content['api_key']);
     }
 }

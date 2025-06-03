@@ -31,6 +31,7 @@ class TwitchApiRepository implements TwitchApiRepositoryInterface
             return [];
         }
     }
+    s
 
     public function getStreamerById(string $id): array
     {

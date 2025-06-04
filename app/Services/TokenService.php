@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Exceptions\InvalidApiKeyException;
@@ -22,14 +21,14 @@ class TokenService
         try {
             $user = $this->repo->findUserByEmail($email);
 
-            if (! $user || ! isset($user['api_key']) || $user['api_key'] !== $apiKey) {
+            if (!$user || !isset($user['api_key']) || $user['api_key'] !== $apiKey) {
                 throw new InvalidApiKeyException();
             }
 
-            $activeSession = $this->repo->getActiveSession((int) $user['id']);
+            $activeSession = $this->repo->getActiveSession((int)$user['id']);
 
             if ($activeSession) {
-                $this->repo->refreshSession((int) $user['id'], $activeSession);
+                $this->repo->refreshSession((int)$user['id'], $activeSession);
 
                 return response()->json(
                     ['token' => $activeSession],
@@ -42,7 +41,7 @@ class TokenService
             $token   = bin2hex(random_bytes(16));
             $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
 
-            $this->repo->createSession((int) $user['id'], $token, $expires);
+            $this->repo->createSession((int)$user['id'], $token, $expires);
 
             return response()->json(
                 ['token' => $token],
@@ -50,16 +49,14 @@ class TokenService
                 [],
                 JSON_PRETTY_PRINT
             );
-        }
-        catch (InvalidApiKeyException $e) {
+        } catch (InvalidApiKeyException $e) {
             return response()->json(
                 ['error' => 'Unauthorized. ' . $e->getMessage()],
                 401,
                 [],
                 JSON_PRETTY_PRINT
             );
-        }
-        catch (Throwable $e) {
+        } catch (Throwable $e) {
             $serverError = new ServerErrorException();
             return response()->json(
                 ['error' => $serverError->getMessage()],

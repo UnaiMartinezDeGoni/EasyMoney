@@ -14,9 +14,7 @@ class AuthService
             return false;
         }
 
-        $stmt = $mysqli->prepare(
-            "SELECT id FROM sessions WHERE token = ? AND expires_at > NOW()"
-        );
+        $stmt = $mysqli->prepare("SELECT id FROM sessions WHERE token = ? AND expires_at > NOW()");
         $stmt->bind_param('s', $token);
         $stmt->execute();
         $result = $stmt->get_result();

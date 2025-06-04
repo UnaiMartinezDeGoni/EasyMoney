@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Exceptions\ServerErrorException;
@@ -15,7 +14,6 @@ class RegisterService
     {
         $this->dbRepo = $dbRepo;
     }
-
 
     public function register(string $email): JsonResponse
     {
@@ -33,7 +31,6 @@ class RegisterService
             return response()->json([
                 'api_key' => $apiKey,
             ], 200, [], JSON_PRETTY_PRINT);
-
         } catch (Throwable $e) {
             $serverError = new ServerErrorException();
             return response()->json([
@@ -41,7 +38,6 @@ class RegisterService
             ], 500, [], JSON_PRETTY_PRINT);
         }
     }
-
 
     private function generateApiKey(): string
     {

@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Interfaces\TwitchApiRepositoryInterface;
@@ -16,7 +15,7 @@ class GetStreamerByIdService
     {
         try {
             $data = $this->repo->getStreamerById($id);
-        } catch (Throwable) {
+        } catch (Throwable $e) {
             return new JsonResponse(['error' => 'Internal server error.'], 500);
         }
 

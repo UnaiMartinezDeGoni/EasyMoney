@@ -32,6 +32,11 @@ $router->get('/analytics/streams/enriched', [
     'middleware' => 'auth.streamer',
     'uses'       => 'GetEnrichedStreams\GetEnrichedStreamsController@getEnrichedStreams',
 ]);
+$router->get(
+    '/analytics/topsofthetops',
+    [    'middleware' => 'auth.streamer',
+        'uses' => 'TopOfTheTops\TopOfTheTopsController@index']
+);
 
 $router->group(['middleware' => 'auth.token'], function () use ($router) {
     $router->get(
@@ -40,8 +45,5 @@ $router->group(['middleware' => 'auth.token'], function () use ($router) {
     );
 
 
-    $router->get(
-        '/analytics/topsofthetops',
-        ['uses' => 'TopOfTheTops\TopOfTheTopsController@index']
-    );
+
 });

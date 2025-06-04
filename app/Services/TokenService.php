@@ -4,7 +4,6 @@ namespace App\Services;
 use App\Exceptions\InvalidApiKeyException;
 use App\Exceptions\ServerErrorException;
 use App\Repositories\DBRepositories;
-use Illuminate\Http\JsonResponse;
 use Throwable;
 
 class TokenService
@@ -16,7 +15,7 @@ class TokenService
         $this->repo = $repo;
     }
 
-    public function issueToken(string $email, string $apiKey): JsonResponse
+    public function issueToken(string $email, string $apiKey): array
     {
         try {
             $user = $this->repo->findUserByEmail($email);
@@ -25,45 +24,25 @@ class TokenService
                 throw new InvalidApiKeyException();
             }
 
-            $activeSession = $this->repo->getActiveSession((int)$user['id']);
+            $userId = (int)$user['id'];
+            $activeSession = $this->repo->getActiveSession($userId);
 
             if ($activeSession) {
-                $this->repo->refreshSession((int)$user['id'], $activeSession);
-
-                return response()->json(
-                    ['token' => $activeSession],
-                    200,
-                    [],
-                    JSON_PRETTY_PRINT
-                );
+                $this->repo->refreshSession($userId, $activeSession);
+                return ['token' => $activeSession];
             }
 
             $token   = bin2hex(random_bytes(16));
             $expires = date('Y-m-d H:i:s', strtotime('+1 hour'));
+            $this->repo->createSession($userId, $token, $expires);
 
-            $this->repo->createSession((int)$user['id'], $token, $expires);
-
-            return response()->json(
-                ['token' => $token],
-                200,
-                [],
-                JSON_PRETTY_PRINT
-            );
-        } catch (InvalidApiKeyException $e) {
-            return response()->json(
-                ['error' => 'Unauthorized. ' . $e->getMessage()],
-                401,
-                [],
-                JSON_PRETTY_PRINT
-            );
-        } catch (Throwable $e) {
-            $serverError = new ServerErrorException();
-            return response()->json(
-                ['error' => $serverError->getMessage()],
-                500,
-                [],
-                JSON_PRETTY_PRINT
-            );
+            return ['token' => $token];
+        }
+        catch (InvalidApiKeyException $e) {
+            throw $e;
+        }
+        catch (Throwable $e) {
+            throw new ServerErrorException();
         }
     }
 }

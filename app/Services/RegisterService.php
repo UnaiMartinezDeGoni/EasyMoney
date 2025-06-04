@@ -3,7 +3,6 @@ namespace App\Services;
 
 use App\Exceptions\ServerErrorException;
 use App\Repositories\DBRepositories;
-use Illuminate\Http\JsonResponse;
 use Throwable;
 
 class RegisterService
@@ -15,7 +14,7 @@ class RegisterService
         $this->dbRepo = $dbRepo;
     }
 
-    public function register(string $email): JsonResponse
+    public function register(string $email): array
     {
         $apiKey = $this->generateApiKey();
 
@@ -28,14 +27,11 @@ class RegisterService
                 $this->dbRepo->insertUser($email, $apiKey);
             }
 
-            return response()->json([
+            return [
                 'api_key' => $apiKey,
-            ], 200, [], JSON_PRETTY_PRINT);
+            ];
         } catch (Throwable $e) {
-            $serverError = new ServerErrorException();
-            return response()->json([
-                'error' => $serverError->getMessage(),
-            ], 500, [], JSON_PRETTY_PRINT);
+            throw new ServerErrorException();
         }
     }
 
@@ -44,3 +40,4 @@ class RegisterService
         return bin2hex(random_bytes(8));
     }
 }
+

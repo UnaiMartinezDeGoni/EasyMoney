@@ -1,9 +1,9 @@
 <?php
 namespace App\Services;
 
-use Symfony\Component\HttpFoundation\JsonResponse;
 use App\Interfaces\TwitchApiRepositoryInterface;
 use App\Helpers\FuncionesComunes;
+use Throwable;
 
 class TopOfTheTopsService
 {
@@ -11,24 +11,23 @@ class TopOfTheTopsService
         private readonly TwitchApiRepositoryInterface $repo
     ) {}
 
-    /**
-     * Obtiene y transforma los top videos.
-     *
-     * @param int $since
-     * @return JsonResponse
-     */
-    public function getTopVideos(int $since): JsonResponse
+    public function getTopVideos(int $since): array
     {
-        $videos = $this->repo->getTopVideos($since);
-
+        try {
+            $videos = $this->repo->getTopVideos($since);
+        } catch (Throwable $e) {
+            // Se podría lanzar una excepción de tipo ServerErrorException si se dispone de una.
+            throw new \RuntimeException('Error fetching top videos.');
+        }
+        
         if (class_exists(FuncionesComunes::class)) {
             $videos = FuncionesComunes::enrichTopVideos($videos);
         }
-
+        
         if (empty($videos)) {
-            return new JsonResponse(["error" => "Not Found. No data available."], 404);
+            throw new \RuntimeException("Not Found. No data available.");
         }
 
-        return new JsonResponse(array_values($videos), 200);
+        return array_values($videos);
     }
 }

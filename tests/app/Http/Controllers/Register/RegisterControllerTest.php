@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\app\Http\Controllers\Register;
+namespace Tests\App\Http\Controllers\Register;
 
 use App\Repositories\DBRepositories;
 use Mockery;
@@ -8,20 +8,34 @@ use Tests\TestCase;
 
 class RegisterControllerTest extends TestCase
 {
+    private $mockRepo;
+
     protected function setUp(): void
     {
         parent::setUp();
+
+        $this->mockRepo = Mockery::mock(DBRepositories::class);
+
+        $this->app->instance(DBRepositories::class, $this->mockRepo);
+
+
     }
 
-    /**
-     * @test
-     */
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
+    }
+
+    /** @test */
     public function gets400WhenEmailIsMissing(): void
     {
         $response = $this->call(
             'POST',
             '/register',
-            [], [], [],
+            [],
+            [],
+            [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode([])
         );
@@ -33,15 +47,15 @@ class RegisterControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function gets400WhenEmailIsInvalid(): void
     {
         $response = $this->call(
             'POST',
             '/register',
-            [], [], [],
+            [],
+            [],
+            [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode(['email' => 'invalido'])
         );
@@ -56,39 +70,33 @@ class RegisterControllerTest extends TestCase
         );
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function gets200AndReturnsApiKeyWhenEmailIsValidAndUserDoesNotExist(): void
     {
         $email = 'test@example.com';
 
-
-        $mockRepo = Mockery::mock(DBRepositories::class);
-
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('findUserByEmail')
             ->once()
             ->with($email)
-            ->andReturn(null);
+            ->andReturnNull();
 
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('insertUser')
             ->once()
             ->with($email, Mockery::type('string'))
             ->andReturnTrue();
 
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('updateApiKey')
             ->never();
-
-        $this->app->instance(DBRepositories::class, $mockRepo);
-
 
         $response = $this->call(
             'POST',
             '/register',
-            [], [], [],
+            [],
+            [],
+            [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode(['email' => $email])
         );
@@ -97,45 +105,41 @@ class RegisterControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('api_key', $content);
-        $this->assertNotEmpty($content['api_key']);
+        $this->assertIsString($content['api_key']);
+        $this->assertEquals(16, strlen($content['api_key']));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function gets200AndReturnsApiKeyWhenEmailIsValidAndUserExists(): void
     {
         $email = 'existing@example.com';
+        $oldApiKey = 'oldapikeyval';
 
-
-        $mockRepo = Mockery::mock(DBRepositories::class);
-
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('findUserByEmail')
             ->once()
             ->with($email)
             ->andReturn([
                 'id'      => 42,
-                'api_key' => 'old_api_key_value',
+                'api_key' => $oldApiKey,
             ]);
 
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('updateApiKey')
             ->once()
             ->with($email, Mockery::type('string'))
             ->andReturnTrue();
 
-        $mockRepo
+        $this->mockRepo
             ->shouldReceive('insertUser')
             ->never();
-
-        $this->app->instance(DBRepositories::class, $mockRepo);
-
 
         $response = $this->call(
             'POST',
             '/register',
-            [], [], [],
+            [],
+            [],
+            [],
             ['CONTENT_TYPE' => 'application/json'],
             json_encode(['email' => $email])
         );
@@ -144,6 +148,8 @@ class RegisterControllerTest extends TestCase
 
         $content = json_decode($response->getContent(), true);
         $this->assertArrayHasKey('api_key', $content);
-        $this->assertNotEmpty($content['api_key']);
+        $this->assertIsString($content['api_key']);
+        $this->assertEquals(16, strlen($content['api_key']));
+        $this->assertNotEquals($oldApiKey, $content['api_key']);
     }
 }

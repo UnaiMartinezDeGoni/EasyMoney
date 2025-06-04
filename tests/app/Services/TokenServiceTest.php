@@ -2,9 +2,11 @@
 
 namespace Tests\app\Services;
 
+use App\Exceptions\InvalidApiKeyException;
 use App\Services\TokenService;
 use App\Repositories\DBRepositories;
 use Illuminate\Http\JsonResponse;
+use Mockery;
 use Tests\TestCase;
 
 class TokenServiceTest extends TestCase
@@ -23,6 +25,12 @@ class TokenServiceTest extends TestCase
         $this->service = new TokenService($this->mockRepo);
     }
 
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
+    }
+
     /**
      * @test
      */
@@ -34,16 +42,10 @@ class TokenServiceTest extends TestCase
             ->with('noone@example.com')
             ->willReturn(null);
 
-        $response = $this->service->issueToken('noone@example.com', 'any_key');
+        $this->expectException(InvalidApiKeyException::class);
+        $this->expectExceptionMessage('API access token is invalid.');
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(401, $response->getStatusCode());
-
-        $expected = json_encode(
-            ['error' => 'Unauthorized. API access token is invalid.'],
-            JSON_PRETTY_PRINT
-        );
-        $this->assertJsonStringEqualsJsonString($expected, $response->getContent());
+        $this->service->issueToken('noone@example.com', 'any_key');
     }
 
     /**
@@ -58,16 +60,10 @@ class TokenServiceTest extends TestCase
             ->with('user@example.com')
             ->willReturn($user);
 
-        $response = $this->service->issueToken('user@example.com', 'wrong_key');
+        $this->expectException(InvalidApiKeyException::class);
+        $this->expectExceptionMessage('API access token is invalid.');
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(401, $response->getStatusCode());
-
-        $expected = json_encode(
-            ['error' => 'Unauthorized. API access token is invalid.'],
-            JSON_PRETTY_PRINT
-        );
-        $this->assertJsonStringEqualsJsonString($expected, $response->getContent());
+        $this->service->issueToken('user@example.com', 'wrong_key');
     }
 
     /**
@@ -97,16 +93,11 @@ class TokenServiceTest extends TestCase
             ->with($userId, $existingToken)
             ->willReturn(true);
 
-        $response = $this->service->issueToken('user@example.com', 'key123');
+        $result = $this->service->issueToken('user@example.com', 'key123');
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(200, $response->getStatusCode());
-
-        $expected = json_encode(
-            ['token' => $existingToken],
-            JSON_PRETTY_PRINT
-        );
-        $this->assertJsonStringEqualsJsonString($expected, $response->getContent());
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('token', $result);
+        $this->assertEquals($existingToken, $result['token']);
     }
 
     /**
@@ -143,13 +134,12 @@ class TokenServiceTest extends TestCase
             )
             ->willReturn(true);
 
-        $response = $this->service->issueToken('someone@example.com', 'keyABC');
+        $result = $this->service->issueToken('someone@example.com', 'keyABC');
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(200, $response->getStatusCode());
-
-        $content = json_decode($response->getContent(), true);
-        $this->assertArrayHasKey('token', $content);
-        $this->assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $content['token']);
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('token', $result);
+        $this->assertMatchesRegularExpression('/^[0-9a-f]{32}$/', $result['token']);
     }
+
+
 }

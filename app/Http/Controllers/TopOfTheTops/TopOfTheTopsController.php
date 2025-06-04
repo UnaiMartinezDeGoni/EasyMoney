@@ -1,9 +1,9 @@
 <?php
-declare(strict_types=1);
 
 namespace App\Http\Controllers\TopOfTheTops;
 
 use App\Services\TopOfTheTopsService;
+use App\Exceptions\InvalidSinceParameterException;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Laravel\Lumen\Routing\Controller as BaseController;
@@ -11,32 +11,44 @@ use Laravel\Lumen\Routing\Controller as BaseController;
 class TopOfTheTopsController extends BaseController
 {
     public function __construct(
-        private readonly TopOfTheTopsService $service
+        private readonly TopOfTheTopsService $service,
+        private readonly TopOfTheTopsValidator $validator
     ) {}
 
     public function index(Request $request): JsonResponse
     {
         $raw = $request->query('since');
+
         if (isset($raw)) {
-            if (!ctype_digit($raw) || (int)$raw <= 0) {
-                return new JsonResponse([
-                    'error' => "Bad Request. Invalid or missing parameters: 'since' must be a positive integer."
+            try {
+                $this->validator->validate(['since' => $raw]);
+                $since = (int) $raw;
+            } catch (InvalidSinceParameterException $e) {
+                return response()->json([
+                    'error' => $e->getMessage()
                 ], 400);
             }
-            $since = (int)$raw;
         } else {
             $since = 600;
         }
 
-        $resp  = $this->service->getTopVideos($since);
-        $items = $resp->getData(true);
+        try {
+            $videos = $this->service->getTopVideos($since);
+        } catch (\RuntimeException $e) {
 
-        if (empty($items)) {
-            return new JsonResponse([
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
+        if (empty($videos)) {
+            return response()->json([
                 'error' => 'Not Found. No data available.'
             ], 404);
         }
 
-        return new JsonResponse($items, 200);
+        return response()->json(array_values($videos), 200);
     }
+
+
 }

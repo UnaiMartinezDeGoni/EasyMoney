@@ -1,6 +1,6 @@
 <?php
 
-namespace tests\App\Http\Controllers\GetStreamerById;
+namespace Tests\App\Http\Controllers\GetStreamerById;
 
 use Tests\TestCase;
 use App\Http\Controllers\GetStreamerById\GetStreamerByIdValidator;

@@ -6,7 +6,6 @@ use App\Repositories\DBRepositories;
 use App\Services\RegisterService;
 use Illuminate\Http\JsonResponse;
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class RegisterServiceTest extends TestCase
@@ -104,7 +103,4 @@ class RegisterServiceTest extends TestCase
         $this->assertEquals(16, strlen($content['api_key']));
         $this->assertNotEquals($oldApiKey, $content['api_key']);
     }
-
-
 }
-

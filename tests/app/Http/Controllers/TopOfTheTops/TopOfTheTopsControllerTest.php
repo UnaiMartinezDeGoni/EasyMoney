@@ -36,7 +36,8 @@ class TopOfTheTopsControllerTest extends TestCase
         $this->app->instance(TopOfTheTopsService::class, $mockService);
     }
 
-    public function testInvalidSinceParameterReturns400(): void
+    /** @test */
+    public function invalidSinceParameterReturns400(): void
     {
         $response = $this->call(
             'GET',
@@ -50,7 +51,8 @@ class TopOfTheTopsControllerTest extends TestCase
                  ]);
     }
 
-    public function testDefaultSinceReturnsExpectedItems(): void
+    /** @test */
+    public function defaultSinceReturnsExpectedItems(): void
     {
         // Al no enviar 'since', se usa el valor por defecto 600 (5 items)
         $response = $this->call(
@@ -64,7 +66,8 @@ class TopOfTheTopsControllerTest extends TestCase
                  ->assertJsonFragment(['id' => 'v1', 'views' => 101]);
     }
 
-    public function testCustomSinceParameterReturnsExpectedItems(): void
+    /** @test */
+    public function customSinceParameterReturnsExpectedItems(): void
     {
         $response = $this->call(
             'GET',
@@ -77,7 +80,8 @@ class TopOfTheTopsControllerTest extends TestCase
                  ->assertJsonFragment(['id' => 'v1', 'views' => 201]);
     }
 
-    public function testEmptyResultReturns404(): void
+    /** @test */
+    public function emptyResultReturns404(): void
     {
         // Rebindea el servicio para simular un resultado vacío
         $this->app->instance(TopOfTheTopsService::class, \Mockery::mock(TopOfTheTopsService::class, function ($m) {

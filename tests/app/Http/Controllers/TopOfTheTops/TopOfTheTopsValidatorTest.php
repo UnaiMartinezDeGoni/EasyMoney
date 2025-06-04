@@ -7,7 +7,8 @@ use App\Http\Controllers\TopOfTheTops\TopOfTheTopsValidator;
 
 class TopOfTheTopsValidatorTest extends TestCase
 {
-    public function testValidatorWithNoSinceParameter(): void
+    /** @test */
+    public function validatorWithNoSinceParameter(): void
     {
         $validator = new TopOfTheTopsValidator();
         $data = [];  // No se define 'since'
@@ -15,7 +16,8 @@ class TopOfTheTopsValidatorTest extends TestCase
         $validator->validate($data);
     }
 
-    public function testValidatorWithValidSince(): void
+    /** @test */
+    public function validatorWithValidSince(): void
     {
         $validator = new TopOfTheTopsValidator();
         $data = ['since' => 500];
@@ -23,7 +25,8 @@ class TopOfTheTopsValidatorTest extends TestCase
         $validator->validate($data);
     }
 
-    public function testValidatorWithNonIntegerSince(): void
+    /** @test */
+    public function validatorWithNonIntegerSince(): void
     {
         $validator = new TopOfTheTopsValidator();
         $data = ['since' => 'invalid'];
@@ -32,7 +35,8 @@ class TopOfTheTopsValidatorTest extends TestCase
         $validator->validate($data);
     }
 
-    public function testValidatorWithZeroSince(): void
+    /** @test */
+    public function validatorWithZeroSince(): void
     {
         $validator = new TopOfTheTopsValidator();
         $data = ['since' => 0];
@@ -41,7 +45,8 @@ class TopOfTheTopsValidatorTest extends TestCase
         $validator->validate($data);
     }
 
-    public function testValidatorWithNegativeSince(): void
+    /** @test */
+    public function validatorWithNegativeSince(): void
     {
         $validator = new TopOfTheTopsValidator();
         $data = ['since' => -100];

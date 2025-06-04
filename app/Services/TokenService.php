@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Exceptions\InvalidApiKeyException;
@@ -21,11 +20,11 @@ class TokenService
         try {
             $user = $this->repo->findUserByEmail($email);
 
-            if (! $user || ! isset($user['api_key']) || $user['api_key'] !== $apiKey) {
+            if (!$user || !isset($user['api_key']) || $user['api_key'] !== $apiKey) {
                 throw new InvalidApiKeyException();
             }
 
-            $userId = (int) $user['id'];
+            $userId = (int)$user['id'];
             $activeSession = $this->repo->getActiveSession($userId);
 
             if ($activeSession) {

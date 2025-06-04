@@ -120,7 +120,6 @@ class TokenServiceTest extends TestCase
             ->with($userId)
             ->willReturn(null);
 
-
         $this->mockRepo
             ->expects($this->once())
             ->method('createSession')

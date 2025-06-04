@@ -16,7 +16,7 @@ class GetStreamAnalyticsServiceTest extends TestCase
     }
 
     /** @test */
-    public function testListStreamsCallsRepositoryAndReturnsData(): void
+    public function listStreamsCallsRepositoryAndReturnsData(): void
     {
         $stubStreams = [
             [
@@ -42,7 +42,7 @@ class GetStreamAnalyticsServiceTest extends TestCase
     }
 
     /** @test */
-    public function testListStreamsReturnsEmptyArrayWhenRepositoryThrowsException(): void
+    public function listStreamsReturnsEmptyArrayWhenRepositoryThrowsException(): void
     {
         $repoMock = Mockery::mock(TwitchApiRepositoryInterface::class);
         $repoMock->shouldReceive('getStreams')

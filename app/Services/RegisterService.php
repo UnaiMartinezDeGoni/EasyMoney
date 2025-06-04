@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Services;
 
 use App\Exceptions\ServerErrorException;
@@ -31,7 +30,6 @@ class RegisterService
             return [
                 'api_key' => $apiKey,
             ];
-
         } catch (Throwable $e) {
             throw new ServerErrorException();
         }
@@ -42,3 +40,4 @@ class RegisterService
         return bin2hex(random_bytes(8));
     }
 }
+

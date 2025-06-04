@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Interfaces\TwitchApiRepositoryInterface;
 use App\Exceptions\ServerErrorException;
+use Throwable;
 
 class GetEnrichedStreamsService
 {
@@ -11,12 +12,11 @@ class GetEnrichedStreamsService
         private readonly TwitchApiRepositoryInterface $twitchApiRepository
     ) {}
 
-
     public function getEnrichedStreams(int $limit): array
     {
         try {
             $streams = $this->twitchApiRepository->getStreams();
-        } catch (\Throwable) {
+        } catch (Throwable $e) {
             throw new ServerErrorException();
         }
 
@@ -34,7 +34,7 @@ class GetEnrichedStreamsService
         foreach ($topStreams as $stream) {
             try {
                 $userData = $this->twitchApiRepository->getStreamerById($stream['user_id']);
-            } catch (\Throwable) {
+            } catch (Throwable $e) {
                 throw new ServerErrorException();
             }
 
@@ -44,7 +44,7 @@ class GetEnrichedStreamsService
                 'user_name'         => $stream['user_name'],
                 'viewer_count'      => $stream['viewer_count'],
                 'title'             => $stream['title'],
-                'user_display_name' => $userData['display_name']   ?? $stream['user_name'],
+                'user_display_name' => $userData['display_name'] ?? $stream['user_name'],
                 'profile_image_url' => $userData['profile_image_url'] ?? null,
             ];
         }
@@ -52,3 +52,4 @@ class GetEnrichedStreamsService
         return $formatted;
     }
 }
+

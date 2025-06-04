@@ -91,7 +91,6 @@ class RegisterServiceTest extends TestCase
 
         $result = $service->register($email);
 
-        // Ahora register() devuelve un array, no un JsonResponse
         $this->assertIsArray($result);
         $this->assertArrayHasKey('api_key', $result);
         $this->assertIsString($result['api_key']);
@@ -121,3 +120,4 @@ class RegisterServiceTest extends TestCase
         $service->register($email);
     }
 }
+

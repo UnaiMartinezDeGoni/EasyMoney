@@ -9,7 +9,6 @@ use App\Services\TopOfTheTopsService;
 use App\Services\AuthService;
 use Mockery;
 
-
 class TopOfTheTopsControllerTest extends TestCase
 {
     protected function setUp(): void
@@ -52,10 +51,9 @@ class TopOfTheTopsControllerTest extends TestCase
         Mockery::close();
         parent::tearDown();
     }
-    /**
-     * @test
-     */
-    public function testInvalidSinceParameterReturns400(): void
+
+    /** @test */
+    public function invalidSinceParameterReturns400(): void
     {
         $response = $this->call(
             'GET',
@@ -63,16 +61,14 @@ class TopOfTheTopsControllerTest extends TestCase
             [], [], [],
             ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
         );
-
         $response->assertStatus(Response::HTTP_BAD_REQUEST)
-            ->assertJson([
-                'error' => "Bad Request. Invalid or missing parameters: 'since' must be a positive integer."
-            ]);
+                 ->assertJson([
+                     'error' => "Bad Request. Invalid or missing parameters: 'since' must be a positive integer."
+                 ]);
     }
-    /**
-     * @test
-     */
-    public function testDefaultSinceReturnsExpectedItems(): void
+
+    /** @test */
+    public function defaultSinceReturnsExpectedItems(): void
     {
         $response = $this->call(
             'GET',
@@ -82,13 +78,12 @@ class TopOfTheTopsControllerTest extends TestCase
         );
 
         $response->assertStatus(Response::HTTP_OK)
-            ->assertJsonCount(5)
-            ->assertJsonFragment(['id' => 'v1', 'views' => 101]);
+                 ->assertJsonCount(5)
+                 ->assertJsonFragment(['id' => 'v1', 'views' => 101]);
     }
-    /**
-     * @test
-     */
-    public function testCustomSinceParameterReturnsExpectedItems(): void
+
+    /** @test */
+    public function customSinceParameterReturnsExpectedItems(): void
     {
         $response = $this->call(
             'GET',
@@ -98,13 +93,12 @@ class TopOfTheTopsControllerTest extends TestCase
         );
 
         $response->assertStatus(Response::HTTP_OK)
-            ->assertJsonCount(2)
-            ->assertJsonFragment(['id' => 'v1', 'views' => 201]);
+                 ->assertJsonCount(2)
+                 ->assertJsonFragment(['id' => 'v1', 'views' => 201]);
     }
-    /**
-     * @test
-     */
-    public function testEmptyResultReturns404(): void
+
+    /** @test */
+    public function emptyResultReturns404(): void
     {
         $mockRepoEmpty = Mockery::mock(TwitchApiRepositoryInterface::class);
         $mockRepoEmpty
@@ -123,6 +117,6 @@ class TopOfTheTopsControllerTest extends TestCase
         );
 
         $response->assertStatus(Response::HTTP_NOT_FOUND)
-            ->assertExactJson(['error' => 'Not Found. No data available.']);
+                 ->assertExactJson(['error' => 'Not Found. No data available.']);
     }
 }

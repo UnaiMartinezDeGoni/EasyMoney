@@ -33,7 +33,7 @@ class GetStreamsControllerTest extends TestCase
     }
 
     /** @test */
-    public function testWithoutAuthHeaderReturns401(): void
+    public function withoutAuthHeaderReturns401(): void
     {
         $response = $this->call(
             'GET',
@@ -46,7 +46,7 @@ class GetStreamsControllerTest extends TestCase
     }
 
     /** @test */
-    public function testWithInvalidTokenReturns401(): void
+    public function withInvalidTokenReturns401(): void
     {
         $response = $this->call(
             'GET',
@@ -59,7 +59,7 @@ class GetStreamsControllerTest extends TestCase
     }
 
     /** @test */
-    public function testValidRequestReturnsExpectedData(): void
+    public function validRequestReturnsExpectedData(): void
     {
         $stubStreams = [
             [
@@ -108,7 +108,7 @@ class GetStreamsControllerTest extends TestCase
     }
 
     /** @test */
-    public function testValidRequestButNoStreamsReturnsEmptyData(): void
+    public function validRequestButNoStreamsReturnsEmptyData(): void
     {
         $mockServiceEmpty = Mockery::mock(GetStreamAnalyticsService::class);
         $mockServiceEmpty->shouldReceive('listarStreams')
@@ -133,7 +133,7 @@ class GetStreamsControllerTest extends TestCase
     }
 
     /** @test */
-    public function testMalformedAuthHeaderReturns401(): void
+    public function malformedAuthHeaderReturns401(): void
     {
         $response = $this->call(
             'GET',

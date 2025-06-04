@@ -6,6 +6,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller as BaseController;
 use App\Exceptions\InvalidLimitException;
+use App\Exceptions\ServerErrorException;
 use App\Services\GetEnrichedStreamsService;
 
 class GetEnrichedStreamsController extends BaseController
@@ -21,15 +22,22 @@ class GetEnrichedStreamsController extends BaseController
         try {
             $validator  = new GetEnrichedStreamsValidator();
             $cleanLimit = $validator->validate($limitParam);
+            $limit = (int) $cleanLimit;
         } catch (InvalidLimitException $e) {
-            return new JsonResponse(
+            return response()->json(
                 ['error' => $e->getMessage()],
                 400
             );
         }
 
-        $limit = (int) $cleanLimit;
-
-        return $this->service->getEnrichedStreams($limit);
+        try {
+            $result = $this->service->getEnrichedStreams($limit);
+            return response()->json($result, 200);
+        } catch (ServerErrorException $e) {
+            return response()->json(
+                ['error' => $e->getMessage()],
+                500
+            );
+        }
     }
 }

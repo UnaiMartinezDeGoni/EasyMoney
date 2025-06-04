@@ -3,7 +3,8 @@
 namespace App\Services;
 
 use App\Interfaces\TwitchApiRepositoryInterface;
-use Illuminate\Http\JsonResponse;
+use App\Exceptions\StreamerNotFoundException;
+use App\Exceptions\ServerErrorException;
 use Throwable;
 
 class GetStreamerByIdService
@@ -12,18 +13,18 @@ class GetStreamerByIdService
         private readonly TwitchApiRepositoryInterface $repo
     ) {}
 
-    public function getStreamerById(string $id): JsonResponse
+    public function getStreamerById(string $id): array
     {
         try {
             $data = $this->repo->getStreamerById($id);
-        } catch (Throwable) {
-            return new JsonResponse(['error' => 'Internal server error.'], 500);
+        } catch (Throwable $e) {
+            throw new ServerErrorException();
         }
 
         if (empty($data)) {
-            return new JsonResponse(['error' => 'Streamer not found.'], 404);
+            throw new StreamerNotFoundException();
         }
 
-        return new JsonResponse($data, 200);
+        return $data;
     }
 }

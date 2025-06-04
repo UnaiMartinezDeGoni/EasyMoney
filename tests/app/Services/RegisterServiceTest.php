@@ -4,9 +4,8 @@ namespace Tests\app\Services;
 
 use App\Repositories\DBRepositories;
 use App\Services\RegisterService;
-use Illuminate\Http\JsonResponse;
+use App\Exceptions\ServerErrorException;
 use Mockery;
-use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class RegisterServiceTest extends TestCase
@@ -47,15 +46,12 @@ class RegisterServiceTest extends TestCase
 
         $service = new RegisterService($mockRepo);
 
-        $response = $service->register($email);
+        $result = $service->register($email);
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(200, $response->status());
-
-        $content = json_decode($response->getContent(), true);
-        $this->assertArrayHasKey('api_key', $content);
-        $this->assertIsString($content['api_key']);
-        $this->assertEquals(16, strlen($content['api_key']));
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('api_key', $result);
+        $this->assertIsString($result['api_key']);
+        $this->assertEquals(16, strlen($result['api_key']));
     }
 
     /**
@@ -93,18 +89,35 @@ class RegisterServiceTest extends TestCase
 
         $service = new RegisterService($mockRepo);
 
-        $response = $service->register($email);
+        $result = $service->register($email);
 
-        $this->assertInstanceOf(JsonResponse::class, $response);
-        $this->assertEquals(200, $response->status());
-
-        $content = json_decode($response->getContent(), true);
-        $this->assertArrayHasKey('api_key', $content);
-        $this->assertIsString($content['api_key']);
-        $this->assertEquals(16, strlen($content['api_key']));
-        $this->assertNotEquals($oldApiKey, $content['api_key']);
+        // Ahora register() devuelve un array, no un JsonResponse
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('api_key', $result);
+        $this->assertIsString($result['api_key']);
+        $this->assertEquals(16, strlen($result['api_key']));
+        $this->assertNotEquals($oldApiKey, $result['api_key']);
     }
 
+    /**
+     * @test
+     */
+    public function throwsServerErrorExceptionOnRepositoryFailure(): void
+    {
+        $email = 'error@example.com';
 
+        $mockRepo = Mockery::mock(DBRepositories::class);
+
+        $mockRepo
+            ->shouldReceive('findUserByEmail')
+            ->once()
+            ->with($email)
+            ->andThrow(new \Exception('DB down'));
+
+        $service = new RegisterService($mockRepo);
+
+        $this->expectException(ServerErrorException::class);
+
+        $service->register($email);
+    }
 }
-

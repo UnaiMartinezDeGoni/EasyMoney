@@ -1,9 +1,9 @@
 <?php
+
 namespace App\Services;
 
 use App\Interfaces\TwitchApiRepositoryInterface;
-use Illuminate\Http\JsonResponse;
-use Throwable;
+use App\Exceptions\ServerErrorException;
 
 class GetEnrichedStreamsService
 {
@@ -12,23 +12,16 @@ class GetEnrichedStreamsService
     ) {}
 
 
-    public function getEnrichedStreams(int $limit): JsonResponse
+    public function getEnrichedStreams(int $limit): array
     {
         try {
             $streams = $this->twitchApiRepository->getStreams();
-        } catch (Throwable) {
-            return new JsonResponse(
-                ['error' => 'Internal server error.'],
-                500
-            );
+        } catch (\Throwable) {
+            throw new ServerErrorException();
         }
 
-        // 2) Si vino vacío, devolvemos 500
         if (empty($streams)) {
-            return new JsonResponse(
-                ['error' => 'Internal server error.'],
-                500
-            );
+            throw new ServerErrorException();
         }
 
         usort(
@@ -41,11 +34,8 @@ class GetEnrichedStreamsService
         foreach ($topStreams as $stream) {
             try {
                 $userData = $this->twitchApiRepository->getStreamerById($stream['user_id']);
-            } catch (Throwable) {
-                return new JsonResponse(
-                    ['error' => 'Internal server error.'],
-                    500
-                );
+            } catch (\Throwable) {
+                throw new ServerErrorException();
             }
 
             $formatted[] = [
@@ -59,6 +49,6 @@ class GetEnrichedStreamsService
             ];
         }
 
-        return new JsonResponse($formatted, 200);
+        return $formatted;
     }
 }

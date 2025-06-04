@@ -123,4 +123,122 @@ class DBRepositories
 
         return $success;
     }
+    public function getRecentTopVideos(string $since_datetime): array
+    {
+        $resultado = [];
+        $stmt = $this->db->prepare(
+            "SELECT
+                game_id, user_name, total_videos, total_views,
+                most_viewed_title, most_viewed_views, most_viewed_duration,
+                most_viewed_created_at, updated_at
+             FROM top_videos
+             WHERE updated_at > ?
+             ORDER BY most_viewed_views DESC
+             LIMIT 120"
+        );
+        if (! $stmt) {
+            throw new RuntimeException('Error preparando SELECT top_videos: ' . $this->db->error);
+        }
+
+        $stmt->bind_param('s', $since_datetime);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        while ($row = $result->fetch_assoc()) {
+            $resultado[] = $row;
+        }
+        $stmt->close();
+
+        return $resultado;
+    }
+
+    /**
+     * Comprueba si existe en top_games un registro con el dado game_id.
+     *
+     * @param string $game_id
+     * @return bool
+     */
+    public function existsTopGame(string $game_id): bool
+    {
+        $stmt = $this->db->prepare("SELECT 1 FROM top_games WHERE game_id = ?");
+        if (! $stmt) {
+            throw new RuntimeException('Error preparando SELECT top_games: ' . $this->db->error);
+        }
+        $stmt->bind_param('s', $game_id);
+        $stmt->execute();
+        $exists = (bool) $stmt->get_result()->fetch_assoc();
+        $stmt->close();
+        return $exists;
+    }
+
+    /**
+     * Inserta un nuevo top_game (game_id, game_name, updated_at = NOW()).
+     *
+     * @param string $game_id
+     * @param string $game_name
+     * @return bool
+     */
+    public function insertTopGame(string $game_id, string $game_name): bool
+    {
+        $stmt = $this->db->prepare(
+            "INSERT INTO top_games (game_id, game_name, updated_at) VALUES (?, ?, NOW())"
+        );
+        if (! $stmt) {
+            throw new RuntimeException('Error preparando INSERT top_games: ' . $this->db->error);
+        }
+        $stmt->bind_param('ss', $game_id, $game_name);
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
+
+    /**
+     * Inserta o actualiza (upsert) en top_videos según la clave (game_id + user_name).
+     *
+     * @param array $videoData  Array con claves:
+     *   - game_id
+     *   - user_name
+     *   - total_videos
+     *   - total_views
+     *   - most_viewed_title
+     *   - most_viewed_views
+     *   - most_viewed_duration
+     *   - most_viewed_created_at  (formato "Y-m-d H:i:s")
+     * @return bool
+     */
+    public function upsertTopVideo(array $videoData): bool
+    {
+        $stmt = $this->db->prepare(
+            "INSERT INTO top_videos (
+                game_id, user_name, total_videos, total_views,
+                most_viewed_title, most_viewed_views, most_viewed_duration,
+                most_viewed_created_at, updated_at
+             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+             ON DUPLICATE KEY UPDATE
+                total_videos = VALUES(total_videos),
+                total_views  = VALUES(total_views),
+                most_viewed_title      = VALUES(most_viewed_title),
+                most_viewed_views      = VALUES(most_viewed_views),
+                most_viewed_duration   = VALUES(most_viewed_duration),
+                most_viewed_created_at = VALUES(most_viewed_created_at),
+                updated_at = NOW()"
+        );
+        if (! $stmt) {
+            throw new RuntimeException('Error preparando INSERT/UPDATE top_videos: ' . $this->db->error);
+        }
+
+        $stmt->bind_param(
+            'ssiisiss',
+            $videoData['game_id'],
+            $videoData['user_name'],
+            $videoData['total_videos'],
+            $videoData['total_views'],
+            $videoData['most_viewed_title'],
+            $videoData['most_viewed_views'],
+            $videoData['most_viewed_duration'],
+            $videoData['most_viewed_created_at']
+        );
+        $success = $stmt->execute();
+        $stmt->close();
+        return $success;
+    }
 }

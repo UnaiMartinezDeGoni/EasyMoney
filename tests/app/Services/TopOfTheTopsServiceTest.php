@@ -62,7 +62,7 @@ class TopOfTheTopsServiceTest extends TestCase
     }
 
     /** @test */
-    public function returnsFromDatabaseWhenEnoughRecordsExist()a
+    public function returnsFromDatabaseWhenEnoughRecordsExist()
     {
         $twitchMock = Mockery::mock(TwitchApiRepositoryInterface::class);
 
@@ -104,7 +104,7 @@ class TopOfTheTopsServiceTest extends TestCase
     }
 
     /** @test */
-    public function queriesTwitchAndPersistsWhenNotEnoughDatabaseRecords()
+    public function queriesTwitchAndPersistsWhenNotEnoughDatabaseRecords()a
     {
         putenv('TWITCH_TOKEN=valid_token');
 

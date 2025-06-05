@@ -104,7 +104,6 @@ class TwitchApiRepository implements TwitchApiRepositoryInterface
             $byUser[$user]['total_videos']++;
             $byUser[$user]['total_views'] += $video['view_count'];
 
-            // Actualizar si este video tiene más views que el anterior
             if ($video['view_count'] > $byUser[$user]['most_viewed_views']) {
                 $byUser[$user]['most_viewed_title']      = $video['title'];
                 $byUser[$user]['most_viewed_views']      = $video['view_count'];

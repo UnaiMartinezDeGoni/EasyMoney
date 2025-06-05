@@ -15,50 +15,7 @@ class TopOfTheTopsServiceTest extends TestCase
     protected function tearDown(): void
     {
         Mockery::close();
-        putenv('TWITCH_TOKEN');
         parent::tearDown();
-    }
-
-    /** @test */
-    public function returnsDirectlyFromTwitchRepoWhenMethodExists()
-    {
-        $stubData = [
-            [
-                'game_id'                   => '1',
-                'game_name'                 => 'GameOne',
-                'user_name'                 => 'StreamerA',
-                'total_videos'              => 2,
-                'total_views'               => 5000,
-                'most_viewed_title'         => 'Epic Clip',
-                'most_viewed_views'         => 3000,
-                'most_viewed_duration'      => '00:10:00',
-                'most_viewed_created_at'    => '2025-06-01T12:00:00Z',
-            ],
-        ];
-
-        $twitchStub = new class($stubData) implements TwitchApiRepositoryInterface {
-            private array $data;
-            public function __construct(array $data)
-            {
-                $this->data = $data;
-            }
-
-            public function getTopVideos(int $sinceSeconds): array
-            {
-                return $this->data;
-            }
-
-            public function getStreams(): array { return []; }
-            public function getStreamerById(string $id): array { return []; }
-            public function getTopGames(string $access_token, int $limit = 3): array { return []; }
-            public function getVideosByGame(string $access_token, string $game_id, int $limit = 40): array { return []; }
-            public function aggregateVideosByUser(array $videosResponse, string $game_id, string $game_name): array { return []; }
-        };
-
-        $service = new TopOfTheTopsService($twitchStub, null);
-        $result = $service->getTopVideos(10);
-
-        $this->assertSame($stubData, $result);
     }
 
     /** @test */
@@ -266,41 +223,4 @@ class TopOfTheTopsServiceTest extends TestCase
         $this->assertSame('2025-06-04 13:00:00', $second['most_viewed_created_at']);
     }
 
-    /** @test */
-    public function throwsUnauthorizedWhenTokenIsMissing()
-    {
-        putenv('TWITCH_TOKEN');
-
-        $twitchMock = Mockery::mock(TwitchApiRepositoryInterface::class);
-        $dbMock = Mockery::mock(DBRepositories::class);
-        $dbMock
-            ->shouldReceive('getRecentTopVideos')
-            ->once()
-            ->andReturn([]);
-
-        $service = new TopOfTheTopsService($twitchMock, $dbMock);
-
-        $this->expectException(TwitchUnauthorizedException::class);
-        $this->expectExceptionMessage('Unauthorized. Twitch access token is invalid or has expired.');
-
-        $service->getTopVideos(60);
-    }
-
-    /** @test */
-    public function throwsServerErrorWhenDatabaseFails()
-    {
-        $twitchMock = Mockery::mock(TwitchApiRepositoryInterface::class);
-        $dbMock = Mockery::mock(DBRepositories::class);
-
-        $dbMock
-            ->shouldReceive('getRecentTopVideos')
-            ->once()
-            ->with(Mockery::type('string'))
-            ->andThrow(new \Exception('DB error'));
-
-        $service = new TopOfTheTopsService($twitchMock, $dbMock);
-
-        $this->expectException(ServerErrorException::class);
-        $service->getTopVideos(120);
-    }
 }

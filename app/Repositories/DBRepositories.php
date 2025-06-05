@@ -2,10 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\DBRepositoriesInterface;
 use mysqli;
 use RuntimeException;
 
-class DBRepositories
+class DBRepositories implements DBRepositoriesInterface
 {
     private mysqli $db;
 

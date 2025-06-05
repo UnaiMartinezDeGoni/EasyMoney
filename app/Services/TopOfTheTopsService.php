@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
+use App\Interfaces\DBRepositoriesInterface;
 use App\Interfaces\TwitchApiRepositoryInterface;
-use App\Repositories\DBRepositories;
 use App\Exceptions\ServerErrorException;
 use App\Exceptions\TwitchUnauthorizedException;
 use Throwable;
@@ -13,7 +13,7 @@ class TopOfTheTopsService
 
     public function __construct(
         private readonly TwitchApiRepositoryInterface $twitchRepo,
-        private readonly ?DBRepositories $dbRepo = null
+        private readonly ?DBRepositoriesInterface $dbRepo = null
     ) {}
 
     public function getTopVideos(int $sinceSeconds): array

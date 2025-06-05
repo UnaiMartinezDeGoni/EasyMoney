@@ -14,7 +14,6 @@ class TopOfTheTopsController extends BaseController
 {
     public function index(Request $request): JsonResponse
     {
-        // Obtenemos el validador y el servicio directamente del contenedor
         $validator = app(TopOfTheTopsValidator::class);
         $service   = app(TopOfTheTopsService::class);
 
@@ -44,10 +43,6 @@ class TopOfTheTopsController extends BaseController
             return response()->json([
                 'error' => $e->getMessage()
             ], 500);
-        } catch (\Throwable $e) {
-            return response()->json([
-                'error' => 'Servidor encontró un error interno.'
-            ], 500);
         }
 
         if (empty($videos)) {
@@ -56,7 +51,6 @@ class TopOfTheTopsController extends BaseController
             ], 404);
         }
 
-        // Devolvemos el array de vídeos en la raíz del JSON
         return response()->json(array_values($videos), 200);
     }
 }

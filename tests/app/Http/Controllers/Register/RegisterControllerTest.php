@@ -2,7 +2,7 @@
 
 namespace Tests\App\Http\Controllers\Register;
 
-use App\Repositories\DBRepositories;
+use App\Interfaces\DBRepositoriesInterface;
 use Mockery;
 use Tests\TestCase;
 
@@ -14,9 +14,9 @@ class RegisterControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->mockRepo = Mockery::mock(DBRepositories::class);
+        $this->mockRepo = Mockery::mock(DBRepositoriesInterface::class);
 
-        $this->app->instance(DBRepositories::class, $this->mockRepo);
+        $this->app->instance(DBRepositoriesInterface::class, $this->mockRepo);
 
 
     }

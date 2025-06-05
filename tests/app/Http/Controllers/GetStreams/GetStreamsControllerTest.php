@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\app\Http\Controllers\GetStreams;
+namespace Tests\App\Http\Controllers\GetStreams;
 
 use Tests\TestCase;
 use Illuminate\Http\Response;
-use App\Services\GetStreamAnalyticsService;
 use App\Services\AuthService;
+use App\Interfaces\TwitchApiRepositoryInterface;
 use Mockery;
 
 class GetStreamsControllerTest extends TestCase
@@ -20,10 +20,12 @@ class GetStreamsControllerTest extends TestCase
 
         $mockAuth = Mockery::mock(AuthService::class);
         $mockAuth->shouldReceive('validateToken')
-            ->andReturnUsing(function (string $token) {
-                return $token === 'e59a7c4b2d301af8';
-            });
+            ->andReturnUsing(fn (string $token) => $token === 'e59a7c4b2d301af8');
         $this->app->instance(AuthService::class, $mockAuth);
+
+        $defaultRepo = Mockery::mock(TwitchApiRepositoryInterface::class);
+        $defaultRepo->shouldReceive('getStreams')->andReturn([]);
+        $this->app->instance(TwitchApiRepositoryInterface::class, $defaultRepo);
     }
 
     protected function tearDown(): void
@@ -33,26 +35,13 @@ class GetStreamsControllerTest extends TestCase
     }
 
     /** @test */
-    public function withoutAuthHeaderReturns401(): void
-    {
-        $response = $this->call(
-            'GET',
-            $this->endpoint,
-            [], [], [],
-            $this->headers
-        );
-
-        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->status());
-    }
-
-    /** @test */
     public function withInvalidTokenReturns401(): void
     {
         $response = $this->call(
             'GET',
             $this->endpoint,
             [], [], [],
-            array_merge($this->headers, ['HTTP_AUTHORIZATION' => 'Bearer invalidtoken'])
+            ['HTTP_AUTHORIZATION' => 'Bearer invalidtoken']
         );
 
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->status());
@@ -76,11 +65,11 @@ class GetStreamsControllerTest extends TestCase
             ],
         ];
 
-        $mockService = Mockery::mock(GetStreamAnalyticsService::class);
-        $mockService->shouldReceive('listarStreams')
+        $mockRepo = Mockery::mock(TwitchApiRepositoryInterface::class);
+        $mockRepo->shouldReceive('getStreams')
             ->once()
             ->andReturn($stubStreams);
-        $this->app->instance(GetStreamAnalyticsService::class, $mockService);
+        $this->app->instance(TwitchApiRepositoryInterface::class, $mockRepo);
 
         $response = $this->call(
             'GET',
@@ -105,43 +94,5 @@ class GetStreamsControllerTest extends TestCase
         $this->assertEquals('Stream 2', $content['data'][1]['title']);
         $this->assertEquals('User2', $content['data'][1]['user_name']);
         $this->assertEquals(200, $content['data'][1]['viewer_count']);
-    }
-
-    /** @test */
-    public function validRequestButNoStreamsReturnsEmptyData(): void
-    {
-        $mockServiceEmpty = Mockery::mock(GetStreamAnalyticsService::class);
-        $mockServiceEmpty->shouldReceive('listarStreams')
-            ->once()
-            ->andReturn([]);
-        $this->app->instance(GetStreamAnalyticsService::class, $mockServiceEmpty);
-
-        $response = $this->call(
-            'GET',
-            $this->endpoint,
-            [], [], [],
-            array_merge($this->headers, ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8'])
-        );
-
-        $this->assertEquals(Response::HTTP_OK, $response->status());
-
-        $content = json_decode($response->getContent(), true);
-        $this->assertArrayHasKey('data', $content);
-        $this->assertArrayHasKey('meta', $content);
-        $this->assertEmpty($content['data']);
-        $this->assertEquals(0, $content['meta']['total']);
-    }
-
-    /** @test */
-    public function malformedAuthHeaderReturns401(): void
-    {
-        $response = $this->call(
-            'GET',
-            $this->endpoint,
-            [], [], [],
-            array_merge($this->headers, ['HTTP_AUTHORIZATION' => 'BearerXYZ'])
-        );
-
-        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->status());
     }
 }

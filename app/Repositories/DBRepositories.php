@@ -2,10 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Interfaces\DBRepositoriesInterface;
 use mysqli;
 use RuntimeException;
 
-class DBRepositories
+class DBRepositories implements DBRepositoriesInterface
 {
     private mysqli $db;
 
@@ -96,6 +97,7 @@ class DBRepositories
 
         return $row['token'] ?? null;
     }
+
     public function insertUser(string $email, string $apiKey): bool
     {
         $stmt = $this->db->prepare('INSERT INTO users (email, api_key) VALUES (?, ?)');
@@ -123,6 +125,22 @@ class DBRepositories
 
         return $success;
     }
+
+    public function isValidSession(string $token): bool
+    {
+        $stmt = $this->db->prepare("SELECT id FROM sessions WHERE token = ? AND expires_at > NOW()");
+        if (! $stmt) {
+            throw new RuntimeException('Error al preparar SELECT sesión: ' . $this->db->error);
+        }
+
+        $stmt->bind_param('s', $token);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $stmt->close();
+
+        return $result->num_rows > 0;
+    }
+
     public function getRecentTopVideos(string $since_datetime): array
     {
         $resultado = [];

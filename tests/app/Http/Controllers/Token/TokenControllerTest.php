@@ -3,6 +3,7 @@
 namespace Tests\app\Http\Controllers\Token;
 
 use App\Http\Controllers\Token\TokenValidator;
+use App\Interfaces\DBRepositoriesInterface;
 use App\Repositories\DBRepositories;
 use Mockery;
 use Tests\TestCase;
@@ -21,8 +22,8 @@ class TokenControllerTest extends TestCase
         $this->endpoint = '/token';
         $this->headers  = ['CONTENT_TYPE' => 'application/json'];
 
-        $this->dbRepoMock = Mockery::mock(DBRepositories::class);
-        $this->app->instance(DBRepositories::class, $this->dbRepoMock);
+        $this->dbRepoMock = Mockery::mock(DBRepositoriesInterface::class);
+        $this->app->instance(DBRepositoriesInterface::class, $this->dbRepoMock);
 
         $this->app->instance(TokenValidator::class, new TokenValidator());
 

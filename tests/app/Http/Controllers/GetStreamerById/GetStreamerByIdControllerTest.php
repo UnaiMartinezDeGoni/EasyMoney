@@ -51,6 +51,18 @@ class GetStreamerByIdControllerTest extends TestCase
             'error' => "Invalid or missing 'id' parameter.",
         ]);
     }
+    /** @test */
+    public function withInvalidTokenReturns401(): void
+    {
+        $response = $this->call(
+            'GET',
+            '/analytics/user',
+            [], [], [],
+            ['HTTP_AUTHORIZATION' => 'Bearer invalidtoken']
+        );
+
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->status());
+    }
 
     /** @test */
     public function get400WhenInvalidId(): void

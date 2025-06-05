@@ -2,11 +2,11 @@
 
 namespace Tests\App\Http\Controllers\TopOfTheTops;
 
+use App\Interfaces\DBRepositoriesInterface;
 use Tests\TestCase;
 use Illuminate\Http\Response;
 use App\Services\AuthService;
 use App\Interfaces\TwitchApiRepositoryInterface;
-use App\Repositories\DBRepositories;
 use Mockery;
 
 class TopOfTheTopsControllerTest extends TestCase
@@ -15,22 +15,17 @@ class TopOfTheTopsControllerTest extends TestCase
     {
         parent::setUp();
 
-        $this->withoutMiddleware();
-
         $mockAuth = Mockery::mock(AuthService::class);
         $mockAuth
             ->shouldReceive('validateToken')
             ->andReturnUsing(fn (string $token) => $token === 'e59a7c4b2d301af8');
         $this->app->instance(AuthService::class, $mockAuth);
 
-
         $stubTwitchRepo = Mockery::mock(TwitchApiRepositoryInterface::class);
         $this->app->instance(TwitchApiRepositoryInterface::class, $stubTwitchRepo);
 
-        $stubDbRepo = Mockery::mock(DBRepositories::class);
-        $this->app->instance(DBRepositories::class, $stubDbRepo);
-
-
+        $stubDbRepo = Mockery::mock(DBRepositoriesInterface::class);
+        $this->app->instance(DBRepositoriesInterface::class, $stubDbRepo);
     }
 
     protected function tearDown(): void
@@ -56,9 +51,22 @@ class TopOfTheTopsControllerTest extends TestCase
     }
 
     /** @test */
+    public function withInvalidTokenReturns401(): void
+    {
+        $response = $this->call(
+            'GET',
+            '/analytics/topsofthetops',
+            [], [], [],
+            ['HTTP_AUTHORIZATION' => 'Bearer invalidtoken']
+        );
+
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->status());
+    }
+
+    /** @test */
     public function defaultSinceReturnsExpectedItems(): void
     {
-        $mockDbRepo = Mockery::mock(DBRepositories::class);
+        $mockDbRepo = Mockery::mock(DBRepositoriesInterface::class);
         $mockDbRepo
             ->shouldReceive('getRecentTopVideos')
             ->once()
@@ -69,7 +77,7 @@ class TopOfTheTopsControllerTest extends TestCase
         $mockDbRepo
             ->shouldReceive('upsertTopVideo')
             ->andReturn(true);
-        $this->app->instance(DBRepositories::class, $mockDbRepo);
+        $this->app->instance(DBRepositoriesInterface::class, $mockDbRepo);
 
         $mockTwitchRepo = Mockery::mock(TwitchApiRepositoryInterface::class);
         $mockTwitchRepo
@@ -91,6 +99,7 @@ class TopOfTheTopsControllerTest extends TestCase
                     "game_id"                => "509658",
                     "game_name"              => "Just Chatting",
                     "user_name"              => "LCK",
+                    "total_videos"           => "4",
                     "total_videos"           => "4",
                     "total_views"            => "1000000000",
                     "most_viewed_title"      => "DK vs T1 | 2021 LCK Summer\nFINALS",

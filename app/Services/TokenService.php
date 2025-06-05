@@ -3,14 +3,15 @@ namespace App\Services;
 
 use App\Exceptions\InvalidApiKeyException;
 use App\Exceptions\ServerErrorException;
+use App\Interfaces\DBRepositoriesInterface;
 use App\Repositories\DBRepositories;
 use Throwable;
 
 class TokenService
 {
-    private DBRepositories $repo;
+    private DBRepositoriesInterface $repo;
 
-    public function __construct(DBRepositories $repo)
+    public function __construct(DBRepositoriesInterface $repo)
     {
         $this->repo = $repo;
     }

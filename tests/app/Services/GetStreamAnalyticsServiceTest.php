@@ -2,10 +2,12 @@
 
 namespace Tests\app\Services;
 
+use Exception;
 use Mockery;
 use PHPUnit\Framework\TestCase;
 use App\Services\GetStreamAnalyticsService;
 use App\Interfaces\TwitchApiRepositoryInterface;
+use App\Exceptions\ServerErrorException;
 
 class GetStreamAnalyticsServiceTest extends TestCase
 {
@@ -42,17 +44,17 @@ class GetStreamAnalyticsServiceTest extends TestCase
     }
 
     /** @test */
-    public function listStreamsReturnsEmptyArrayWhenRepositoryThrowsException(): void
+    public function listStreamsThrowsServerErrorExceptionWhenRepositoryThrowsException(): void
     {
         $repoMock = Mockery::mock(TwitchApiRepositoryInterface::class);
         $repoMock->shouldReceive('getStreams')
             ->once()
-            ->andThrow(new \Exception('Twitch connection failed'));
+            ->andThrow(new Exception('Twitch connection failed'));
 
         $service = new GetStreamAnalyticsService($repoMock);
 
-        $result = $service->listarStreams();
-        $this->assertIsArray($result);
-        $this->assertEmpty($result);
+        $this->expectException(ServerErrorException::class);
+
+        $service->listarStreams();
     }
 }

@@ -55,6 +55,18 @@ class GetEnrichedStreamsControllerTest extends TestCase
 
         $this->app->instance(TwitchApiRepositoryInterface::class, $mockRepo);
     }
+    /** @test */
+    public function withInvalidTokenReturns401(): void
+    {
+        $response = $this->call(
+            'GET',
+            '/analytics/streams/enriched?limit=1',
+            [], [], [],
+            ['HTTP_AUTHORIZATION' => 'Bearer invalidtoken']
+        );
+
+        $this->assertEquals(Response::HTTP_UNAUTHORIZED, $response->status());
+    }
 
     /** @test */
     public function get400WhenMissingLimit(): void

@@ -19,11 +19,11 @@ class TopOfTheTopsService
             // Se podría lanzar una excepción de tipo ServerErrorException si se dispone de una.
             throw new \RuntimeException('Error fetching top videos.');
         }
-        
+
         if (class_exists(FuncionesComunes::class)) {
-            $videos = FuncionesComunes::enrichTopVideos($videos);
+            $videos = FuncionesComunes::enrichStreams($videos);
         }
-        
+
         if (empty($videos)) {
             throw new \RuntimeException("Not Found. No data available.");
         }

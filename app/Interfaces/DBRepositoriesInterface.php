@@ -16,6 +16,8 @@ interface DBRepositoriesInterface
 
     public function updateApiKey(string $email, string $apiKey): bool;
 
+    public function isValidSession(string $token): bool;
+
     public function getRecentTopVideos(string $since_datetime): array;
 
     public function existsTopGame(string $game_id): bool;

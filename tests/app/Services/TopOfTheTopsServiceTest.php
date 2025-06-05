@@ -96,4 +96,3 @@ class TopOfTheTopsServiceTest extends TestCase
         $service->getTopVideos(0);
     }
 }
-a

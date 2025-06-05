@@ -3,9 +3,8 @@
 namespace Tests\app\Services;
 
 use App\Exceptions\InvalidApiKeyException;
+use App\Interfaces\DBRepositoriesInterface;
 use App\Services\TokenService;
-use App\Repositories\DBRepositories;
-use Illuminate\Http\JsonResponse;
 use Mockery;
 use Tests\TestCase;
 
@@ -18,7 +17,7 @@ class TokenServiceTest extends TestCase
     {
         parent::setUp();
 
-        $this->mockRepo = $this->getMockBuilder(DBRepositories::class)
+        $this->mockRepo = $this->getMockBuilder(DBRepositoriesInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 

@@ -2,7 +2,7 @@
 
 namespace Tests\app\Services;
 
-use App\Repositories\DBRepositories;
+use App\Interfaces\DBRepositoriesInterface;
 use App\Services\RegisterService;
 use App\Exceptions\ServerErrorException;
 use Mockery;
@@ -23,7 +23,7 @@ class RegisterServiceTest extends TestCase
     {
         $email = 'newuser@example.com';
 
-        $mockRepo = Mockery::mock(DBRepositories::class);
+        $mockRepo = Mockery::mock(DBRepositoriesInterface::class);
 
         $mockRepo
             ->shouldReceive('findUserByEmail')
@@ -66,7 +66,7 @@ class RegisterServiceTest extends TestCase
             'api_key' => $oldApiKey,
         ];
 
-        $mockRepo = Mockery::mock(DBRepositories::class);
+        $mockRepo = Mockery::mock(DBRepositoriesInterface::class);
 
         $mockRepo
             ->shouldReceive('findUserByEmail')
@@ -105,7 +105,7 @@ class RegisterServiceTest extends TestCase
     {
         $email = 'error@example.com';
 
-        $mockRepo = Mockery::mock(DBRepositories::class);
+        $mockRepo = Mockery::mock(DBRepositoriesInterface::class);
 
         $mockRepo
             ->shouldReceive('findUserByEmail')

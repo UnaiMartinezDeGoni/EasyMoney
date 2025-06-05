@@ -2,25 +2,27 @@
 
 namespace App\Services;
 
+use App\Interfaces\DBRepositoriesInterface;
 use App\Interfaces\TwitchApiRepositoryInterface;
-use App\Repositories\DBRepositories;
 use App\Exceptions\ServerErrorException;
 use App\Exceptions\TwitchUnauthorizedException;
+use Throwable;
 
 class TopOfTheTopsService
 {
+
     public function __construct(
         private readonly TwitchApiRepositoryInterface $twitchRepo,
-        private readonly DBRepositories $dbRepo
+        private readonly ?DBRepositoriesInterface $dbRepo = null
     ) {}
 
     public function getTopVideos(int $sinceSeconds): array
     {
 
-
         $sinceDatetime = date('Y-m-d H:i:s', time() - $sinceSeconds);
 
         try {
+
             $topVideos = $this->dbRepo->getRecentTopVideos($sinceDatetime);
         } catch (\Throwable $e) {
             throw new ServerErrorException();
@@ -32,11 +34,12 @@ class TopOfTheTopsService
 
         $accessToken = env('TWITCH_TOKEN');
 
+
         try {
             $topGames = $this->twitchRepo->getTopGames($accessToken, 3);
         } catch (TwitchUnauthorizedException $e) {
             throw $e;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new ServerErrorException();
         }
 
@@ -58,7 +61,8 @@ class TopOfTheTopsService
                         throw new \Exception("Fallo al insertar top_games para game_id={$gameId}");
                     }
                 }
-            } catch (\Throwable $e) {
+
+            } catch (Throwable $e) {
                 throw new ServerErrorException();
             }
 
@@ -66,13 +70,15 @@ class TopOfTheTopsService
                 $videosResponse = $this->twitchRepo->getVideosByGame($accessToken, $gameId, 40);
             } catch (TwitchUnauthorizedException $e) {
                 throw $e;
-            } catch (\Throwable $e) {
+
+            } catch (Throwable $e) {
                 throw new ServerErrorException();
             }
 
             try {
                 $byUser = $this->twitchRepo->aggregateVideosByUser($videosResponse, $gameId, $gameName);
-            } catch (\Throwable $e) {
+
+            } catch (Throwable $e) {
                 throw new ServerErrorException();
             }
 
@@ -86,7 +92,8 @@ class TopOfTheTopsService
                     if (! $upserted) {
                         throw new \Exception("Upsert fallido");
                     }
-                } catch (\Throwable $e) {
+
+                } catch (Throwable $e) {
                     throw new ServerErrorException();
                 }
 

@@ -62,7 +62,7 @@ class TopOfTheTopsServiceTest extends TestCase
     }
 
     /** @test */
-    public function returnsFromDatabaseWhenEnoughRecordsExist()
+    public function returnsFromDatabaseWhenEnoughRecordsExist()a
     {
         $twitchMock = Mockery::mock(TwitchApiRepositoryInterface::class);
 

@@ -104,7 +104,7 @@ class TopOfTheTopsServiceTest extends TestCase
     }
 
     /** @test */
-    public function queriesTwitchAndPersistsWhenNotEnoughDatabaseRecords()a
+    public function queriesTwitchAndPersistsWhenNotEnoughDatabaseRecords()
     {
         putenv('TWITCH_TOKEN=valid_token');
 

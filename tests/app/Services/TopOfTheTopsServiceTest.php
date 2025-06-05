@@ -89,7 +89,7 @@ class TopOfTheTopsServiceTest extends TestCase
             ->andReturn([]);
 
         $service = new TopOfTheTopsService($repoMock);
-        
+
         $this->expectException(\RuntimeException::class);
         $this->expectExceptionMessage('Not Found. No data available.');
 

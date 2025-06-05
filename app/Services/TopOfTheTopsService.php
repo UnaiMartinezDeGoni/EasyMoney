@@ -19,20 +19,12 @@ class TopOfTheTopsService
     public function getTopVideos(int $sinceSeconds): array
     {
 
-        if (method_exists($this->twitchRepo, 'getTopVideos')) {
-            return $this->twitchRepo->getTopVideos($sinceSeconds);
-        }
-
-
         $sinceDatetime = date('Y-m-d H:i:s', time() - $sinceSeconds);
 
         try {
-            $dbRepo = $this->dbRepo;
-            if (! $dbRepo) {
-                throw new \Exception('Repositorio de BD no inicializado');
-            }
-            $topVideos = $dbRepo->getRecentTopVideos($sinceDatetime);
-        } catch (Throwable $e) {
+
+            $topVideos = $this->dbRepo->getRecentTopVideos($sinceDatetime);
+        } catch (\Throwable $e) {
             throw new ServerErrorException();
         }
 
@@ -40,11 +32,8 @@ class TopOfTheTopsService
             return $topVideos;
         }
 
-
         $accessToken = env('TWITCH_TOKEN');
-        if (empty($accessToken)) {
-            throw new TwitchUnauthorizedException();
-        }
+
 
         try {
             $topGames = $this->twitchRepo->getTopGames($accessToken, 3);
@@ -65,13 +54,14 @@ class TopOfTheTopsService
             }
 
             try {
-                $exists = $dbRepo->existsTopGame($gameId);
+                $exists = $this->dbRepo->existsTopGame($gameId);
                 if (! $exists) {
-                    $inserted = $dbRepo->insertTopGame($gameId, $gameName);
+                    $inserted = $this->dbRepo->insertTopGame($gameId, $gameName);
                     if (! $inserted) {
                         throw new \Exception("Fallo al insertar top_games para game_id={$gameId}");
                     }
                 }
+
             } catch (Throwable $e) {
                 throw new ServerErrorException();
             }
@@ -80,12 +70,14 @@ class TopOfTheTopsService
                 $videosResponse = $this->twitchRepo->getVideosByGame($accessToken, $gameId, 40);
             } catch (TwitchUnauthorizedException $e) {
                 throw $e;
+
             } catch (Throwable $e) {
                 throw new ServerErrorException();
             }
 
             try {
                 $byUser = $this->twitchRepo->aggregateVideosByUser($videosResponse, $gameId, $gameName);
+
             } catch (Throwable $e) {
                 throw new ServerErrorException();
             }
@@ -96,10 +88,11 @@ class TopOfTheTopsService
                 $videoData['most_viewed_created_at'] = $createdAtDt;
 
                 try {
-                    $upserted = $dbRepo->upsertTopVideo($videoData);
+                    $upserted = $this->dbRepo->upsertTopVideo($videoData);
                     if (! $upserted) {
                         throw new \Exception("Upsert fallido");
                     }
+
                 } catch (Throwable $e) {
                     throw new ServerErrorException();
                 }

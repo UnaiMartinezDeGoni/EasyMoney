@@ -42,11 +42,3 @@ $router->get(
     ['middleware' => 'auth.streamer',
         'uses' => 'GetStreams\GetStreamsController']
 );
-
-/*$router->group(['middleware' => 'auth.token'], function () use ($router) {
-    $router->get(
-        '/analytics/streams',
-        ['uses' => 'GetStreams\GetStreamsController']
-    );
-
-});*/

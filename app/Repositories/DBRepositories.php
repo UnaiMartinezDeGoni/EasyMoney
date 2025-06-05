@@ -151,12 +151,6 @@ class DBRepositories
         return $resultado;
     }
 
-    /**
-     * Comprueba si existe en top_games un registro con el dado game_id.
-     *
-     * @param string $game_id
-     * @return bool
-     */
     public function existsTopGame(string $game_id): bool
     {
         $stmt = $this->db->prepare("SELECT 1 FROM top_games WHERE game_id = ?");
@@ -170,13 +164,6 @@ class DBRepositories
         return $exists;
     }
 
-    /**
-     * Inserta un nuevo top_game (game_id, game_name, updated_at = NOW()).
-     *
-     * @param string $game_id
-     * @param string $game_name
-     * @return bool
-     */
     public function insertTopGame(string $game_id, string $game_name): bool
     {
         $stmt = $this->db->prepare(
@@ -191,20 +178,6 @@ class DBRepositories
         return $success;
     }
 
-    /**
-     * Inserta o actualiza (upsert) en top_videos según la clave (game_id + user_name).
-     *
-     * @param array $videoData  Array con claves:
-     *   - game_id
-     *   - user_name
-     *   - total_videos
-     *   - total_views
-     *   - most_viewed_title
-     *   - most_viewed_views
-     *   - most_viewed_duration
-     *   - most_viewed_created_at  (formato "Y-m-d H:i:s")
-     * @return bool
-     */
     public function upsertTopVideo(array $videoData): bool
     {
         $stmt = $this->db->prepare(

@@ -15,10 +15,8 @@ class GetStreamsController extends Controller
 
     public function __invoke(Request $request): JsonResponse
     {
-        // Llamamos al servicio y obtenemos un array de streams (o vacío)
         $streams = $this->service->listarStreams();
 
-        // Formateamos la respuesta: data + meta
         $payload = [
             'data' => $streams,
             'meta' => [

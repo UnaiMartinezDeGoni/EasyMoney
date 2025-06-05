@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Exceptions\TwitchUnauthorizedException;
 use App\Interfaces\TwitchApiRepositoryInterface;
 use App\Exceptions\StreamerNotFoundException;
 use App\Exceptions\ServerErrorException;
@@ -16,7 +17,9 @@ class GetStreamerByIdService
     {
         try {
             $data = $this->repo->getStreamerById($id);
-        } catch (Throwable $e) {
+        }catch (TwitchUnauthorizedException $e) {
+            throw new TwitchUnauthorizedException();
+        }  catch (Throwable $e) {
             throw new ServerErrorException();
         }
 

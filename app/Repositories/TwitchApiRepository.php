@@ -60,14 +60,7 @@ class TwitchApiRepository implements TwitchApiRepositoryInterface
         return $body['data'] ?? [];
     }
 
-    /**
-     * Devuelve hasta $limit vídeos ordenados por views para un game_id dado.
-     *
-     * @param string $access_token
-     * @param string $game_id
-     * @param int $limit
-     * @return array  [ [ 'id'=>…, 'user_id'=>…, 'user_name'=>…, 'view_count'=>…, 'title'=>…, 'duration'=>…, 'created_at'=>… ], … ]
-     */
+
     public function getVideosByGame(string $access_token, string $game_id, int $limit = 40): array
     {
         $response = Http::withHeaders([
@@ -87,27 +80,7 @@ class TwitchApiRepository implements TwitchApiRepositoryInterface
         return $body['data'] ?? [];
     }
 
-    /**
-     * Para un array de datos de vídeos (tal como devuelve getVideosByGame()),
-     * agrupa por usuario y construye un array con la siguiente estructura por usuario:
-     *
-     * [
-     *   'game_id'                => (string),
-     *   'game_name'              => (string),
-     *   'user_name'              => (string),
-     *   'total_videos'           => (int),
-     *   'total_views'            => (int),
-     *   'most_viewed_title'      => (string),
-     *   'most_viewed_views'      => (int),
-     *   'most_viewed_duration'   => (string), // por ejemplo "2h15m30s"
-     *   'most_viewed_created_at' => (string), // timestamp ISO8601
-     * ]
-     *
-     * @param array  $videosResponse  Resultado tal cual de la API de Twitch (campo 'data')
-     * @param string $game_id
-     * @param string $game_name
-     * @return array  [ [ …los campos de arriba… ], … ]
-     */
+
     public function aggregateVideosByUser(array $videosResponse, string $game_id, string $game_name): array
     {
         $byUser = [];
@@ -128,7 +101,6 @@ class TwitchApiRepository implements TwitchApiRepositoryInterface
                 ];
             }
 
-            // Incrementar totales
             $byUser[$user]['total_videos']++;
             $byUser[$user]['total_views'] += $video['view_count'];
 
@@ -141,7 +113,6 @@ class TwitchApiRepository implements TwitchApiRepositoryInterface
             }
         }
 
-        // Devolver array indexado numéricamente
         return array_values($byUser);
     }
 }

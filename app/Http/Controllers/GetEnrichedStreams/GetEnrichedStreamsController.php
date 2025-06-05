@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\GetEnrichedStreams;
 
+use App\Exceptions\TwitchUnauthorizedException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Lumen\Routing\Controller as BaseController;
@@ -37,6 +38,12 @@ class GetEnrichedStreamsController extends BaseController
             return response()->json(
                 ['error' => $e->getMessage()],
                 500
+            );
+        }
+        catch (TwitchUnauthorizedException $e) {
+            return response()->json(
+                ['error' => $e->getMessage()],
+                401
             );
         }
     }

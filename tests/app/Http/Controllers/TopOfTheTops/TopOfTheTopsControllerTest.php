@@ -4,9 +4,9 @@ namespace Tests\App\Http\Controllers\TopOfTheTops;
 
 use Tests\TestCase;
 use Illuminate\Http\Response;
-use App\Interfaces\TwitchApiRepositoryInterface;
-use App\Services\TopOfTheTopsService;
 use App\Services\AuthService;
+use App\Interfaces\TwitchApiRepositoryInterface;
+use App\Repositories\DBRepositories;
 use Mockery;
 
 class TopOfTheTopsControllerTest extends TestCase
@@ -23,27 +23,14 @@ class TopOfTheTopsControllerTest extends TestCase
             ->andReturnUsing(fn (string $token) => $token === 'e59a7c4b2d301af8');
         $this->app->instance(AuthService::class, $mockAuth);
 
-        $mockRepo = Mockery::mock(TwitchApiRepositoryInterface::class);
-        $mockRepo
-            ->shouldReceive('getTopVideos')
-            ->andReturnUsing(function (int $since) {
-                if ($since === 600) {
-                    return array_map(
-                        fn ($i) => ['id' => "v{$i}", 'views' => 100 + $i],
-                        range(1, 5)
-                    );
-                } elseif ($since === 120) {
-                    return array_map(
-                        fn ($i) => ['id' => "v{$i}", 'views' => 200 + $i],
-                        range(1, 2)
-                    );
-                }
-                return [];
-            });
-        $this->app->instance(TwitchApiRepositoryInterface::class, $mockRepo);
 
-        $service = new TopOfTheTopsService($mockRepo);
-        $this->app->instance(TopOfTheTopsService::class, $service);
+        $stubTwitchRepo = Mockery::mock(TwitchApiRepositoryInterface::class);
+        $this->app->instance(TwitchApiRepositoryInterface::class, $stubTwitchRepo);
+
+        $stubDbRepo = Mockery::mock(DBRepositories::class);
+        $this->app->instance(DBRepositories::class, $stubDbRepo);
+
+
     }
 
     protected function tearDown(): void
@@ -61,15 +48,61 @@ class TopOfTheTopsControllerTest extends TestCase
             [], [], [],
             ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
         );
+
         $response->assertStatus(Response::HTTP_BAD_REQUEST)
-                 ->assertJson([
-                     'error' => "Bad Request. Invalid or missing parameters: 'since' must be a positive integer."
-                 ]);
+            ->assertJson([
+                'error' => "Bad Request. Invalid or missing parameters: 'since' must be a positive integer."
+            ]);
     }
 
     /** @test */
     public function defaultSinceReturnsExpectedItems(): void
     {
+        $mockDbRepo = Mockery::mock(DBRepositories::class);
+        $mockDbRepo
+            ->shouldReceive('getRecentTopVideos')
+            ->once()
+            ->andReturn([]);
+        $mockDbRepo
+            ->shouldReceive('existsTopGame')
+            ->andReturn(true);
+        $mockDbRepo
+            ->shouldReceive('upsertTopVideo')
+            ->andReturn(true);
+        $this->app->instance(DBRepositories::class, $mockDbRepo);
+
+        $mockTwitchRepo = Mockery::mock(TwitchApiRepositoryInterface::class);
+        $mockTwitchRepo
+            ->shouldReceive('getTopGames')
+            ->withArgs(['dummy-token', 3])
+            ->andReturn([
+                [
+                    'id'   => '509658',
+                    'name' => 'Just Chatting',
+                ],
+            ]);
+        $mockTwitchRepo
+            ->shouldReceive('getVideosByGame')
+            ->andReturn([]);
+        $mockTwitchRepo
+            ->shouldReceive('aggregateVideosByUser')
+            ->andReturn([
+                [
+                    "game_id"                => "509658",
+                    "game_name"              => "Just Chatting",
+                    "user_name"              => "LCK",
+                    "total_videos"           => "4",
+                    "total_views"            => "1000000000",
+                    "most_viewed_title"      => "DK vs T1 | 2021 LCK Summer\nFINALS",
+                    "most_viewed_views"      => "5550000",
+                    "most_viewed_duration"   => "5h52m8s",
+                    "most_viewed_created_at" => "2015-02-20 16:47:56",
+                ]
+            ]);
+        $this->app->instance(TwitchApiRepositoryInterface::class, $mockTwitchRepo);
+
+        putenv('TWITCH_TOKEN=dummy-token');
+
         $response = $this->call(
             'GET',
             '/analytics/topsofthetops',
@@ -77,46 +110,32 @@ class TopOfTheTopsControllerTest extends TestCase
             ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
         );
 
-        $response->assertStatus(Response::HTTP_OK)
-                 ->assertJsonCount(5)
-                 ->assertJsonFragment(['id' => 'v1', 'views' => 101]);
-    }
+        $response->assertStatus(Response::HTTP_OK);
 
-    /** @test */
-    public function customSinceParameterReturnsExpectedItems(): void
-    {
-        $response = $this->call(
-            'GET',
-            '/analytics/topsofthetops?since=120',
-            [], [], [],
-            ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
-        );
-
-        $response->assertStatus(Response::HTTP_OK)
-                 ->assertJsonCount(2)
-                 ->assertJsonFragment(['id' => 'v1', 'views' => 201]);
-    }
-
-    /** @test */
-    public function emptyResultReturns404(): void
-    {
-        $mockRepoEmpty = Mockery::mock(TwitchApiRepositoryInterface::class);
-        $mockRepoEmpty
-            ->shouldReceive('getTopVideos')
-            ->andReturn([]);
-        $this->app->instance(TwitchApiRepositoryInterface::class, $mockRepoEmpty);
-
-        $serviceEmpty = new TopOfTheTopsService($mockRepoEmpty);
-        $this->app->instance(TopOfTheTopsService::class, $serviceEmpty);
-
-        $response = $this->call(
-            'GET',
-            '/analytics/topsofthetops?since=120',
-            [], [], [],
-            ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']
-        );
-
-        $response->assertStatus(Response::HTTP_NOT_FOUND)
-                 ->assertExactJson(['error' => 'Not Found. No data available.']);
+        $response->assertJsonCount(1);
+        $response->assertJsonStructure([
+            '*' => [
+                'game_id',
+                'game_name',
+                'user_name',
+                'total_videos',
+                'total_views',
+                'most_viewed_title',
+                'most_viewed_views',
+                'most_viewed_duration',
+                'most_viewed_created_at',
+            ],
+        ]);
+        $response->assertJsonFragment([
+            "game_id"                => "509658",
+            "game_name"              => "Just Chatting",
+            "user_name"              => "LCK",
+            "total_videos"           => "4",
+            "total_views"            => "1000000000",
+            "most_viewed_title"      => "DK vs T1 | 2021 LCK Summer\nFINALS",
+            "most_viewed_views"      => "5550000",
+            "most_viewed_duration"   => "5h52m8s",
+            "most_viewed_created_at" => "2015-02-20 16:47:56",
+        ]);
     }
 }

@@ -44,6 +44,4 @@ $router->group(['middleware' => 'auth.token'], function () use ($router) {
         ['uses' => 'GetStreams\GetStreamsController']
     );
 
-
-
 });

@@ -2,15 +2,10 @@
 
 namespace App\Exceptions;
 
-use Exception;
-
-class TwitchUnauthorizedException extends Exception
+class TwitchUnauthorizedException extends \RuntimeException
 {
-    public function __construct(
-        string $message = 'Twitch access token is invalid or has expired.',
-        int $code = 0,
-        \Throwable $previous = null
-    ) {
-        parent::__construct($message, $code, $previous);
+    public function __construct()
+    {
+        parent::__construct('Unauthorized. Twitch access token is invalid or has expired.');
     }
 }

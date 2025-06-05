@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\GetStreamerById;
 
+use App\Exceptions\TwitchUnauthorizedException;
 use Laravel\Lumen\Routing\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -46,6 +47,12 @@ class GetStreamerByIdController extends Controller
                 500,
                 [],
                 JSON_PRETTY_PRINT
+            );
+        }
+        catch (TwitchUnauthorizedException $e) {
+            return response()->json(
+                ['error' => $e->getMessage()],
+                401
             );
         }
     }

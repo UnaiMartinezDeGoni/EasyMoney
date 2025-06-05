@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Interfaces\TwitchApiRepositoryInterface;
 use App\Exceptions\ServerErrorException;
+use App\Exceptions\TwitchUnauthorizedException;
 use Throwable;
 
 class GetEnrichedStreamsService
@@ -16,6 +17,8 @@ class GetEnrichedStreamsService
     {
         try {
             $streams = $this->twitchApiRepository->getStreams();
+        } catch (TwitchUnauthorizedException $e) {
+            throw new TwitchUnauthorizedException();
         } catch (Throwable $e) {
             throw new ServerErrorException();
         }
@@ -34,6 +37,8 @@ class GetEnrichedStreamsService
         foreach ($topStreams as $stream) {
             try {
                 $userData = $this->twitchApiRepository->getStreamerById($stream['user_id']);
+            } catch (TwitchUnauthorizedException $e) {
+                throw new TwitchUnauthorizedException();
             } catch (Throwable $e) {
                 throw new ServerErrorException();
             }
@@ -52,4 +57,3 @@ class GetEnrichedStreamsService
         return $formatted;
     }
 }
-

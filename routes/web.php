@@ -1,4 +1,5 @@
 <?php
+
 /** @var Router $router */
 
 use Illuminate\Http\Request;
@@ -41,5 +42,6 @@ $router->get(
 $router->get(
     '/analytics/streams',
     ['middleware' => 'auth.streamer',
+
         'uses' => 'GetStreams\GetStreamsController@__invoke']
 );

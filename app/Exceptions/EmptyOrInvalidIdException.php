@@ -1,5 +1,4 @@
 <?php
-// app/Exceptions/EmptyOrInvalidIdException.php
 
 namespace App\Exceptions;
 

@@ -9,9 +9,6 @@ services:
       - ./:/var/www/html
     ports:
       - "8000:8000"
-    # Eliminamos el env_file para evitar cargar el .env que tiene variables no deseadas
-    # env_file:
-    #   - .env
     environment:
       APP_ENV: testing
       DB_HOST: maglev.proxy.rlwy.net

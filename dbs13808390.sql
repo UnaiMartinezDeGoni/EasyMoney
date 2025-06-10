@@ -1,31 +1,11 @@
--- phpMyAdmin SQL Dump
--- version 5.2.1
--- https://www.phpmyadmin.net/
---
--- Servidor: 127.0.0.1
--- Tiempo de generación: 29-04-2025 a las 14:48:23
--- Versión del servidor: 10.4.32-MariaDB
--- Versión de PHP: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
 SET time_zone = "+00:00";
 
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
 
---
--- Base de datos: `dbs13808390`
---
 
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `sessions`
---
 
 CREATE TABLE `sessions` (
   `id` int(11) NOT NULL,
@@ -34,9 +14,7 @@ CREATE TABLE `sessions` (
   `expires_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `sessions`
---
+
 
 INSERT INTO `sessions` (`id`, `user_id`, `token`, `expires_at`) VALUES
 (1, 1, '37a92b4b68811f6d', '2025-02-17 00:18:54'),
@@ -79,11 +57,7 @@ INSERT INTO `sessions` (`id`, `user_id`, `token`, `expires_at`) VALUES
 (38, 5, 'c601fa0b8bc85b06', '2025-04-25 18:17:08'),
 (39, 7, '519441af67be6642', '2025-04-26 13:05:29');
 
--- --------------------------------------------------------
 
---
--- Estructura de tabla para la tabla `streamers`
---
 
 CREATE TABLE `streamers` (
   `id` varchar(20) NOT NULL,
@@ -98,18 +72,14 @@ CREATE TABLE `streamers` (
   `created_at` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `streamers`
---
+
 
 INSERT INTO `streamers` (`id`, `login`, `display_name`, `type`, `broadcaster_type`, `description`, `profile_image_url`, `offline_image_url`, `view_count`, `created_at`) VALUES
 ('1', 'elsmurfoz', 'elsmurfoz', '', '', '', 'https://static-cdn.jtvnw.net/user-default-pictures-uv/215b7342-def9-11e9-9a66-784f43822e80-profile_image-300x300.png', '', 0, '2007-05-22 10:37:47');
 
 -- --------------------------------------------------------
 
---
--- Estructura de tabla para la tabla `top_games`
---
+
 
 CREATE TABLE `top_games` (
   `game_id` varchar(50) NOT NULL,
@@ -117,9 +87,7 @@ CREATE TABLE `top_games` (
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `top_games`
---
+
 
 INSERT INTO `top_games` (`game_id`, `game_name`, `updated_at`) VALUES
 ('1984929743', 'The Elder Scrolls IV: Oblivion Remastered', '2025-04-23 13:24:04'),
@@ -129,11 +97,6 @@ INSERT INTO `top_games` (`game_id`, `game_name`, `updated_at`) VALUES
 ('509658', 'Just Chatting', '2025-04-23 10:33:23'),
 ('516575', 'VALORANT', '2025-04-23 10:33:23');
 
--- --------------------------------------------------------
-
---
--- Estructura de tabla para la tabla `top_videos`
---
 
 CREATE TABLE `top_videos` (
   `id` int(11) NOT NULL,
@@ -148,9 +111,6 @@ CREATE TABLE `top_videos` (
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Volcado de datos para la tabla `top_videos`
---
 
 INSERT INTO `top_videos` (`id`, `game_id`, `user_name`, `total_videos`, `total_views`, `most_viewed_title`, `most_viewed_views`, `most_viewed_duration`, `most_viewed_created_at`, `updated_at`) VALUES
 (1, '509658', 'KaiCenat', 36, 414852641, '🦃 MAFIATHON 2 🦃 KAI X KEVIN HART X DRUSKI 🦃 DAY 27 🦃 20% OF REVENUE GOING TO SCHOOL IN NIGERIA 🦃 ALL MONTH 🦃 CLICK HERE 🦃 !Subathon', 24867746, '22h5m32s', '2024-11-28 02:06:07', '2025-04-23 10:33:24'),
@@ -414,6 +374,3 @@ ALTER TABLE `top_videos`
   ADD CONSTRAINT `top_videos_ibfk_1` FOREIGN KEY (`game_id`) REFERENCES `top_games` (`game_id`) ON DELETE CASCADE;
 COMMIT;
 
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

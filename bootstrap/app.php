@@ -22,7 +22,6 @@ $app->bind(
 );
 
 $app->routeMiddleware([
-    'auth.token'    => App\Http\Middleware\AuthenticateToken::class,
     'auth.streamer' => App\Http\Middleware\AuthenticateToken::class,
 ]);
 

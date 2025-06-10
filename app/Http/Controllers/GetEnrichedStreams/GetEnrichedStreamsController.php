@@ -12,18 +12,24 @@ use App\Services\GetEnrichedStreamsService;
 
 class GetEnrichedStreamsController extends BaseController
 {
+    private GetEnrichedStreamsService $service;
+    private GetEnrichedStreamsValidator $validator;
+
     public function __construct(
-        private readonly GetEnrichedStreamsService $service
-    ) {}
+        GetEnrichedStreamsService $service,
+        GetEnrichedStreamsValidator $validator
+    ) {
+        $this->service   = $service;
+        $this->validator = $validator;
+    }
 
     public function getEnrichedStreams(Request $request): JsonResponse
     {
         $limitParam = $request->get('limit');
 
         try {
-            $validator  = new GetEnrichedStreamsValidator();
-            $cleanLimit = $validator->validate($limitParam);
-            $limit = (int) $cleanLimit;
+            $cleanLimit = $this->validator->validate($limitParam);
+            $limit      = (int) $cleanLimit;
         } catch (InvalidLimitException $e) {
             return response()->json(
                 ['error' => $e->getMessage()],
@@ -39,8 +45,7 @@ class GetEnrichedStreamsController extends BaseController
                 ['error' => $e->getMessage()],
                 500
             );
-        }
-        catch (TwitchUnauthorizedException $e) {
+        } catch (TwitchUnauthorizedException $e) {
             return response()->json(
                 ['error' => $e->getMessage()],
                 401

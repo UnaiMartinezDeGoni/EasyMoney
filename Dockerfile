@@ -23,7 +23,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # 6. Instalamos las dependencias PHP
-RUN composer install --no-dev --optimize-autoloader
+RUN composer install --optimize-autoloader
 
 # 7. Exponemos el puerto 8000
 EXPOSE 8000

@@ -4,7 +4,6 @@ namespace Tests\app\Http\Controllers\Token;
 
 use App\Http\Controllers\Token\TokenValidator;
 use App\Interfaces\DBRepositoriesInterface;
-use App\Repositories\DBRepositories;
 use Mockery;
 use Tests\TestCase;
 

@@ -28,13 +28,17 @@ $app = new Laravel\Lumen\Application(
 // Registrar AuthService para inyección y para que los tests mockeen
 $app->singleton(
     App\Services\AuthService::class,
-    fn() => new App\Services\AuthService()
+    function ($app) {
+        return new App\Services\AuthService($app->make(App\Interfaces\DBRepositoriesInterface::class));
+    }
 );
+
 
 // Registrar interfaz de TwitchApiRepository para que los tests mockeen
 $app->bind(
     App\Interfaces\TwitchApiRepositoryInterface::class,
     App\Repositories\TwitchApiRepository::class
+
 );
 
 // Registrar ambos alias de middleware, apuntando a la misma clase AuthenticateToken

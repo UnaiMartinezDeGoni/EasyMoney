@@ -12,22 +12,23 @@ use Illuminate\Http\Request;
 class RegisterController
 {
     private RegisterService $service;
+    private RegisterValidator $validator;
 
-    public function __construct(RegisterService $service)
+    public function __construct(RegisterService $service, RegisterValidator $validator)
     {
-        $this->service = $service;
+        $this->service   = $service;
+        $this->validator = $validator;
     }
 
     public function register(Request $request): JsonResponse
     {
         $data = $request->json()->all();
 
-        $validator = app(RegisterValidator::class);
-
         try {
-            $validator->validate($data);
+            $this->validator->validate($data);
             $email = $data['email'];
-        } catch (EmptyEmailException | InvalidEmailException $e) {
+        }
+        catch (EmptyEmailException | InvalidEmailException $e) {
             return response()->json(
                 ['error' => $e->getMessage()],
                 400,
@@ -44,7 +45,8 @@ class RegisterController
                 [],
                 JSON_PRETTY_PRINT
             );
-        } catch (ServerErrorException $e) {
+        }
+        catch (ServerErrorException $e) {
             return response()->json(
                 ['error' => $e->getMessage()],
                 500,

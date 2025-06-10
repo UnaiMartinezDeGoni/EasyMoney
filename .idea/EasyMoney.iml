@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/app" isTestSource="false" packagePrefix="App\" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/tests" isTestSource="true" packagePrefix="Tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/vendor/composer/d7705575/phpro-grumphp-bf8785b/spec" isTestSource="true" />
       <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/amp" />
       <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/byte-stream" />
       <excludeFolder url="file://$MODULE_DIR$/analytics/vendor/amphp/cache" />

@@ -4,24 +4,32 @@ namespace App\Http\Controllers\TopOfTheTops;
 
 use App\Exceptions\ServerErrorException;
 use App\Exceptions\TwitchUnauthorizedException;
-use App\Services\TopOfTheTopsService;
 use App\Exceptions\InvalidSinceParameterException;
+use App\Services\TopOfTheTopsService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Laravel\Lumen\Routing\Controller as BaseController;
 
 class TopOfTheTopsController extends BaseController
 {
+    private TopOfTheTopsService $service;
+    private TopOfTheTopsValidator $validator;
+
+    public function __construct(
+        TopOfTheTopsService $service,
+        TopOfTheTopsValidator $validator
+    ) {
+        $this->service   = $service;
+        $this->validator = $validator;
+    }
+
     public function index(Request $request): JsonResponse
     {
-        $validator = app(TopOfTheTopsValidator::class);
-        $service   = app(TopOfTheTopsService::class);
-
         $raw = $request->query('since');
 
         if (isset($raw)) {
             try {
-                $validator->validate(['since' => $raw]);
+                $this->validator->validate(['since' => $raw]);
                 $since = (int) $raw;
             } catch (InvalidSinceParameterException $e) {
                 return response()->json([
@@ -33,7 +41,7 @@ class TopOfTheTopsController extends BaseController
         }
 
         try {
-            $videos = $service->getTopVideos($since);
+            $videos = $this->service->getTopVideos($since);
         } catch (TwitchUnauthorizedException $e) {
             return response()->json(
                 ['error' => $e->getMessage()],

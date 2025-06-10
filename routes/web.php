@@ -1,7 +1,8 @@
 <?php
-/** @var \Laravel\Lumen\Routing\Router $router */
+/** @var Router $router */
 
 use Illuminate\Http\Request;
+use Laravel\Lumen\Routing\Router;
 
 $router->get('/', function () use ($router) {
     return $router->app->version();
@@ -40,5 +41,5 @@ $router->get(
 $router->get(
     '/analytics/streams',
     ['middleware' => 'auth.streamer',
-        'uses' => 'GetStreams\GetStreamsController']
+        'uses' => 'GetStreams\GetStreamsController@__invoke']
 );

@@ -2,6 +2,7 @@
 
 namespace Tests\App\Http\Controllers\GetStreams;
 
+use App\Interfaces\DBRepositoriesInterface;
 use Tests\TestCase;
 use Illuminate\Http\Response;
 use App\Services\AuthService;
@@ -18,10 +19,12 @@ class GetStreamsControllerTest extends TestCase
     {
         parent::setUp();
 
-        $mockAuth = Mockery::mock(AuthService::class);
-        $mockAuth->shouldReceive('validateToken')
-            ->andReturnUsing(fn (string $token) => $token === 'e59a7c4b2d301af8');
-        $this->app->instance(AuthService::class, $mockAuth);
+        $mockDBRepo = \Mockery::mock(DBRepositoriesInterface::class);
+        $mockDBRepo->shouldReceive('isValidSession')
+            ->andReturnUsing(function (string $token) {
+                return $token === 'e59a7c4b2d301af8';
+            });
+        $this->app->instance(DBRepositoriesInterface::class, $mockDBRepo);
 
         $defaultRepo = Mockery::mock(TwitchApiRepositoryInterface::class);
         $defaultRepo->shouldReceive('getStreams')->andReturn([]);

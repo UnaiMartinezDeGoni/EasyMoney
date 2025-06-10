@@ -74,7 +74,7 @@ class GetEnrichedStreamsControllerTest extends TestCase
         $response = $this->call(
             'GET',
             '/analytics/streams/enriched',
-            [], // sin 'limit'
+            [],
             [],
             [],
             ['HTTP_AUTHORIZATION' => 'Bearer e59a7c4b2d301af8']

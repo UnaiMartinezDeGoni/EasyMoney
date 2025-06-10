@@ -10,12 +10,15 @@ $app = new Laravel\Lumen\Application(
 
 $app->singleton(
     App\Services\AuthService::class,
-    fn() => new App\Services\AuthService()
+    function ($app) {
+        return new App\Services\AuthService($app->make(App\Interfaces\DBRepositoriesInterface::class));
+    }
 );
 
 $app->bind(
     App\Interfaces\TwitchApiRepositoryInterface::class,
     App\Repositories\TwitchApiRepository::class
+
 );
 
 $app->routeMiddleware([

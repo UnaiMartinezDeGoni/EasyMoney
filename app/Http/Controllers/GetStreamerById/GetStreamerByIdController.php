@@ -2,26 +2,31 @@
 
 namespace App\Http\Controllers\GetStreamerById;
 
-use App\Exceptions\TwitchUnauthorizedException;
-use Laravel\Lumen\Routing\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
-use App\Services\GetStreamerByIdService;
 use App\Exceptions\EmptyOrInvalidIdException;
 use App\Exceptions\StreamerNotFoundException;
 use App\Exceptions\ServerErrorException;
+use App\Exceptions\TwitchUnauthorizedException;
+use App\Services\GetStreamerByIdService;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
+use Laravel\Lumen\Routing\Controller;
+
 
 class GetStreamerByIdController extends Controller
 {
-    public function __construct(
-        private readonly GetStreamerByIdService $service
-    ) {}
+    private GetStreamerByIdService $service;
+    private GetStreamerByIdValidator $validator;
+
+    public function __construct(GetStreamerByIdService $service, GetStreamerByIdValidator $validator)
+    {
+        $this->service   = $service;
+        $this->validator = $validator;
+    }
 
     public function getStreamer(Request $request): JsonResponse
     {
         try {
-            $validator = new GetStreamerByIdValidator();
-            $id = $validator->validate($request->input('id'));
+            $id = $this->validator->validate($request->input('id'));
         } catch (EmptyOrInvalidIdException $e) {
             return response()->json(
                 ['error' => $e->getMessage()],
@@ -48,8 +53,7 @@ class GetStreamerByIdController extends Controller
                 [],
                 JSON_PRETTY_PRINT
             );
-        }
-        catch (TwitchUnauthorizedException $e) {
+        } catch (TwitchUnauthorizedException $e) {
             return response()->json(
                 ['error' => $e->getMessage()],
                 401
@@ -57,4 +61,3 @@ class GetStreamerByIdController extends Controller
         }
     }
 }
-

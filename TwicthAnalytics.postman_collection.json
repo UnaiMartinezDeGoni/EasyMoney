@@ -1,9 +1,10 @@
 {
 	"info": {
-		"_postman_id": "1d765ef4-95c4-434d-95f8-46fbd6d8271e",
+		"_postman_id": "e6329cd4-684a-43f6-ae3f-7fc63ff6ed19",
 		"name": "TwicthAnalytics",
-		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
-		"_exporter_id": "42398776"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45050976",
+		"_collection_link": "https://edeklf.postman.co/workspace/edeklf's-Workspace~4b6de2a0-357b-4b67-80d1-c2b895ad3373/collection/45050976-e6329cd4-684a-43f6-ae3f-7fc63ff6ed19?action=share&source=collection_link&creator=45050976"
 	},
 	"item": [
 		{
@@ -66,20 +67,17 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"// 1. Status code\r",
-							"// Guarda la api_key en una variable global o de entorno\r",
+							"\r",
 							"let jsonData = pm.response.json();\r",
 							"\r",
 							"if (jsonData.api_key) {\r",
 							"    pm.environment.set(\"api_key\", jsonData.api_key);\r",
-							"    pm.environment.set(\"email\", pm.request.body.raw ? JSON.parse(pm.request.body.raw).email : \"\"); // guarda también el email\r",
-							"}\r",
+							"    pm.environment.set(\"email\", pm.request.body.raw ? JSON.parse(pm.request.body.raw).email : \"\"); \r",
 							"\r",
 							"pm.test(\"Status is 200 OK\", () => {\r",
 							"    pm.response.to.have.status(200);\r",
 							"});\r",
 							"\r",
-							"// 2. Devuelve api_key\r",
 							"pm.test(\"Response has non-empty api_key\", () => {\r",
 							"    const json = pm.response.json();\r",
 							"    pm.expect(json).to.have.property(\"api_key\");\r",
@@ -104,7 +102,18 @@
 						}
 					}
 				},
-				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/register"
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/register",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"register"
+					]
+				}
 			},
 			"response": []
 		},
@@ -142,7 +151,18 @@
 						}
 					}
 				},
-				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/register"
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/register",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"register"
+					]
+				}
 			},
 			"response": []
 		},
@@ -180,7 +200,18 @@
 						}
 					}
 				},
-				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/register"
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/register",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"register"
+					]
+				}
 			},
 			"response": []
 		},
@@ -225,7 +256,18 @@
 						}
 					}
 				},
-				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token"
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"token"
+					]
+				}
 			},
 			"response": []
 		},
@@ -260,7 +302,18 @@
 						}
 					}
 				},
-				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token"
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"token"
+					]
+				}
 			},
 			"response": []
 		},
@@ -295,7 +348,18 @@
 						}
 					}
 				},
-				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token"
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"token"
+					]
+				}
 			},
 			"response": []
 		},
@@ -330,7 +394,18 @@
 						}
 					}
 				},
-				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token"
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"token"
+					]
+				}
 			},
 			"response": []
 		},
@@ -365,7 +440,18 @@
 						}
 					}
 				},
-				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token"
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/token",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"token"
+					]
+				}
 			},
 			"response": []
 		},
@@ -574,7 +660,19 @@
 						"type": "text"
 					}
 				],
-				"url": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/user"
+				"url": {
+					"raw": "https://twitch-analytics2-8f5c88d9d7e9.herokuapp.com/analytics/user",
+					"protocol": "https",
+					"host": [
+						"twitch-analytics2-8f5c88d9d7e9",
+						"herokuapp",
+						"com"
+					],
+					"path": [
+						"analytics",
+						"user"
+					]
+				}
 			},
 			"response": []
 		},
@@ -944,14 +1042,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"/*pm.test(\"Status is 404 Not Found\", function () {\r",
-							"    pm.response.to.have.status(404);\r",
-							"});\r",
 							"\r",
-							"pm.test(\"Error message for Not Found is present\", function () {\r",
-							"    const jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData).to.have.property(\"error\", \"Not Found. No data available.\");\r",
-							"});*/\r",
 							""
 						],
 						"type": "text/javascript",

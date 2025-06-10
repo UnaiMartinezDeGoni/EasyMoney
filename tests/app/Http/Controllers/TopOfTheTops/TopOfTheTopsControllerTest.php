@@ -5,7 +5,6 @@ namespace Tests\App\Http\Controllers\TopOfTheTops;
 use App\Interfaces\DBRepositoriesInterface;
 use Tests\TestCase;
 use Illuminate\Http\Response;
-use App\Services\AuthService;
 use App\Interfaces\TwitchApiRepositoryInterface;
 use Mockery;
 
